@@ -259,15 +259,6 @@ POST /v1/summarize      摘要生成
 POST /v1/agent/run      Agent 执行
 ```
 
-## 实施路线
-
-| 阶段 | 目标 | 交付物 |
-| --- | --- | --- |
-| 第 1 周 | 最小系统跑通 | FastAPI + LLM 调用 + 流式输出 + 文档入库 |
-| 第 2 周 | RAG 完整链路 | 父子索引 + pgvector + ES BM25 + Hybrid Search + Rerank + 引用溯源 |
-| 第 3 周 | 安全日志接入 | Filebeat + ES 日志检索 + 事件解析 + 规则告警 |
-| 第 4 周 | 平台完善 | AI 日报 + 受控 Agent + LLMOps + README + 演示脚本 |
-
 ## 数据库设计
 
 | 域 | 表 |
