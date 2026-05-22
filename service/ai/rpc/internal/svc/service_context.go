@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"ai-copilot-platform/ai-rpc/internal/engine"
 	"context"
 	"fmt"
 	"net/http"
@@ -32,7 +33,8 @@ type ServiceContext struct {
 	AiKnowledgeBaseModel       model.AiKnowledgeBaseModel
 	AiKbMemberModel            model.AiKbMemberModel
 
-	EngineClient *http.Client
+	EngineClient     *http.Client
+	EngineCallClient *engine.Client
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -98,6 +100,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AiKnowledgeBaseModel:       model.NewAiKnowledgeBaseModel(conn, db),
 		AiKbMemberModel:            model.NewAiKbMemberModel(conn, db),
 
-		EngineClient: &http.Client{Timeout: engineTimeout},
+		EngineClient:     &http.Client{Timeout: engineTimeout},
+		EngineCallClient: engine.NewClient(c.Engine.BaseURL, &http.Client{Timeout: engineTimeout}),
 	}
 }
