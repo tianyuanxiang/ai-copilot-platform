@@ -1,0 +1,13 @@
+filebeat.inputs:
+  - type: filestream
+    id: ssh-auth-log
+    paths:
+      - /var/log/auth.log
+      - /var/log/secure
+
+output.elasticsearch:
+  hosts: ["http://127.0.0.1:9200"]
+  index: "security_logs_index"
+
+setup.template.name: "security_logs_index"
+setup.template.pattern: "security_logs_index"

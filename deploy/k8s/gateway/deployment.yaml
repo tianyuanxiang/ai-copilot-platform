@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: blade
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      initContainers:
+        - name: wait-for-etcd
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z etcd-0.etcd-headless.blade.svc.cluster.local 2379; do
+                echo "等待 etcd 就绪..."
+                sleep 2
+              done
+      containers:
+        - name: gateway
+          image: gateway:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 6666
+          volumeMounts:
+            - name: config
+              mountPath: /app/etc
+            - name: uploads
+              mountPath: /app/uploads
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            tcpSocket:
+              port: 6666
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 6666
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: gateway-config
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: blade-uploads

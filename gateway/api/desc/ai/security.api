@@ -1,0 +1,135 @@
+// SSH 原始日志检索请求，查询 ES security_logs_index。
+type AiSecurityLogSearchReq {
+	query string `json:"query,optional"`
+	ip string `json:"ip,optional"`
+	username string `json:"username,optional"`
+	startTime string `json:"startTime,optional"`
+	endTime string `json:"endTime,optional"`
+	page int `json:"page,optional"`
+	pageSize int `json:"pageSize,optional"`
+}
+
+// SSH 原始日志检索结果项。
+type AiSecurityLogItem {
+	id string `json:"id"`
+	timestamp string `json:"timestamp"`
+	host string `json:"host"`
+	ip string `json:"ip"`
+	username string `json:"username"`
+	message string `json:"message"`
+}
+
+// SSH 原始日志分页检索响应。
+type AiSecurityLogSearchResp {
+	total int64 `json:"total"`
+	list []AiSecurityLogItem `json:"list"`
+	message string `json:"message"`
+}
+
+// 安全事件分析请求，用于将原始日志解析为结构化事件。
+type AiAnalyzeSecurityEventsReq {
+	rawLogs []string `json:"rawLogs"`
+}
+
+// 安全事件结果项，例如 ssh_login_failed 或 ssh_login_success。
+type AiSecurityEventItem {
+	eventId int64 `json:"eventId"`
+	eventType string `json:"eventType"`
+	severity string `json:"severity"`
+	ip string `json:"ip"`
+	username string `json:"username"`
+	summary string `json:"summary"`
+	detail string `json:"detail"`
+	occurredAt string `json:"occurredAt"`
+	createdAt string `json:"createdAt"`
+}
+
+// 安全事件分析响应，包含识别出的事件和触发的告警摘要。
+type AiAnalyzeSecurityEventsResp {
+	events []AiSecurityEventItem `json:"events"`
+	alerts []string `json:"alerts"`
+	message string `json:"message"`
+}
+
+// 查询结构化安全事件列表参数。
+type AiListSecurityEventsReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	eventType string `form:"eventType,optional"`
+	severity string `form:"severity,optional"`
+	ip string `form:"ip,optional"`
+	username string `form:"username,optional"`
+	startTime string `form:"startTime,optional"`
+	endTime string `form:"endTime,optional"`
+}
+
+// 结构化安全事件分页列表响应。
+type AiListSecurityEventsResp {
+	total int64 `json:"total"`
+	list []AiSecurityEventItem `json:"list"`
+}
+
+// 安全告警结果项，例如 ssh_bruteforce。
+type AiSecurityAlertItem {
+	alertId int64 `json:"alertId"`
+	alertType string `json:"alertType"`
+	severity string `json:"severity"`
+	ip string `json:"ip"`
+	username string `json:"username"`
+	title string `json:"title"`
+	summary string `json:"summary"`
+	detail string `json:"detail"`
+	status string `json:"status"`
+	occurredAt string `json:"occurredAt"`
+	createdAt string `json:"createdAt"`
+}
+
+// 查询安全告警列表参数。
+type AiListSecurityAlertsReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	alertType string `form:"alertType,optional"`
+	severity string `form:"severity,optional"`
+	status string `form:"status,optional"`
+	ip string `form:"ip,optional"`
+	startTime string `form:"startTime,optional"`
+	endTime string `form:"endTime,optional"`
+}
+
+// 安全告警分页列表响应。
+type AiListSecurityAlertsResp {
+	total int64 `json:"total"`
+	list []AiSecurityAlertItem `json:"list"`
+}
+
+// 更新安全告警状态请求，例如 open/handled/ignored。
+type AiUpdateSecurityAlertStatusReq {
+	alertId int64 `path:"alertId"`
+	status string `json:"status"`
+}
+
+@server (
+	group: ai_security
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 检索 SSH 原始日志，支持关键词、IP、用户名和时间范围过滤。
+	@handler aiSearchSecurityLogs
+	post /security/logs/search (AiSecurityLogSearchReq) returns (AiSecurityLogSearchResp)
+
+	// 分析原始 SSH 日志并生成结构化事件和告警。
+	@handler aiAnalyzeSecurityEvents
+	post /security/events/analyze (AiAnalyzeSecurityEventsReq) returns (AiAnalyzeSecurityEventsResp)
+
+	// 查询结构化安全事件列表。
+	@handler aiListSecurityEvents
+	get /security/events (AiListSecurityEventsReq) returns (AiListSecurityEventsResp)
+
+	// 查询安全告警列表。
+	@handler aiListSecurityAlerts
+	get /security/alerts (AiListSecurityAlertsReq) returns (AiListSecurityAlertsResp)
+
+	// 更新安全告警处理状态。
+	@handler aiUpdateSecurityAlertStatus
+	put /security/alerts/:alertId/status (AiUpdateSecurityAlertStatusReq) returns (AiCommonResp)
+}

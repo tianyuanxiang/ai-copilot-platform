@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-engine
+  namespace: blade
+  labels:
+    app: python-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-engine
+  template:
+    metadata:
+      labels:
+        app: python-engine
+    spec:
+      containers:
+        - name: python-engine
+          image: python-engine:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5

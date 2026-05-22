@@ -1,0 +1,71 @@
+// 知识库文档元数据和入库状态。
+type AiDocumentItem {
+	documentId int64 `json:"documentId"`
+	kbId int64 `json:"kbId"`
+	fileName string `json:"fileName"`
+	fileType string `json:"fileType"`
+	status string `json:"status"`
+	errorMessage string `json:"errorMessage"`
+	uploadedBy int64 `json:"uploadedBy"`
+	createdAt string `json:"createdAt"`
+	updatedAt string `json:"updatedAt"`
+}
+
+// 文档入库请求，支持直接传文本 content 或引用已上传文件 storedPath。
+type AiIngestDocumentReq {
+	kbId int64 `path:"kbId"`
+	fileName string `json:"fileName"`
+	fileType string `json:"fileType"`
+	content string `json:"content,optional"`
+	sourceType string `json:"sourceType,optional"`
+	storedPath string `json:"storedPath,optional"`
+	contentHash string `json:"contentHash,optional"`
+}
+
+// 查询知识库文档列表。
+type AiListDocumentReq {
+	kbId int64 `path:"kbId"`
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	keyword string `form:"keyword,optional"`
+	status string `form:"status,optional"`
+}
+
+// 知识库文档分页列表响应。
+type AiListDocumentResp {
+	total int64 `json:"total"`
+	list []AiDocumentItem `json:"list"`
+}
+
+// 文档路径参数，限定在指定知识库下操作文档。
+type AiDocumentPathReq {
+	kbId int64 `path:"kbId"`
+	documentId int64 `path:"documentId"`
+}
+
+@server (
+	group: ai_document
+	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
+)
+service gateway {
+	// 将文档写入知识库并触发解析、分块、向量化和索引任务。
+	@handler aiIngestDocument
+	post /kb/:kbId/documents (AiIngestDocumentReq) returns (AiTaskResp)
+
+	// 查询指定知识库下的文档列表。
+	@handler aiListDocument
+	get /kb/:kbId/documents (AiListDocumentReq) returns (AiListDocumentResp)
+
+	// 查询指定文档的元数据和入库状态。
+	@handler aiGetDocument
+	get /kb/:kbId/documents/:documentId (AiDocumentPathReq) returns (AiDocumentItem)
+
+	// 删除知识库文档；实现时需同步清理 chunk、向量和 ES 索引。
+	@handler aiDeleteDocument
+	delete /kb/:kbId/documents/:documentId (AiDocumentPathReq) returns (AiCommonResp)
+
+	// 对已有文档重新构建向量和全文索引。
+	@handler aiRebuildDocumentIndex
+	post /kb/:kbId/documents/:documentId/rebuild (AiDocumentPathReq) returns (AiTaskResp)
+}

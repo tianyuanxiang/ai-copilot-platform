@@ -1,0 +1,76 @@
+// 公共知识库领域信息，用于按后端、运维、AI 应用等领域组织公共知识库。
+type AiKbDomainItem {
+	domainId int64 `json:"domainId"`
+	name string `json:"name"`
+	code string `json:"code"`
+	description string `json:"description"`
+	sort int `json:"sort"`
+	status int `json:"status"`
+	createdAt string `json:"createdAt"`
+	updatedAt string `json:"updatedAt"`
+}
+
+// 创建公共知识库领域请求。
+type AiCreateKbDomainReq {
+	name string `json:"name"`
+	code string `json:"code"`
+	description string `json:"description,optional"`
+	sort int `json:"sort,optional"`
+	status int `json:"status,optional"`
+}
+
+// 创建领域后的 ID 响应。
+type AiCreateKbDomainResp {
+	domainId int64 `json:"domainId"`
+}
+
+// 更新公共知识库领域请求；字段为空时由后端按需忽略。
+type AiUpdateKbDomainReq {
+	domainId int64 `path:"domainId"`
+	name string `json:"name,optional"`
+	code string `json:"code,optional"`
+	description string `json:"description,optional"`
+	sort int `json:"sort,optional"`
+	status int `json:"status,optional"`
+}
+
+// 公共知识库领域路径参数。
+type AiKbDomainPathReq {
+	domainId int64 `path:"domainId"`
+}
+
+// 公共知识库领域列表查询参数。
+type AiListKbDomainReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	keyword string `form:"keyword,optional"`
+	status int `form:"status,optional"`
+}
+
+// 公共知识库领域分页列表响应。
+type AiListKbDomainResp {
+	total int64 `json:"total"`
+	list []AiKbDomainItem `json:"list"`
+}
+
+@server (
+	group: ai_kb_domain
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 查询公共知识库领域列表。
+	@handler aiListKbDomain
+	get /kb/domains (AiListKbDomainReq) returns (AiListKbDomainResp)
+
+	// 创建公共知识库领域，仅管理员或具备管理权限的用户可用。
+	@handler aiCreateKbDomain
+	post /kb/domains (AiCreateKbDomainReq) returns (AiCreateKbDomainResp)
+
+	// 更新公共知识库领域基础信息。
+	@handler aiUpdateKbDomain
+	put /kb/domains/:domainId (AiUpdateKbDomainReq) returns (AiCommonResp)
+
+	// 删除公共知识库领域；实现时需校验领域下是否仍有关联知识库。
+	@handler aiDeleteKbDomain
+	delete /kb/domains/:domainId (AiKbDomainPathReq) returns (AiCommonResp)
+}

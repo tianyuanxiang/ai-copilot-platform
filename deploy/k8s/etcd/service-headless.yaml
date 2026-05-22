@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service     # 在服务前面套了一层：给一组 Pod 提供一个稳定的访问入口。其他服务 -> Service -> Pod
+metadata:
+  name: etcd-headless # 和statefulset中的serviceName对应上,service起个名，statefulset负责配置
+  namespace: blade
+  labels:
+    app: etcd
+spec:
+  clusterIP: None # 只要clusterIP=None，就是一个Headless Service。不给你统一虚拟 IP，而是让你直接拿到具体 Pod 的地址.给每个 Pod 生成固定DNS
+  ports:
+    - port: 2379
+      name: client
+      targetPort: 2379
+    - port: 2380
+      name: peer
+      targetPort: 2380
+  selector:     # 这个service要找标签为app=etcd 的 Pod
+    app: etcd

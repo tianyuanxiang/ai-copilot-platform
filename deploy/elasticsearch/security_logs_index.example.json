@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "@timestamp": { "type": "date" },
+      "host": { "type": "keyword" },
+      "message": { "type": "text", "analyzer": "standard" },
+      "ip": { "type": "ip" },
+      "username": { "type": "keyword" },
+      "event_type": { "type": "keyword" }
+    }
+  }
+}

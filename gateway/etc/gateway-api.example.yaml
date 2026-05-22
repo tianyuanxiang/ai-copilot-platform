@@ -1,0 +1,27 @@
+Name: gateway
+Host: 0.0.0.0
+Port: 8888
+Mode: dev
+Timeout: 30000
+
+Auth:
+  AccessSecret: "replace-with-your-access-secret"
+  AccessExpire: 1200
+
+SysRpc:
+  Timeout: 300000
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: sys.rpc
+
+AiRpc:
+  Timeout: 300000
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ai.rpc
+
+AIEngine:
+  BaseURL: "http://127.0.0.1:8000"
+  Timeout: 3000

@@ -1,0 +1,24 @@
+app:
+  name: ai-copilot-engine
+  env: dev              # dev | staging | prod
+
+llm:
+  mock: true
+  provider: mock        # mock | openai | other
+  api_key: ""           # LLM API key, required in non-dev environments
+
+postgres:
+  dsn: "postgresql://user:password@host:5432/dbname"
+
+elasticsearch:
+  url: "http://host:9200"
+  kb_chunks_index: kb_chunks_index
+  security_logs_index: security_logs_index
+
+embedding:
+  provider: mock            # mock | dashscope
+  model: text-embedding-v4
+  api_key: ""               # optional; falls back to DASHSCOPE_API_KEY
+  dimension: 1024           # keep aligned with pgvector vector(1024)
+  batch_size: 10            # Bailian text-embedding-v4 supports up to 10 inputs per call
+  timeout_seconds: 30

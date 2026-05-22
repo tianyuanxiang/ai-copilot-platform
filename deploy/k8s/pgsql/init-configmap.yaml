@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgsql-init-scripts
+  namespace: blade
+data:
+  01-create-databases.sql: |
+    -- 创建 system 数据库
+    CREATE DATABASE system;
+    -- 创建 blade 数据库
+    CREATE DATABASE blade;

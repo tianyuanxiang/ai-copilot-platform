@@ -1,0 +1,54 @@
+// 受控 Agent 执行请求；Agent 只能调用白名单工具。
+type AiAgentRunReq {
+	conversationId string `json:"conversationId,optional"`
+	input string `json:"input"`
+}
+
+// Agent 工具调用记录项，用于审计每次工具调用。
+type AiToolCallItem {
+	toolCallId int64 `json:"toolCallId"`
+	toolName string `json:"toolName"`
+	status string `json:"status"`
+	argumentsJson string `json:"argumentsJson"`
+	resultJson string `json:"resultJson"`
+	message string `json:"message"`
+	createdAt string `json:"createdAt"`
+}
+
+// 受控 Agent 执行响应，包含最终回答和工具调用轨迹。
+type AiAgentRunResp {
+	answer string `json:"answer"`
+	traceId string `json:"traceId"`
+	toolCalls []AiToolCallItem `json:"toolCalls"`
+}
+
+// 查询 Agent 工具调用日志参数。
+type AiListToolCallReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	traceId string `form:"traceId,optional"`
+	toolName string `form:"toolName,optional"`
+	status string `form:"status,optional"`
+	startTime string `form:"startTime,optional"`
+	endTime string `form:"endTime,optional"`
+}
+
+// Agent 工具调用日志分页列表响应。
+type AiListToolCallResp {
+	total int64 `json:"total"`
+	list []AiToolCallItem `json:"list"`
+}
+
+@server (
+	group: ai_agent
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 运行受控 Agent，自然语言问题会映射到白名单工具。
+	@handler aiRunAgent
+	post /agent/run (AiAgentRunReq) returns (AiAgentRunResp)
+
+	// 查询 Agent 工具调用审计日志。
+	@handler aiListToolCall
+	get /agent/tool-calls (AiListToolCallReq) returns (AiListToolCallResp)
+}

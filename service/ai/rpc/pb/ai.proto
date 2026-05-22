@@ -1,0 +1,777 @@
+syntax = "proto3";
+
+package ai;
+option go_package = "./pb";
+
+// ==================== 公共类型 ====================
+
+message Empty {}
+
+message CommonResp {
+  int64 code = 1;
+  string msg = 2;
+}
+
+message IdReq {
+  int64 id = 1;
+}
+
+message PageReq {
+  int64 page = 1;
+  int64 page_size = 2;
+}
+
+message PageResp {
+  int64 total = 1;
+}
+
+message TimeRangeReq {
+  string start_time = 1;
+  string end_time = 2;
+}
+
+message StringList {
+  repeated string list = 1;
+}
+
+message Citation {
+  int64 document_id = 1;
+  int64 chunk_id = 2;
+  string title = 3;
+  string snippet = 4;
+  double score = 5;
+}
+
+message ChunkItem {
+  int64 document_id = 1;
+  int64 chunk_id = 2;
+  string title = 3;
+  string snippet = 4;
+  string content = 5;
+  double score = 6;
+  string source = 7;
+}
+
+message TopCountItem {
+  string name = 1;
+  int64 count = 2;
+}
+
+message TaskResp {
+  string task_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+// ==================== 状态检查 ====================
+
+message HealthReq {}
+
+message HealthResp {
+  string status = 1;
+  bool engine_ready = 2;
+  string message = 3;
+}
+
+// ==================== 知识库领域管理 ====================
+
+message DomainItem {
+  int64 domain_id = 1;
+  string name = 2;
+  string code = 3;
+  string description = 4;
+  int64 sort = 5;
+  int64 status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message CreateDomainReq {
+  string name = 1;
+  string code = 2;
+  string description = 3;
+  int64 sort = 4;
+  int64 status = 5;
+  int64 operator_id = 20;
+}
+
+message CreateDomainResp {
+  int64 domain_id = 1;
+}
+
+message UpdateDomainReq {
+  int64 domain_id = 1;
+  string name = 2;
+  bool has_name = 3;
+  string code = 4;
+  bool has_code = 5;
+  string description = 6;
+  bool has_description = 7;
+  int64 sort = 8;
+  bool has_sort = 9;
+  int64 status = 10;
+  bool has_status = 11;
+  int64 operator_id = 20;
+}
+
+message DeleteDomainReq {
+  int64 domain_id = 1;
+  int64 operator_id = 20;
+}
+
+message ListDomainReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  string keyword = 3;
+  int64 status = 4;
+  bool has_status = 5;
+}
+
+message ListDomainResp {
+  int64 total = 1;
+  repeated DomainItem list = 2;
+}
+
+// ==================== 知识库管理 ====================
+
+message KnowledgeBaseItem {
+  int64 kb_id = 1;
+  string kb_type = 2;
+  int64 owner_user_id = 3;
+  int64 domain_id = 4;
+  string domain_name = 5;
+  string name = 6;
+  string description = 7;
+  string visibility = 8;
+  int64 status = 9;
+  int64 document_count = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message CreateKnowledgeBaseReq {
+  string kb_type = 1;
+  int64 domain_id = 2;
+  string name = 3;
+  string description = 4;
+  string visibility = 5;
+  int64 status = 6;
+  int64 user_id = 10;
+  int64 operator_id = 20;
+}
+
+message CreateKnowledgeBaseResp {
+  int64 kb_id = 1;
+}
+
+message UpdateKnowledgeBaseReq {
+  int64 kb_id = 1;
+  int64 domain_id = 2;
+  bool has_domain_id = 3;
+  string name = 4;
+  bool has_name = 5;
+  string description = 6;
+  bool has_description = 7;
+  string visibility = 8;
+  bool has_visibility = 9;
+  int64 status = 10;
+  bool has_status = 11;
+  int64 user_id = 12;
+  int64 operator_id = 20;
+}
+
+message DeleteKnowledgeBaseReq {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+  int64 operator_id = 20;
+}
+
+message GetKnowledgeBaseReq {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+}
+
+message ListKnowledgeBaseReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string kb_type = 4;
+  bool has_kb_type = 5;
+  int64 domain_id = 6;
+  bool has_domain_id = 7;
+  string keyword = 8;
+  string visibility = 9;
+  bool has_visibility = 10;
+  int64 status = 11;
+  bool has_status = 12;
+}
+
+message ListKnowledgeBaseResp {
+  int64 total = 1;
+  repeated KnowledgeBaseItem list = 2;
+}
+
+// ==================== 知识库成员管理 ====================
+
+message KbMemberItem {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+  string username = 3;
+  string nickname = 4;
+  string role = 5;
+  string created_at = 6;
+}
+
+message ListKbMemberReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 kb_id = 3;
+  int64 user_id = 4;
+  string keyword = 5;
+  string role = 6;
+  bool has_role = 7;
+}
+
+message ListKbMemberResp {
+  int64 total = 1;
+  repeated KbMemberItem list = 2;
+}
+
+message AddKbMemberReq {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+  string role = 3;
+  int64 operator_id = 20;
+}
+
+message UpdateKbMemberReq {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+  string role = 3;
+  int64 operator_id = 20;
+}
+
+message RemoveKbMemberReq {
+  int64 kb_id = 1;
+  int64 user_id = 2;
+  int64 operator_id = 20;
+}
+
+// ==================== 文档与检索 ====================
+
+message DocumentItem {
+  int64 document_id = 1;
+  int64 kb_id = 2;
+  string file_name = 3;
+  string file_type = 4;
+  string status = 5;
+  string error_message = 6;
+  int64 uploaded_by = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message IngestDocumentReq {
+  int64 user_id = 1;
+  int64 kb_id = 2;
+  string file_name = 3;
+  string file_type = 4;
+  string content = 5;
+  string source_type = 6;
+  string stored_path = 7;
+  string content_hash = 8;
+  int64 operator_id = 20;
+}
+
+message ListDocumentReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  int64 kb_id = 4;
+  string keyword = 5;
+  string status = 6;
+  bool has_status = 7;
+}
+
+message ListDocumentResp {
+  int64 total = 1;
+  repeated DocumentItem list = 2;
+}
+
+message GetDocumentReq {
+  int64 document_id = 1;
+  int64 kb_id = 2;
+  int64 user_id = 3;
+}
+
+message DeleteDocumentReq {
+  int64 document_id = 1;
+  int64 kb_id = 2;
+  int64 user_id = 3;
+  int64 operator_id = 20;
+}
+
+message RebuildDocumentIndexReq {
+  int64 document_id = 1;
+  int64 kb_id = 2;
+  int64 user_id = 3;
+  int64 operator_id = 20;
+}
+
+message SearchKnowledgeReq {
+  int64 user_id = 1;
+  int64 kb_id = 2;
+  bool has_kb_id = 3;
+  string query = 4;
+  int64 top_k = 5;
+  string answer_mode = 6;
+  string search_scope = 7;
+  int64 domain_id = 8;
+  bool has_domain_id = 9;
+  repeated int64 document_ids = 10;
+}
+
+message SearchKnowledgeResp {
+  repeated ChunkItem chunks = 1;
+  string mode = 2;
+  string message = 3;
+}
+
+// ==================== 会话与 RAG 问答 ====================
+
+message ChatMessage {
+  string role = 1;
+  string content = 2;
+}
+
+message RagChatReq {
+  int64 user_id = 1;
+  int64 kb_id = 2;
+  bool has_kb_id = 3;
+  string conversation_id = 4;
+  string question = 5;
+  string answer_mode = 6;
+  string search_scope = 7;
+  int64 domain_id = 8;
+  bool has_domain_id = 9;
+  repeated int64 document_ids = 10;
+  repeated ChatMessage history = 11;
+}
+
+message RagChatResp {
+  string answer = 1;
+  repeated Citation citations = 2;
+  string trace_id = 3;
+  string mode = 4;
+}
+
+message RagChatStreamEvent {
+  string type = 1;
+  string content = 2;
+  string trace_id = 3;
+  repeated Citation citations = 4;
+}
+
+message ConversationItem {
+  string conversation_id = 1;
+  int64 kb_id = 2;
+  string title = 3;
+  string latest_message = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ListConversationReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  int64 kb_id = 4;
+  bool has_kb_id = 5;
+  string keyword = 6;
+}
+
+message ListConversationResp {
+  int64 total = 1;
+  repeated ConversationItem list = 2;
+}
+
+message MessageItem {
+  int64 message_id = 1;
+  string conversation_id = 2;
+  string role = 3;
+  string content = 4;
+  repeated Citation citations = 5;
+  string trace_id = 6;
+  string created_at = 7;
+}
+
+message GetConversationMessagesReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string conversation_id = 4;
+}
+
+message GetConversationMessagesResp {
+  int64 total = 1;
+  repeated MessageItem list = 2;
+}
+
+// ==================== 安全日志、事件、告警 ====================
+
+message SearchSecurityLogsReq {
+  int64 user_id = 1;
+  string query = 2;
+  string ip = 3;
+  string username = 4;
+  string start_time = 5;
+  string end_time = 6;
+  int64 page = 7;
+  int64 page_size = 8;
+}
+
+message SecurityLogItem {
+  string id = 1;
+  string timestamp = 2;
+  string host = 3;
+  string ip = 4;
+  string username = 5;
+  string message = 6;
+}
+
+message SecurityLogSearchResp {
+  int64 total = 1;
+  repeated SecurityLogItem list = 2;
+  string message = 3;
+}
+
+message AnalyzeSecurityEventsReq {
+  int64 user_id = 1;
+  repeated string raw_logs = 2;
+  int64 operator_id = 20;
+}
+
+message SecurityEventItem {
+  int64 event_id = 1;
+  string event_type = 2;
+  string severity = 3;
+  string ip = 4;
+  string username = 5;
+  string summary = 6;
+  string detail = 7;
+  string occurred_at = 8;
+  string created_at = 9;
+}
+
+message AnalyzeSecurityEventsResp {
+  repeated SecurityEventItem events = 1;
+  repeated string alerts = 2;
+  string message = 3;
+}
+
+message ListSecurityEventsReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string event_type = 4;
+  bool has_event_type = 5;
+  string severity = 6;
+  bool has_severity = 7;
+  string ip = 8;
+  string username = 9;
+  string start_time = 10;
+  string end_time = 11;
+}
+
+message ListSecurityEventsResp {
+  int64 total = 1;
+  repeated SecurityEventItem list = 2;
+}
+
+message SecurityAlertItem {
+  int64 alert_id = 1;
+  string alert_type = 2;
+  string severity = 3;
+  string ip = 4;
+  string username = 5;
+  string title = 6;
+  string summary = 7;
+  string detail = 8;
+  string status = 9;
+  string occurred_at = 10;
+  string created_at = 11;
+}
+
+message ListSecurityAlertsReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string alert_type = 4;
+  bool has_alert_type = 5;
+  string severity = 6;
+  bool has_severity = 7;
+  string status = 8;
+  bool has_status = 9;
+  string ip = 10;
+  string start_time = 11;
+  string end_time = 12;
+}
+
+message ListSecurityAlertsResp {
+  int64 total = 1;
+  repeated SecurityAlertItem list = 2;
+}
+
+message UpdateSecurityAlertStatusReq {
+  int64 alert_id = 1;
+  string status = 2;
+  int64 user_id = 3;
+  int64 operator_id = 20;
+}
+
+// ==================== 安全日报 ====================
+
+message GenerateDailyReportReq {
+  int64 user_id = 1;
+  string date = 2;
+  int64 operator_id = 20;
+}
+
+message DailyReportResp {
+  int64 report_id = 1;
+  string date = 2;
+  string title = 3;
+  string content = 4;
+  string status = 5;
+  int64 failed_login_count = 6;
+  int64 success_login_count = 7;
+  int64 alert_count = 8;
+  repeated TopCountItem top_ips = 9;
+  repeated TopCountItem top_users = 10;
+  string created_at = 11;
+}
+
+message ListDailyReportReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string start_date = 4;
+  string end_date = 5;
+  string status = 6;
+  bool has_status = 7;
+}
+
+message ListDailyReportResp {
+  int64 total = 1;
+  repeated DailyReportResp list = 2;
+}
+
+message GetDailyReportReq {
+  int64 report_id = 1;
+  int64 user_id = 2;
+}
+
+// ==================== 受控 Agent ====================
+
+message AgentRunReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+  string input = 3;
+}
+
+message ToolCall {
+  int64 tool_call_id = 1;
+  string tool_name = 2;
+  string status = 3;
+  string arguments_json = 4;
+  string result_json = 5;
+  string message = 6;
+  string created_at = 7;
+}
+
+message AgentRunResp {
+  string answer = 1;
+  repeated ToolCall tool_calls = 2;
+  string trace_id = 3;
+}
+
+message ListToolCallLogReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string trace_id = 4;
+  string tool_name = 5;
+  string status = 6;
+  bool has_status = 7;
+  string start_time = 8;
+  string end_time = 9;
+}
+
+message ListToolCallLogResp {
+  int64 total = 1;
+  repeated ToolCall list = 2;
+}
+
+// ==================== LLMOps 可观测性 ====================
+
+message LlmCallItem {
+  string trace_id = 1;
+  string provider = 2;
+  string model = 3;
+  int64 prompt_tokens = 4;
+  int64 completion_tokens = 5;
+  int64 latency_ms = 6;
+  string status = 7;
+  string error_msg = 8;
+  string created_at = 9;
+}
+
+message GetLlmTraceReq {
+  string trace_id = 1;
+  int64 user_id = 2;
+}
+
+message LlmTraceResp {
+  string trace_id = 1;
+  repeated LlmCallItem calls = 2;
+}
+
+message ListLlmCallLogReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string trace_id = 4;
+  string provider = 5;
+  string model = 6;
+  string status = 7;
+  bool has_status = 8;
+  string start_time = 9;
+  string end_time = 10;
+}
+
+message ListLlmCallLogResp {
+  int64 total = 1;
+  repeated LlmCallItem list = 2;
+}
+
+message GetTokenStatsReq {
+  int64 user_id = 1;
+  string start_time = 2;
+  string end_time = 3;
+  string provider = 4;
+  string model = 5;
+}
+
+message TokenStatsResp {
+  int64 prompt_tokens = 1;
+  int64 completion_tokens = 2;
+  int64 total_tokens = 3;
+  int64 call_count = 4;
+}
+
+// ==================== 服务定义 ====================
+
+// AI 状态服务，负责检查 Go AI RPC 与 Python AI Engine 的可用性。
+service AiStatusService {
+  // 检查 AI 引擎健康状态。
+  rpc Health(HealthReq) returns (HealthResp);
+}
+
+// AI 知识库服务，负责领域、知识库、成员、文档入库和检索能力。
+service AiKnowledgeService {
+  // 创建公共知识库领域。
+  rpc CreateDomain(CreateDomainReq) returns (CreateDomainResp);
+  // 更新公共知识库领域基础信息。
+  rpc UpdateDomain(UpdateDomainReq) returns (Empty);
+  // 删除公共知识库领域。
+  rpc DeleteDomain(DeleteDomainReq) returns (Empty);
+  // 查询公共知识库领域列表。
+  rpc ListDomain(ListDomainReq) returns (ListDomainResp);
+
+  // 创建个人或公共知识库。
+  rpc CreateKnowledgeBase(CreateKnowledgeBaseReq) returns (CreateKnowledgeBaseResp);
+  // 更新知识库名称、描述、领域、可见性或状态。
+  rpc UpdateKnowledgeBase(UpdateKnowledgeBaseReq) returns (Empty);
+  // 删除知识库，并由实现层清理关联文档和索引。
+  rpc DeleteKnowledgeBase(DeleteKnowledgeBaseReq) returns (Empty);
+  // 查询知识库详情。
+  rpc GetKnowledgeBase(GetKnowledgeBaseReq) returns (KnowledgeBaseItem);
+  // 查询当前用户可访问的知识库列表。
+  rpc ListKnowledgeBase(ListKnowledgeBaseReq) returns (ListKnowledgeBaseResp);
+
+  // 查询公共知识库成员列表。
+  rpc ListKbMember(ListKbMemberReq) returns (ListKbMemberResp);
+  // 添加公共知识库成员并授予角色。
+  rpc AddKbMember(AddKbMemberReq) returns (Empty);
+  // 更新公共知识库成员角色。
+  rpc UpdateKbMember(UpdateKbMemberReq) returns (Empty);
+  // 移除公共知识库成员。
+  rpc RemoveKbMember(RemoveKbMemberReq) returns (Empty);
+
+  // 将文档写入知识库并触发解析、分块、向量化和索引。
+  rpc IngestDocument(IngestDocumentReq) returns (TaskResp);
+  // 查询知识库文档列表。
+  rpc ListDocument(ListDocumentReq) returns (ListDocumentResp);
+  // 查询文档元数据和入库状态。
+  rpc GetDocument(GetDocumentReq) returns (DocumentItem);
+  // 删除知识库文档，并由实现层清理 chunk、向量和 ES 索引。
+  rpc DeleteDocument(DeleteDocumentReq) returns (Empty);
+  // 重新构建指定文档的向量和全文索引。
+  rpc RebuildDocumentIndex(RebuildDocumentIndexReq) returns (TaskResp);
+  // 执行知识库检索，支持 quick/deep 模式和不同检索范围。
+  rpc SearchKnowledge(SearchKnowledgeReq) returns (SearchKnowledgeResp);
+}
+
+// AI 会话服务，负责 RAG 问答、流式输出和会话历史。
+service AiChatService {
+  // 执行普通 RAG 问答，返回完整答案。
+  rpc RagChat(RagChatReq) returns (RagChatResp);
+  // 执行流式 RAG 问答，逐步返回 token、引用和完成事件。
+  rpc RagChatStream(RagChatReq) returns (stream RagChatStreamEvent);
+  // 查询当前用户的 AI 会话列表。
+  rpc ListConversation(ListConversationReq) returns (ListConversationResp);
+  // 查询指定会话的消息历史。
+  rpc GetConversationMessages(GetConversationMessagesReq) returns (GetConversationMessagesResp);
+}
+
+// AI 安全服务，负责 SSH 日志检索、事件分析和告警管理。
+service AiSecurityService {
+  // 检索 SSH 原始日志。
+  rpc SearchSecurityLogs(SearchSecurityLogsReq) returns (SecurityLogSearchResp);
+  // 分析原始日志并生成结构化安全事件和告警摘要。
+  rpc AnalyzeSecurityEvents(AnalyzeSecurityEventsReq) returns (AnalyzeSecurityEventsResp);
+  // 查询结构化安全事件列表。
+  rpc ListSecurityEvents(ListSecurityEventsReq) returns (ListSecurityEventsResp);
+  // 查询安全告警列表。
+  rpc ListSecurityAlerts(ListSecurityAlertsReq) returns (ListSecurityAlertsResp);
+  // 更新安全告警处理状态。
+  rpc UpdateSecurityAlertStatus(UpdateSecurityAlertStatusReq) returns (Empty);
+}
+
+// AI 日报服务，负责生成和查询安全日报。
+service AiReportService {
+  // 生成指定日期的 AI 安全日报。
+  rpc GenerateDailyReport(GenerateDailyReportReq) returns (DailyReportResp);
+  // 查询 AI 安全日报列表。
+  rpc ListDailyReport(ListDailyReportReq) returns (ListDailyReportResp);
+  // 查询单份 AI 安全日报详情。
+  rpc GetDailyReport(GetDailyReportReq) returns (DailyReportResp);
+}
+
+// AI Agent 服务，负责受控 Agent 执行和工具调用审计。
+service AiAgentService {
+  // 运行受控 Agent，只允许调用白名单工具。
+  rpc RunAgent(AgentRunReq) returns (AgentRunResp);
+  // 查询 Agent 工具调用日志。
+  rpc ListToolCallLog(ListToolCallLogReq) returns (ListToolCallLogResp);
+}
+
+// AI 可观测性服务，负责 LLM 调用 trace 和 token 统计。
+service AiObservabilityService {
+  // 查询指定 traceId 下的 LLM 调用链路。
+  rpc GetLlmTrace(GetLlmTraceReq) returns (LlmTraceResp);
+  // 分页查询 LLM 调用日志。
+  rpc ListLlmCallLog(ListLlmCallLogReq) returns (ListLlmCallLogResp);
+  // 查询当前用户在指定范围内的 token 用量统计。
+  rpc GetTokenStats(GetTokenStatsReq) returns (TokenStatsResp);
+}

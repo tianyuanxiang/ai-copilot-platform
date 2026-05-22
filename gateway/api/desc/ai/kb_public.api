@@ -1,0 +1,84 @@
+// 公共知识库信息，按领域组织并通过成员角色控制维护权限。
+type AiPublicKbItem {
+	kbId int64 `json:"kbId"`
+	domainId int64 `json:"domainId"`
+	domainName string `json:"domainName"`
+	name string `json:"name"`
+	description string `json:"description"`
+	visibility string `json:"visibility"`
+	status int `json:"status"`
+	documentCount int64 `json:"documentCount"`
+	createdAt string `json:"createdAt"`
+	updatedAt string `json:"updatedAt"`
+}
+
+// 创建公共知识库请求。
+type AiCreatePublicKbReq {
+	domainId int64 `json:"domainId"`
+	name string `json:"name"`
+	description string `json:"description,optional"`
+	visibility string `json:"visibility,optional"`
+	status int `json:"status,optional"`
+}
+
+// 创建公共知识库后的 ID 响应。
+type AiCreatePublicKbResp {
+	kbId int64 `json:"kbId"`
+}
+
+// 公共知识库列表查询参数。
+type AiListPublicKbReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	domainId int64 `form:"domainId,optional"`
+	keyword string `form:"keyword,optional"`
+	visibility string `form:"visibility,optional"`
+	status int `form:"status,optional"`
+}
+
+// 公共知识库分页列表响应。
+type AiListPublicKbResp {
+	total int64 `json:"total"`
+	list []AiPublicKbItem `json:"list"`
+}
+
+// 公共知识库路径参数。
+type AiPublicKbPathReq {
+	kbId int64 `path:"kbId"`
+}
+
+// 更新公共知识库基础信息请求。
+type AiUpdatePublicKbReq {
+	kbId int64 `path:"kbId"`
+	domainId int64 `json:"domainId,optional"`
+	name string `json:"name,optional"`
+	description string `json:"description,optional"`
+	visibility string `json:"visibility,optional"`
+	status int `json:"status,optional"`
+}
+
+@server (
+	group: ai_kb_public
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 创建公共知识库，需具备公共知识库管理权限。
+	@handler aiCreatePublicKb
+	post /kb/public (AiCreatePublicKbReq) returns (AiCreatePublicKbResp)
+
+	// 查询可见的公共知识库列表。
+	@handler aiListPublicKb
+	get /kb/public (AiListPublicKbReq) returns (AiListPublicKbResp)
+
+	// 查询公共知识库详情。
+	@handler aiGetPublicKb
+	get /kb/public/:kbId (AiPublicKbPathReq) returns (AiPublicKbItem)
+
+	// 更新公共知识库领域、名称、可见性或状态。
+	@handler aiUpdatePublicKb
+	put /kb/public/:kbId (AiUpdatePublicKbReq) returns (AiCommonResp)
+
+	// 删除公共知识库；实现时需同步处理成员、文档和索引。
+	@handler aiDeletePublicKb
+	delete /kb/public/:kbId (AiPublicKbPathReq) returns (AiCommonResp)
+}

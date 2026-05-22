@@ -1,0 +1,74 @@
+// 个人知识库信息，仅本人可维护，管理员可按后台权限查看。
+type AiPersonalKbItem {
+	kbId int64 `json:"kbId"`
+	name string `json:"name"`
+	description string `json:"description"`
+	status int `json:"status"`
+	documentCount int64 `json:"documentCount"`
+	createdAt string `json:"createdAt"`
+	updatedAt string `json:"updatedAt"`
+}
+
+// 创建个人知识库请求，用户身份由登录态注入。
+type AiCreatePersonalKbReq {
+	name string `json:"name"`
+	description string `json:"description,optional"`
+}
+
+// 创建个人知识库后的 ID 响应。
+type AiCreatePersonalKbResp {
+	kbId int64 `json:"kbId"`
+}
+
+// 查询当前用户个人知识库列表的过滤条件。
+type AiListPersonalKbReq {
+	page int `form:"page,optional"`
+	pageSize int `form:"pageSize,optional"`
+	keyword string `form:"keyword,optional"`
+	status int `form:"status,optional"`
+}
+
+// 当前用户个人知识库分页列表响应。
+type AiListPersonalKbResp {
+	total int64 `json:"total"`
+	list []AiPersonalKbItem `json:"list"`
+}
+
+// 个人知识库路径参数。
+type AiPersonalKbPathReq {
+	kbId int64 `path:"kbId"`
+}
+
+// 更新个人知识库基础信息请求。
+type AiUpdatePersonalKbReq {
+	kbId int64 `path:"kbId"`
+	name string `json:"name,optional"`
+	description string `json:"description,optional"`
+	status int `json:"status,optional"`
+}
+
+@server (
+	group: ai_kb_personal
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 创建当前登录用户的个人知识库。
+	@handler aiCreatePersonalKb
+	post /kb/personal (AiCreatePersonalKbReq) returns (AiCreatePersonalKbResp)
+
+	// 查询当前登录用户的个人知识库列表。
+	@handler aiListPersonalKb
+	get /kb/personal (AiListPersonalKbReq) returns (AiListPersonalKbResp)
+
+	// 查询个人知识库详情。
+	@handler aiGetPersonalKb
+	get /kb/personal/:kbId (AiPersonalKbPathReq) returns (AiPersonalKbItem)
+
+	// 更新个人知识库名称、描述或状态。
+	@handler aiUpdatePersonalKb
+	put /kb/personal/:kbId (AiUpdatePersonalKbReq) returns (AiCommonResp)
+
+	// 删除个人知识库；实现时需同步处理文档和索引。
+	@handler aiDeletePersonalKb
+	delete /kb/personal/:kbId (AiPersonalKbPathReq) returns (AiCommonResp)
+}

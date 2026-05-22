@@ -1,0 +1,17 @@
+// AI 副驾驶平台 HTTP API 聚合入口。
+// 本文件只负责汇总各功能模块的 API 定义，具体类型和路由按模块拆分维护。
+import (
+	"common.api"
+	"health.api"
+	"kb_domain.api"
+	"kb_personal.api"
+	"kb_public.api"
+	"kb_member.api"
+	"document.api"
+	"search.api"
+	"chat.api"
+	"security.api"
+	"report.api"
+	"agent.api"
+	"llmops.api"
+)

@@ -1,0 +1,21 @@
+Name: ai.rpc
+ListenOn: 0.0.0.0:8091
+Mode: dev
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: ai.rpc
+
+DB:
+  DataSource: "postgres://postgres:postgres@127.0.0.1:5432/ai_copilot?sslmode=disable"
+
+Engine:
+  BaseURL: http://127.0.0.1:8001
+  TimeoutMs: 30000
+
+Storage:
+  UploadPath: "D:/GoProject/project_new/ai-copilot-platform/gateway/uploads"
+
+Elasticsearch:
+  URL: "http://127.0.0.1:9200"
+  KbChunksIndex: "kb_chunks_index"

@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sys-rpc
+  namespace: blade
+  labels:
+    app: sys-rpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sys-rpc
+  template:
+    metadata:
+      labels:
+        app: sys-rpc
+    spec:
+      # 等待 etcd 就绪后再启动
+      initContainers:
+        - name: wait-for-etcd
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z etcd-0.etcd-headless.blade.svc.cluster.local 2379; do
+                echo "等待 etcd 就绪..."
+                sleep 2
+              done
+              echo "etcd 已就绪"
+        - name: wait-for-pgsql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z postgresql.blade.svc.cluster.local 5432; do
+                echo "等待 PostgreSQL 就绪..."
+                sleep 2
+              done
+              echo "PostgreSQL 已就绪"
+      containers:
+        - name: sys-rpc
+          image: sys-rpc:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9200
+          volumeMounts:
+            - name: config
+              mountPath: /app/etc
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            tcpSocket:
+              port: 9200
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 9200
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: sys-rpc-config

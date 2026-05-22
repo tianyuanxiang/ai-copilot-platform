@@ -1,0 +1,57 @@
+# IDE and local agent state
+.idea/
+.vscode/
+.claude/
+**/settings.local.json
+
+# Project documentation (not for public repo)
+docs/
+
+# Local runtime configuration with private endpoints or credentials
+gateway/etc/*.yaml
+gateway/etc/*.yml
+service/*/rpc/etc/*.yaml
+service/*/rpc/etc/*.yml
+!gateway/etc/*.example.yaml
+!service/*/rpc/etc/*.example.yaml
+
+# Job service config with real credentials
+service/job/etc/*.yaml
+service/job/etc/*.yml
+!service/job/etc/*.example.yaml
+
+# Python engine local configs
+service/ai/engine/config.yaml
+service/ai/engine/config.*.yaml
+!service/ai/engine/config.example.yaml
+
+# Local environment files
+.env
+.env.*
+*.local
+*.local.*
+
+# Build outputs and generated runtime data
+bin/
+dist/
+build/
+tmp/
+logs/
+*.log
+uploads/
+
+# Pre-built frontend dist
+deploy/docker/frontend/dist/
+
+# Uploaded files at runtime
+gateway/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AI engine local files
+service/ai/engine/.venv/
+service/ai/engine/.env
+__pycache__/
+.pytest_cache/

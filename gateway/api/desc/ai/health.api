@@ -1,0 +1,16 @@
+// AI 引擎健康检查响应。
+type AiHealthResp {
+	status string `json:"status"`
+	engineReady bool `json:"engineReady"`
+	message string `json:"message"`
+}
+
+@server (
+	group: health
+	prefix: /api/v1/ai
+)
+service gateway {
+	// 检查 Go gateway 到 Python AI Engine 的完整健康链路。
+	@handler aiHealth
+	get /health returns (AiHealthResp)
+}

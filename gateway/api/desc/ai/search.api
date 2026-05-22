@@ -1,0 +1,28 @@
+// 知识库检索请求，支持 quick/deep 模式和多种检索范围。
+type AiSearchKnowledgeReq {
+	kbId int64 `json:"kbId,optional"`
+	query string `json:"query"`
+	topK int `json:"topK,optional"`
+	answerMode string `json:"answerMode,optional"`
+	searchScope string `json:"searchScope,optional"`
+	domainId int64 `json:"domainId,optional"`
+	documentIds []int64 `json:"documentIds,optional"`
+}
+
+// 知识库检索响应，返回召回或重排后的片段。
+type AiSearchKnowledgeResp {
+	chunks []AiChunkItem `json:"chunks"`
+	mode string `json:"mode"`
+	message string `json:"message"`
+}
+
+@server (
+	group: ai_search
+	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
+)
+service gateway {
+	// 执行知识库混合检索，供搜索页、RAG 问答和 Agent 工具复用。
+	@handler aiSearchKnowledge
+	post /kb/search (AiSearchKnowledgeReq) returns (AiSearchKnowledgeResp)
+}

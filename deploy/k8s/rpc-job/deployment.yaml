@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blade-job
+  namespace: blade
+  labels:
+    app: blade-job
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blade-job
+  template:
+    metadata:
+      labels:
+        app: blade-job
+    spec:
+      initContainers:
+        - name: wait-for-etcd
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z etcd-0.etcd-headless.blade.svc.cluster.local 2379; do
+                echo "等待 etcd 就绪..."
+                sleep 2
+              done
+        - name: wait-for-redis
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z redis.blade.svc.cluster.local 6379; do
+                echo "等待 Redis 就绪..."
+                sleep 2
+              done
+      containers:
+        - name: blade-job
+          image: job-rpc:v1
+          imagePullPolicy: Never
+          volumeMounts:
+            - name: config
+              mountPath: /app/etc
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+      volumes:
+        - name: config
+          configMap:
+            name: job-config

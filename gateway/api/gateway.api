@@ -1,0 +1,13 @@
+syntax = "v1"
+
+info (
+	title:   "ai-copilot-platform gateway"
+	desc:    "HTTP"
+	author:  "tianyx"
+	version: "1.0.0"
+)
+
+import (
+	"desc/ai/api.api"
+)
+
