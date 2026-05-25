@@ -1,0 +1,43 @@
+// 风机告警查询和分析接口。
+
+type AiWindAlarmQueryReq {
+	farmCode string `json:"farmCode"`
+	towerCode string `json:"towerCode,optional"`
+	deviceTypeCode string `json:"deviceTypeCode,optional"`
+	deviceCode string `json:"deviceCode,optional"`
+	alarmCode string `json:"alarmCode,optional"`
+	alarmLevel int `json:"alarmLevel,optional"`
+	status int `json:"status,optional"`
+	startTime string `json:"startTime,optional"`
+	endTime string `json:"endTime,optional"`
+	page int `json:"page,optional"`
+	pageSize int `json:"pageSize,optional"`
+}
+
+type AiWindAlarmQueryResp {
+	total int64 `json:"total"`
+	list []AiWindAlarmItem `json:"list"`
+	evidenceJson string `json:"evidenceJson"`
+	message string `json:"message"`
+}
+
+type AiWindAlarmAnalyzeReq {
+	farmCode string `json:"farmCode"`
+	towerCode string `json:"towerCode,optional"`
+	alarmCode string `json:"alarmCode,optional"`
+	evidenceJson string `json:"evidenceJson,optional"`
+}
+
+@server (
+	group: ai_wind_alarm
+	prefix: /api/v1/ai/wind
+)
+service gateway {
+	// 查询 TDengine alarm 超级表，一期只做安全白名单查询。
+	@handler aiWindQueryAlarms
+	post /alarms/query (AiWindAlarmQueryReq) returns (AiWindAlarmQueryResp)
+
+	// 告警归因接口，一期返回草稿结构。
+	@handler aiWindAnalyzeAlarm
+	post /alarms/analyze (AiWindAlarmAnalyzeReq) returns (AiWindScaffoldResp)
+}

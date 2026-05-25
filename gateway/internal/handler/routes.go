@@ -6,7 +6,6 @@ package handler
 import (
 	"net/http"
 
-	ai_agent "ai-copilot-platform/gateway/internal/handler/ai_agent"
 	ai_chat "ai-copilot-platform/gateway/internal/handler/ai_chat"
 	ai_document "ai-copilot-platform/gateway/internal/handler/ai_document"
 	ai_kb_domain "ai-copilot-platform/gateway/internal/handler/ai_kb_domain"
@@ -14,9 +13,12 @@ import (
 	ai_kb_personal "ai-copilot-platform/gateway/internal/handler/ai_kb_personal"
 	ai_kb_public "ai-copilot-platform/gateway/internal/handler/ai_kb_public"
 	ai_llmops "ai-copilot-platform/gateway/internal/handler/ai_llmops"
-	ai_report "ai-copilot-platform/gateway/internal/handler/ai_report"
 	ai_search "ai-copilot-platform/gateway/internal/handler/ai_search"
-	ai_security "ai-copilot-platform/gateway/internal/handler/ai_security"
+	ai_wind_agent "ai-copilot-platform/gateway/internal/handler/ai_wind_agent"
+	ai_wind_alarm "ai-copilot-platform/gateway/internal/handler/ai_wind_alarm"
+	ai_wind_metadata "ai-copilot-platform/gateway/internal/handler/ai_wind_metadata"
+	ai_wind_report "ai-copilot-platform/gateway/internal/handler/ai_wind_report"
+	ai_wind_timeseries "ai-copilot-platform/gateway/internal/handler/ai_wind_timeseries"
 	health "ai-copilot-platform/gateway/internal/handler/health"
 	"ai-copilot-platform/gateway/internal/svc"
 
@@ -24,22 +26,6 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/agent/run",
-				Handler: ai_agent.AiRunAgentHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/agent/tool-calls",
-				Handler: ai_agent.AiListToolCallHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/api/v1/ai"),
-	)
-
 	server.AddRoutes(
 		[]rest.Route{
 			{
@@ -226,27 +212,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/reports/daily",
-				Handler: ai_report.AiListDailyReportHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/reports/daily/:reportId",
-				Handler: ai_report.AiGetDailyReportHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/reports/daily/generate",
-				Handler: ai_report.AiGenerateDailyReportHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/api/v1/ai"),
-	)
-
-	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
 			[]rest.Route{
@@ -263,32 +228,91 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/security/alerts",
-				Handler: ai_security.AiListSecurityAlertsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/security/alerts/:alertId/status",
-				Handler: ai_security.AiUpdateSecurityAlertStatusHandler(serverCtx),
+				Method:  http.MethodPost,
+				Path:    "/agent/run",
+				Handler: ai_wind_agent.AiWindRunAgentHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/security/events",
-				Handler: ai_security.AiListSecurityEventsHandler(serverCtx),
+				Path:    "/agent/tool-calls",
+				Handler: ai_wind_agent.AiWindListToolCallsHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/security/events/analyze",
-				Handler: ai_security.AiAnalyzeSecurityEventsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/security/logs/search",
-				Handler: ai_security.AiSearchSecurityLogsHandler(serverCtx),
+				Path:    "/tickets/draft",
+				Handler: ai_wind_agent.AiWindCreateTicketDraftHandler(serverCtx),
 			},
 		},
-		rest.WithPrefix("/api/v1/ai"),
+		rest.WithPrefix("/api/v1/ai/wind"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/alarms/analyze",
+				Handler: ai_wind_alarm.AiWindAnalyzeAlarmHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/alarms/query",
+				Handler: ai_wind_alarm.AiWindQueryAlarmsHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/ai/wind"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/metadata/devices",
+				Handler: ai_wind_metadata.AiWindListDevicesHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/metadata/farms",
+				Handler: ai_wind_metadata.AiWindListFarmsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/metadata/turbines",
+				Handler: ai_wind_metadata.AiWindListTurbinesHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/ai/wind"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/reports/health/:reportId",
+				Handler: ai_wind_report.AiWindGetHealthReportHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/reports/health/generate",
+				Handler: ai_wind_report.AiWindGenerateHealthReportHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/ai/wind"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/timeseries/compare",
+				Handler: ai_wind_timeseries.AiWindCompareTrendHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/timeseries/query",
+				Handler: ai_wind_timeseries.AiWindQueryTimeseriesHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/ai/wind"),
 	)
 
 	server.AddRoutes(

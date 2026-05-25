@@ -1187,610 +1187,6 @@ var AiChatService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AiSecurityService_SearchSecurityLogs_FullMethodName        = "/ai.AiSecurityService/SearchSecurityLogs"
-	AiSecurityService_AnalyzeSecurityEvents_FullMethodName     = "/ai.AiSecurityService/AnalyzeSecurityEvents"
-	AiSecurityService_ListSecurityEvents_FullMethodName        = "/ai.AiSecurityService/ListSecurityEvents"
-	AiSecurityService_ListSecurityAlerts_FullMethodName        = "/ai.AiSecurityService/ListSecurityAlerts"
-	AiSecurityService_UpdateSecurityAlertStatus_FullMethodName = "/ai.AiSecurityService/UpdateSecurityAlertStatus"
-)
-
-// AiSecurityServiceClient is the client API for AiSecurityService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// AI 安全服务，负责 SSH 日志检索、事件分析和告警管理。
-type AiSecurityServiceClient interface {
-	// 检索 SSH 原始日志。
-	SearchSecurityLogs(ctx context.Context, in *SearchSecurityLogsReq, opts ...grpc.CallOption) (*SecurityLogSearchResp, error)
-	// 分析原始日志并生成结构化安全事件和告警摘要。
-	AnalyzeSecurityEvents(ctx context.Context, in *AnalyzeSecurityEventsReq, opts ...grpc.CallOption) (*AnalyzeSecurityEventsResp, error)
-	// 查询结构化安全事件列表。
-	ListSecurityEvents(ctx context.Context, in *ListSecurityEventsReq, opts ...grpc.CallOption) (*ListSecurityEventsResp, error)
-	// 查询安全告警列表。
-	ListSecurityAlerts(ctx context.Context, in *ListSecurityAlertsReq, opts ...grpc.CallOption) (*ListSecurityAlertsResp, error)
-	// 更新安全告警处理状态。
-	UpdateSecurityAlertStatus(ctx context.Context, in *UpdateSecurityAlertStatusReq, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type aiSecurityServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAiSecurityServiceClient(cc grpc.ClientConnInterface) AiSecurityServiceClient {
-	return &aiSecurityServiceClient{cc}
-}
-
-func (c *aiSecurityServiceClient) SearchSecurityLogs(ctx context.Context, in *SearchSecurityLogsReq, opts ...grpc.CallOption) (*SecurityLogSearchResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SecurityLogSearchResp)
-	err := c.cc.Invoke(ctx, AiSecurityService_SearchSecurityLogs_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiSecurityServiceClient) AnalyzeSecurityEvents(ctx context.Context, in *AnalyzeSecurityEventsReq, opts ...grpc.CallOption) (*AnalyzeSecurityEventsResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AnalyzeSecurityEventsResp)
-	err := c.cc.Invoke(ctx, AiSecurityService_AnalyzeSecurityEvents_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiSecurityServiceClient) ListSecurityEvents(ctx context.Context, in *ListSecurityEventsReq, opts ...grpc.CallOption) (*ListSecurityEventsResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListSecurityEventsResp)
-	err := c.cc.Invoke(ctx, AiSecurityService_ListSecurityEvents_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiSecurityServiceClient) ListSecurityAlerts(ctx context.Context, in *ListSecurityAlertsReq, opts ...grpc.CallOption) (*ListSecurityAlertsResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListSecurityAlertsResp)
-	err := c.cc.Invoke(ctx, AiSecurityService_ListSecurityAlerts_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiSecurityServiceClient) UpdateSecurityAlertStatus(ctx context.Context, in *UpdateSecurityAlertStatusReq, opts ...grpc.CallOption) (*Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, AiSecurityService_UpdateSecurityAlertStatus_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AiSecurityServiceServer is the server API for AiSecurityService service.
-// All implementations must embed UnimplementedAiSecurityServiceServer
-// for forward compatibility.
-//
-// AI 安全服务，负责 SSH 日志检索、事件分析和告警管理。
-type AiSecurityServiceServer interface {
-	// 检索 SSH 原始日志。
-	SearchSecurityLogs(context.Context, *SearchSecurityLogsReq) (*SecurityLogSearchResp, error)
-	// 分析原始日志并生成结构化安全事件和告警摘要。
-	AnalyzeSecurityEvents(context.Context, *AnalyzeSecurityEventsReq) (*AnalyzeSecurityEventsResp, error)
-	// 查询结构化安全事件列表。
-	ListSecurityEvents(context.Context, *ListSecurityEventsReq) (*ListSecurityEventsResp, error)
-	// 查询安全告警列表。
-	ListSecurityAlerts(context.Context, *ListSecurityAlertsReq) (*ListSecurityAlertsResp, error)
-	// 更新安全告警处理状态。
-	UpdateSecurityAlertStatus(context.Context, *UpdateSecurityAlertStatusReq) (*Empty, error)
-	mustEmbedUnimplementedAiSecurityServiceServer()
-}
-
-// UnimplementedAiSecurityServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAiSecurityServiceServer struct{}
-
-func (UnimplementedAiSecurityServiceServer) SearchSecurityLogs(context.Context, *SearchSecurityLogsReq) (*SecurityLogSearchResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SearchSecurityLogs not implemented")
-}
-func (UnimplementedAiSecurityServiceServer) AnalyzeSecurityEvents(context.Context, *AnalyzeSecurityEventsReq) (*AnalyzeSecurityEventsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AnalyzeSecurityEvents not implemented")
-}
-func (UnimplementedAiSecurityServiceServer) ListSecurityEvents(context.Context, *ListSecurityEventsReq) (*ListSecurityEventsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityEvents not implemented")
-}
-func (UnimplementedAiSecurityServiceServer) ListSecurityAlerts(context.Context, *ListSecurityAlertsReq) (*ListSecurityAlertsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityAlerts not implemented")
-}
-func (UnimplementedAiSecurityServiceServer) UpdateSecurityAlertStatus(context.Context, *UpdateSecurityAlertStatusReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecurityAlertStatus not implemented")
-}
-func (UnimplementedAiSecurityServiceServer) mustEmbedUnimplementedAiSecurityServiceServer() {}
-func (UnimplementedAiSecurityServiceServer) testEmbeddedByValue()                           {}
-
-// UnsafeAiSecurityServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AiSecurityServiceServer will
-// result in compilation errors.
-type UnsafeAiSecurityServiceServer interface {
-	mustEmbedUnimplementedAiSecurityServiceServer()
-}
-
-func RegisterAiSecurityServiceServer(s grpc.ServiceRegistrar, srv AiSecurityServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAiSecurityServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&AiSecurityService_ServiceDesc, srv)
-}
-
-func _AiSecurityService_SearchSecurityLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchSecurityLogsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSecurityServiceServer).SearchSecurityLogs(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSecurityService_SearchSecurityLogs_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSecurityServiceServer).SearchSecurityLogs(ctx, req.(*SearchSecurityLogsReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiSecurityService_AnalyzeSecurityEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AnalyzeSecurityEventsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSecurityServiceServer).AnalyzeSecurityEvents(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSecurityService_AnalyzeSecurityEvents_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSecurityServiceServer).AnalyzeSecurityEvents(ctx, req.(*AnalyzeSecurityEventsReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiSecurityService_ListSecurityEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSecurityEventsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSecurityServiceServer).ListSecurityEvents(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSecurityService_ListSecurityEvents_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSecurityServiceServer).ListSecurityEvents(ctx, req.(*ListSecurityEventsReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiSecurityService_ListSecurityAlerts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSecurityAlertsReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSecurityServiceServer).ListSecurityAlerts(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSecurityService_ListSecurityAlerts_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSecurityServiceServer).ListSecurityAlerts(ctx, req.(*ListSecurityAlertsReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiSecurityService_UpdateSecurityAlertStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateSecurityAlertStatusReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSecurityServiceServer).UpdateSecurityAlertStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSecurityService_UpdateSecurityAlertStatus_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSecurityServiceServer).UpdateSecurityAlertStatus(ctx, req.(*UpdateSecurityAlertStatusReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AiSecurityService_ServiceDesc is the grpc.ServiceDesc for AiSecurityService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AiSecurityService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ai.AiSecurityService",
-	HandlerType: (*AiSecurityServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SearchSecurityLogs",
-			Handler:    _AiSecurityService_SearchSecurityLogs_Handler,
-		},
-		{
-			MethodName: "AnalyzeSecurityEvents",
-			Handler:    _AiSecurityService_AnalyzeSecurityEvents_Handler,
-		},
-		{
-			MethodName: "ListSecurityEvents",
-			Handler:    _AiSecurityService_ListSecurityEvents_Handler,
-		},
-		{
-			MethodName: "ListSecurityAlerts",
-			Handler:    _AiSecurityService_ListSecurityAlerts_Handler,
-		},
-		{
-			MethodName: "UpdateSecurityAlertStatus",
-			Handler:    _AiSecurityService_UpdateSecurityAlertStatus_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "pb/ai.proto",
-}
-
-const (
-	AiReportService_GenerateDailyReport_FullMethodName = "/ai.AiReportService/GenerateDailyReport"
-	AiReportService_ListDailyReport_FullMethodName     = "/ai.AiReportService/ListDailyReport"
-	AiReportService_GetDailyReport_FullMethodName      = "/ai.AiReportService/GetDailyReport"
-)
-
-// AiReportServiceClient is the client API for AiReportService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// AI 日报服务，负责生成和查询安全日报。
-type AiReportServiceClient interface {
-	// 生成指定日期的 AI 安全日报。
-	GenerateDailyReport(ctx context.Context, in *GenerateDailyReportReq, opts ...grpc.CallOption) (*DailyReportResp, error)
-	// 查询 AI 安全日报列表。
-	ListDailyReport(ctx context.Context, in *ListDailyReportReq, opts ...grpc.CallOption) (*ListDailyReportResp, error)
-	// 查询单份 AI 安全日报详情。
-	GetDailyReport(ctx context.Context, in *GetDailyReportReq, opts ...grpc.CallOption) (*DailyReportResp, error)
-}
-
-type aiReportServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAiReportServiceClient(cc grpc.ClientConnInterface) AiReportServiceClient {
-	return &aiReportServiceClient{cc}
-}
-
-func (c *aiReportServiceClient) GenerateDailyReport(ctx context.Context, in *GenerateDailyReportReq, opts ...grpc.CallOption) (*DailyReportResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DailyReportResp)
-	err := c.cc.Invoke(ctx, AiReportService_GenerateDailyReport_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiReportServiceClient) ListDailyReport(ctx context.Context, in *ListDailyReportReq, opts ...grpc.CallOption) (*ListDailyReportResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListDailyReportResp)
-	err := c.cc.Invoke(ctx, AiReportService_ListDailyReport_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiReportServiceClient) GetDailyReport(ctx context.Context, in *GetDailyReportReq, opts ...grpc.CallOption) (*DailyReportResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DailyReportResp)
-	err := c.cc.Invoke(ctx, AiReportService_GetDailyReport_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AiReportServiceServer is the server API for AiReportService service.
-// All implementations must embed UnimplementedAiReportServiceServer
-// for forward compatibility.
-//
-// AI 日报服务，负责生成和查询安全日报。
-type AiReportServiceServer interface {
-	// 生成指定日期的 AI 安全日报。
-	GenerateDailyReport(context.Context, *GenerateDailyReportReq) (*DailyReportResp, error)
-	// 查询 AI 安全日报列表。
-	ListDailyReport(context.Context, *ListDailyReportReq) (*ListDailyReportResp, error)
-	// 查询单份 AI 安全日报详情。
-	GetDailyReport(context.Context, *GetDailyReportReq) (*DailyReportResp, error)
-	mustEmbedUnimplementedAiReportServiceServer()
-}
-
-// UnimplementedAiReportServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAiReportServiceServer struct{}
-
-func (UnimplementedAiReportServiceServer) GenerateDailyReport(context.Context, *GenerateDailyReportReq) (*DailyReportResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateDailyReport not implemented")
-}
-func (UnimplementedAiReportServiceServer) ListDailyReport(context.Context, *ListDailyReportReq) (*ListDailyReportResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListDailyReport not implemented")
-}
-func (UnimplementedAiReportServiceServer) GetDailyReport(context.Context, *GetDailyReportReq) (*DailyReportResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDailyReport not implemented")
-}
-func (UnimplementedAiReportServiceServer) mustEmbedUnimplementedAiReportServiceServer() {}
-func (UnimplementedAiReportServiceServer) testEmbeddedByValue()                         {}
-
-// UnsafeAiReportServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AiReportServiceServer will
-// result in compilation errors.
-type UnsafeAiReportServiceServer interface {
-	mustEmbedUnimplementedAiReportServiceServer()
-}
-
-func RegisterAiReportServiceServer(s grpc.ServiceRegistrar, srv AiReportServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAiReportServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&AiReportService_ServiceDesc, srv)
-}
-
-func _AiReportService_GenerateDailyReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GenerateDailyReportReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiReportServiceServer).GenerateDailyReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiReportService_GenerateDailyReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiReportServiceServer).GenerateDailyReport(ctx, req.(*GenerateDailyReportReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiReportService_ListDailyReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListDailyReportReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiReportServiceServer).ListDailyReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiReportService_ListDailyReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiReportServiceServer).ListDailyReport(ctx, req.(*ListDailyReportReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiReportService_GetDailyReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDailyReportReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiReportServiceServer).GetDailyReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiReportService_GetDailyReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiReportServiceServer).GetDailyReport(ctx, req.(*GetDailyReportReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AiReportService_ServiceDesc is the grpc.ServiceDesc for AiReportService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AiReportService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ai.AiReportService",
-	HandlerType: (*AiReportServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GenerateDailyReport",
-			Handler:    _AiReportService_GenerateDailyReport_Handler,
-		},
-		{
-			MethodName: "ListDailyReport",
-			Handler:    _AiReportService_ListDailyReport_Handler,
-		},
-		{
-			MethodName: "GetDailyReport",
-			Handler:    _AiReportService_GetDailyReport_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "pb/ai.proto",
-}
-
-const (
-	AiAgentService_RunAgent_FullMethodName        = "/ai.AiAgentService/RunAgent"
-	AiAgentService_ListToolCallLog_FullMethodName = "/ai.AiAgentService/ListToolCallLog"
-)
-
-// AiAgentServiceClient is the client API for AiAgentService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// AI Agent 服务，负责受控 Agent 执行和工具调用审计。
-type AiAgentServiceClient interface {
-	// 运行受控 Agent，只允许调用白名单工具。
-	RunAgent(ctx context.Context, in *AgentRunReq, opts ...grpc.CallOption) (*AgentRunResp, error)
-	// 查询 Agent 工具调用日志。
-	ListToolCallLog(ctx context.Context, in *ListToolCallLogReq, opts ...grpc.CallOption) (*ListToolCallLogResp, error)
-}
-
-type aiAgentServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAiAgentServiceClient(cc grpc.ClientConnInterface) AiAgentServiceClient {
-	return &aiAgentServiceClient{cc}
-}
-
-func (c *aiAgentServiceClient) RunAgent(ctx context.Context, in *AgentRunReq, opts ...grpc.CallOption) (*AgentRunResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AgentRunResp)
-	err := c.cc.Invoke(ctx, AiAgentService_RunAgent_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiAgentServiceClient) ListToolCallLog(ctx context.Context, in *ListToolCallLogReq, opts ...grpc.CallOption) (*ListToolCallLogResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListToolCallLogResp)
-	err := c.cc.Invoke(ctx, AiAgentService_ListToolCallLog_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AiAgentServiceServer is the server API for AiAgentService service.
-// All implementations must embed UnimplementedAiAgentServiceServer
-// for forward compatibility.
-//
-// AI Agent 服务，负责受控 Agent 执行和工具调用审计。
-type AiAgentServiceServer interface {
-	// 运行受控 Agent，只允许调用白名单工具。
-	RunAgent(context.Context, *AgentRunReq) (*AgentRunResp, error)
-	// 查询 Agent 工具调用日志。
-	ListToolCallLog(context.Context, *ListToolCallLogReq) (*ListToolCallLogResp, error)
-	mustEmbedUnimplementedAiAgentServiceServer()
-}
-
-// UnimplementedAiAgentServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAiAgentServiceServer struct{}
-
-func (UnimplementedAiAgentServiceServer) RunAgent(context.Context, *AgentRunReq) (*AgentRunResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RunAgent not implemented")
-}
-func (UnimplementedAiAgentServiceServer) ListToolCallLog(context.Context, *ListToolCallLogReq) (*ListToolCallLogResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListToolCallLog not implemented")
-}
-func (UnimplementedAiAgentServiceServer) mustEmbedUnimplementedAiAgentServiceServer() {}
-func (UnimplementedAiAgentServiceServer) testEmbeddedByValue()                        {}
-
-// UnsafeAiAgentServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AiAgentServiceServer will
-// result in compilation errors.
-type UnsafeAiAgentServiceServer interface {
-	mustEmbedUnimplementedAiAgentServiceServer()
-}
-
-func RegisterAiAgentServiceServer(s grpc.ServiceRegistrar, srv AiAgentServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAiAgentServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&AiAgentService_ServiceDesc, srv)
-}
-
-func _AiAgentService_RunAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AgentRunReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiAgentServiceServer).RunAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiAgentService_RunAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiAgentServiceServer).RunAgent(ctx, req.(*AgentRunReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiAgentService_ListToolCallLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListToolCallLogReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiAgentServiceServer).ListToolCallLog(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiAgentService_ListToolCallLog_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiAgentServiceServer).ListToolCallLog(ctx, req.(*ListToolCallLogReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AiAgentService_ServiceDesc is the grpc.ServiceDesc for AiAgentService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AiAgentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ai.AiAgentService",
-	HandlerType: (*AiAgentServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "RunAgent",
-			Handler:    _AiAgentService_RunAgent_Handler,
-		},
-		{
-			MethodName: "ListToolCallLog",
-			Handler:    _AiAgentService_ListToolCallLog_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "pb/ai.proto",
-}
-
-const (
 	AiObservabilityService_GetLlmTrace_FullMethodName    = "/ai.AiObservabilityService/GetLlmTrace"
 	AiObservabilityService_ListLlmCallLog_FullMethodName = "/ai.AiObservabilityService/ListLlmCallLog"
 	AiObservabilityService_GetTokenStats_FullMethodName  = "/ai.AiObservabilityService/GetTokenStats"
@@ -1973,6 +1369,783 @@ var AiObservabilityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTokenStats",
 			Handler:    _AiObservabilityService_GetTokenStats_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/ai.proto",
+}
+
+const (
+	AiWindMetadataService_ListFarms_FullMethodName    = "/ai.AiWindMetadataService/ListFarms"
+	AiWindMetadataService_ListTurbines_FullMethodName = "/ai.AiWindMetadataService/ListTurbines"
+	AiWindMetadataService_ListDevices_FullMethodName  = "/ai.AiWindMetadataService/ListDevices"
+)
+
+// AiWindMetadataServiceClient is the client API for AiWindMetadataService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AiWindMetadataServiceClient interface {
+	ListFarms(ctx context.Context, in *ListWindFarmReq, opts ...grpc.CallOption) (*ListWindFarmResp, error)
+	ListTurbines(ctx context.Context, in *ListWindTurbineReq, opts ...grpc.CallOption) (*ListWindTurbineResp, error)
+	ListDevices(ctx context.Context, in *ListWindDeviceReq, opts ...grpc.CallOption) (*ListWindDeviceResp, error)
+}
+
+type aiWindMetadataServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAiWindMetadataServiceClient(cc grpc.ClientConnInterface) AiWindMetadataServiceClient {
+	return &aiWindMetadataServiceClient{cc}
+}
+
+func (c *aiWindMetadataServiceClient) ListFarms(ctx context.Context, in *ListWindFarmReq, opts ...grpc.CallOption) (*ListWindFarmResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWindFarmResp)
+	err := c.cc.Invoke(ctx, AiWindMetadataService_ListFarms_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindMetadataServiceClient) ListTurbines(ctx context.Context, in *ListWindTurbineReq, opts ...grpc.CallOption) (*ListWindTurbineResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWindTurbineResp)
+	err := c.cc.Invoke(ctx, AiWindMetadataService_ListTurbines_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindMetadataServiceClient) ListDevices(ctx context.Context, in *ListWindDeviceReq, opts ...grpc.CallOption) (*ListWindDeviceResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWindDeviceResp)
+	err := c.cc.Invoke(ctx, AiWindMetadataService_ListDevices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AiWindMetadataServiceServer is the server API for AiWindMetadataService service.
+// All implementations must embed UnimplementedAiWindMetadataServiceServer
+// for forward compatibility.
+type AiWindMetadataServiceServer interface {
+	ListFarms(context.Context, *ListWindFarmReq) (*ListWindFarmResp, error)
+	ListTurbines(context.Context, *ListWindTurbineReq) (*ListWindTurbineResp, error)
+	ListDevices(context.Context, *ListWindDeviceReq) (*ListWindDeviceResp, error)
+	mustEmbedUnimplementedAiWindMetadataServiceServer()
+}
+
+// UnimplementedAiWindMetadataServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAiWindMetadataServiceServer struct{}
+
+func (UnimplementedAiWindMetadataServiceServer) ListFarms(context.Context, *ListWindFarmReq) (*ListWindFarmResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFarms not implemented")
+}
+func (UnimplementedAiWindMetadataServiceServer) ListTurbines(context.Context, *ListWindTurbineReq) (*ListWindTurbineResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTurbines not implemented")
+}
+func (UnimplementedAiWindMetadataServiceServer) ListDevices(context.Context, *ListWindDeviceReq) (*ListWindDeviceResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDevices not implemented")
+}
+func (UnimplementedAiWindMetadataServiceServer) mustEmbedUnimplementedAiWindMetadataServiceServer() {}
+func (UnimplementedAiWindMetadataServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeAiWindMetadataServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AiWindMetadataServiceServer will
+// result in compilation errors.
+type UnsafeAiWindMetadataServiceServer interface {
+	mustEmbedUnimplementedAiWindMetadataServiceServer()
+}
+
+func RegisterAiWindMetadataServiceServer(s grpc.ServiceRegistrar, srv AiWindMetadataServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAiWindMetadataServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AiWindMetadataService_ServiceDesc, srv)
+}
+
+func _AiWindMetadataService_ListFarms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWindFarmReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindMetadataServiceServer).ListFarms(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindMetadataService_ListFarms_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindMetadataServiceServer).ListFarms(ctx, req.(*ListWindFarmReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindMetadataService_ListTurbines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWindTurbineReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindMetadataServiceServer).ListTurbines(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindMetadataService_ListTurbines_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindMetadataServiceServer).ListTurbines(ctx, req.(*ListWindTurbineReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindMetadataService_ListDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWindDeviceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindMetadataServiceServer).ListDevices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindMetadataService_ListDevices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindMetadataServiceServer).ListDevices(ctx, req.(*ListWindDeviceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AiWindMetadataService_ServiceDesc is the grpc.ServiceDesc for AiWindMetadataService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AiWindMetadataService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ai.AiWindMetadataService",
+	HandlerType: (*AiWindMetadataServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListFarms",
+			Handler:    _AiWindMetadataService_ListFarms_Handler,
+		},
+		{
+			MethodName: "ListTurbines",
+			Handler:    _AiWindMetadataService_ListTurbines_Handler,
+		},
+		{
+			MethodName: "ListDevices",
+			Handler:    _AiWindMetadataService_ListDevices_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/ai.proto",
+}
+
+const (
+	AiWindTimeseriesService_QueryTimeseries_FullMethodName = "/ai.AiWindTimeseriesService/QueryTimeseries"
+	AiWindTimeseriesService_CompareTrend_FullMethodName    = "/ai.AiWindTimeseriesService/CompareTrend"
+)
+
+// AiWindTimeseriesServiceClient is the client API for AiWindTimeseriesService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AiWindTimeseriesServiceClient interface {
+	QueryTimeseries(ctx context.Context, in *WindTimeseriesQueryReq, opts ...grpc.CallOption) (*WindTimeseriesQueryResp, error)
+	CompareTrend(ctx context.Context, in *WindTrendCompareReq, opts ...grpc.CallOption) (*WindTrendCompareResp, error)
+}
+
+type aiWindTimeseriesServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAiWindTimeseriesServiceClient(cc grpc.ClientConnInterface) AiWindTimeseriesServiceClient {
+	return &aiWindTimeseriesServiceClient{cc}
+}
+
+func (c *aiWindTimeseriesServiceClient) QueryTimeseries(ctx context.Context, in *WindTimeseriesQueryReq, opts ...grpc.CallOption) (*WindTimeseriesQueryResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindTimeseriesQueryResp)
+	err := c.cc.Invoke(ctx, AiWindTimeseriesService_QueryTimeseries_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindTimeseriesServiceClient) CompareTrend(ctx context.Context, in *WindTrendCompareReq, opts ...grpc.CallOption) (*WindTrendCompareResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindTrendCompareResp)
+	err := c.cc.Invoke(ctx, AiWindTimeseriesService_CompareTrend_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AiWindTimeseriesServiceServer is the server API for AiWindTimeseriesService service.
+// All implementations must embed UnimplementedAiWindTimeseriesServiceServer
+// for forward compatibility.
+type AiWindTimeseriesServiceServer interface {
+	QueryTimeseries(context.Context, *WindTimeseriesQueryReq) (*WindTimeseriesQueryResp, error)
+	CompareTrend(context.Context, *WindTrendCompareReq) (*WindTrendCompareResp, error)
+	mustEmbedUnimplementedAiWindTimeseriesServiceServer()
+}
+
+// UnimplementedAiWindTimeseriesServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAiWindTimeseriesServiceServer struct{}
+
+func (UnimplementedAiWindTimeseriesServiceServer) QueryTimeseries(context.Context, *WindTimeseriesQueryReq) (*WindTimeseriesQueryResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryTimeseries not implemented")
+}
+func (UnimplementedAiWindTimeseriesServiceServer) CompareTrend(context.Context, *WindTrendCompareReq) (*WindTrendCompareResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompareTrend not implemented")
+}
+func (UnimplementedAiWindTimeseriesServiceServer) mustEmbedUnimplementedAiWindTimeseriesServiceServer() {
+}
+func (UnimplementedAiWindTimeseriesServiceServer) testEmbeddedByValue() {}
+
+// UnsafeAiWindTimeseriesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AiWindTimeseriesServiceServer will
+// result in compilation errors.
+type UnsafeAiWindTimeseriesServiceServer interface {
+	mustEmbedUnimplementedAiWindTimeseriesServiceServer()
+}
+
+func RegisterAiWindTimeseriesServiceServer(s grpc.ServiceRegistrar, srv AiWindTimeseriesServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAiWindTimeseriesServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AiWindTimeseriesService_ServiceDesc, srv)
+}
+
+func _AiWindTimeseriesService_QueryTimeseries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindTimeseriesQueryReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindTimeseriesServiceServer).QueryTimeseries(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindTimeseriesService_QueryTimeseries_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindTimeseriesServiceServer).QueryTimeseries(ctx, req.(*WindTimeseriesQueryReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindTimeseriesService_CompareTrend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindTrendCompareReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindTimeseriesServiceServer).CompareTrend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindTimeseriesService_CompareTrend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindTimeseriesServiceServer).CompareTrend(ctx, req.(*WindTrendCompareReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AiWindTimeseriesService_ServiceDesc is the grpc.ServiceDesc for AiWindTimeseriesService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AiWindTimeseriesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ai.AiWindTimeseriesService",
+	HandlerType: (*AiWindTimeseriesServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "QueryTimeseries",
+			Handler:    _AiWindTimeseriesService_QueryTimeseries_Handler,
+		},
+		{
+			MethodName: "CompareTrend",
+			Handler:    _AiWindTimeseriesService_CompareTrend_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/ai.proto",
+}
+
+const (
+	AiWindAlarmService_QueryAlarms_FullMethodName  = "/ai.AiWindAlarmService/QueryAlarms"
+	AiWindAlarmService_AnalyzeAlarm_FullMethodName = "/ai.AiWindAlarmService/AnalyzeAlarm"
+)
+
+// AiWindAlarmServiceClient is the client API for AiWindAlarmService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AiWindAlarmServiceClient interface {
+	QueryAlarms(ctx context.Context, in *WindAlarmQueryReq, opts ...grpc.CallOption) (*WindAlarmQueryResp, error)
+	AnalyzeAlarm(ctx context.Context, in *WindAlarmAnalyzeReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
+}
+
+type aiWindAlarmServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAiWindAlarmServiceClient(cc grpc.ClientConnInterface) AiWindAlarmServiceClient {
+	return &aiWindAlarmServiceClient{cc}
+}
+
+func (c *aiWindAlarmServiceClient) QueryAlarms(ctx context.Context, in *WindAlarmQueryReq, opts ...grpc.CallOption) (*WindAlarmQueryResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindAlarmQueryResp)
+	err := c.cc.Invoke(ctx, AiWindAlarmService_QueryAlarms_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindAlarmServiceClient) AnalyzeAlarm(ctx context.Context, in *WindAlarmAnalyzeReq, opts ...grpc.CallOption) (*WindScaffoldResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindScaffoldResp)
+	err := c.cc.Invoke(ctx, AiWindAlarmService_AnalyzeAlarm_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AiWindAlarmServiceServer is the server API for AiWindAlarmService service.
+// All implementations must embed UnimplementedAiWindAlarmServiceServer
+// for forward compatibility.
+type AiWindAlarmServiceServer interface {
+	QueryAlarms(context.Context, *WindAlarmQueryReq) (*WindAlarmQueryResp, error)
+	AnalyzeAlarm(context.Context, *WindAlarmAnalyzeReq) (*WindScaffoldResp, error)
+	mustEmbedUnimplementedAiWindAlarmServiceServer()
+}
+
+// UnimplementedAiWindAlarmServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAiWindAlarmServiceServer struct{}
+
+func (UnimplementedAiWindAlarmServiceServer) QueryAlarms(context.Context, *WindAlarmQueryReq) (*WindAlarmQueryResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAlarms not implemented")
+}
+func (UnimplementedAiWindAlarmServiceServer) AnalyzeAlarm(context.Context, *WindAlarmAnalyzeReq) (*WindScaffoldResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AnalyzeAlarm not implemented")
+}
+func (UnimplementedAiWindAlarmServiceServer) mustEmbedUnimplementedAiWindAlarmServiceServer() {}
+func (UnimplementedAiWindAlarmServiceServer) testEmbeddedByValue()                            {}
+
+// UnsafeAiWindAlarmServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AiWindAlarmServiceServer will
+// result in compilation errors.
+type UnsafeAiWindAlarmServiceServer interface {
+	mustEmbedUnimplementedAiWindAlarmServiceServer()
+}
+
+func RegisterAiWindAlarmServiceServer(s grpc.ServiceRegistrar, srv AiWindAlarmServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAiWindAlarmServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AiWindAlarmService_ServiceDesc, srv)
+}
+
+func _AiWindAlarmService_QueryAlarms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindAlarmQueryReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAlarmServiceServer).QueryAlarms(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAlarmService_QueryAlarms_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAlarmServiceServer).QueryAlarms(ctx, req.(*WindAlarmQueryReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindAlarmService_AnalyzeAlarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindAlarmAnalyzeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAlarmServiceServer).AnalyzeAlarm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAlarmService_AnalyzeAlarm_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAlarmServiceServer).AnalyzeAlarm(ctx, req.(*WindAlarmAnalyzeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AiWindAlarmService_ServiceDesc is the grpc.ServiceDesc for AiWindAlarmService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AiWindAlarmService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ai.AiWindAlarmService",
+	HandlerType: (*AiWindAlarmServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "QueryAlarms",
+			Handler:    _AiWindAlarmService_QueryAlarms_Handler,
+		},
+		{
+			MethodName: "AnalyzeAlarm",
+			Handler:    _AiWindAlarmService_AnalyzeAlarm_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/ai.proto",
+}
+
+const (
+	AiWindReportService_GenerateHealthReport_FullMethodName = "/ai.AiWindReportService/GenerateHealthReport"
+	AiWindReportService_GetHealthReport_FullMethodName      = "/ai.AiWindReportService/GetHealthReport"
+)
+
+// AiWindReportServiceClient is the client API for AiWindReportService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AiWindReportServiceClient interface {
+	GenerateHealthReport(ctx context.Context, in *WindHealthReportReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
+	GetHealthReport(ctx context.Context, in *WindHealthReportGetReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
+}
+
+type aiWindReportServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAiWindReportServiceClient(cc grpc.ClientConnInterface) AiWindReportServiceClient {
+	return &aiWindReportServiceClient{cc}
+}
+
+func (c *aiWindReportServiceClient) GenerateHealthReport(ctx context.Context, in *WindHealthReportReq, opts ...grpc.CallOption) (*WindScaffoldResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindScaffoldResp)
+	err := c.cc.Invoke(ctx, AiWindReportService_GenerateHealthReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindReportServiceClient) GetHealthReport(ctx context.Context, in *WindHealthReportGetReq, opts ...grpc.CallOption) (*WindScaffoldResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindScaffoldResp)
+	err := c.cc.Invoke(ctx, AiWindReportService_GetHealthReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AiWindReportServiceServer is the server API for AiWindReportService service.
+// All implementations must embed UnimplementedAiWindReportServiceServer
+// for forward compatibility.
+type AiWindReportServiceServer interface {
+	GenerateHealthReport(context.Context, *WindHealthReportReq) (*WindScaffoldResp, error)
+	GetHealthReport(context.Context, *WindHealthReportGetReq) (*WindScaffoldResp, error)
+	mustEmbedUnimplementedAiWindReportServiceServer()
+}
+
+// UnimplementedAiWindReportServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAiWindReportServiceServer struct{}
+
+func (UnimplementedAiWindReportServiceServer) GenerateHealthReport(context.Context, *WindHealthReportReq) (*WindScaffoldResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateHealthReport not implemented")
+}
+func (UnimplementedAiWindReportServiceServer) GetHealthReport(context.Context, *WindHealthReportGetReq) (*WindScaffoldResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealthReport not implemented")
+}
+func (UnimplementedAiWindReportServiceServer) mustEmbedUnimplementedAiWindReportServiceServer() {}
+func (UnimplementedAiWindReportServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeAiWindReportServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AiWindReportServiceServer will
+// result in compilation errors.
+type UnsafeAiWindReportServiceServer interface {
+	mustEmbedUnimplementedAiWindReportServiceServer()
+}
+
+func RegisterAiWindReportServiceServer(s grpc.ServiceRegistrar, srv AiWindReportServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAiWindReportServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AiWindReportService_ServiceDesc, srv)
+}
+
+func _AiWindReportService_GenerateHealthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindHealthReportReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindReportServiceServer).GenerateHealthReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindReportService_GenerateHealthReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindReportServiceServer).GenerateHealthReport(ctx, req.(*WindHealthReportReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindReportService_GetHealthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindHealthReportGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindReportServiceServer).GetHealthReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindReportService_GetHealthReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindReportServiceServer).GetHealthReport(ctx, req.(*WindHealthReportGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AiWindReportService_ServiceDesc is the grpc.ServiceDesc for AiWindReportService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AiWindReportService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ai.AiWindReportService",
+	HandlerType: (*AiWindReportServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GenerateHealthReport",
+			Handler:    _AiWindReportService_GenerateHealthReport_Handler,
+		},
+		{
+			MethodName: "GetHealthReport",
+			Handler:    _AiWindReportService_GetHealthReport_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/ai.proto",
+}
+
+const (
+	AiWindAgentService_CreateTicketDraft_FullMethodName = "/ai.AiWindAgentService/CreateTicketDraft"
+	AiWindAgentService_RunAgent_FullMethodName          = "/ai.AiWindAgentService/RunAgent"
+	AiWindAgentService_ListToolCallLog_FullMethodName   = "/ai.AiWindAgentService/ListToolCallLog"
+)
+
+// AiWindAgentServiceClient is the client API for AiWindAgentService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AiWindAgentServiceClient interface {
+	CreateTicketDraft(ctx context.Context, in *WindTicketDraftReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
+	RunAgent(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (*WindAgentRunResp, error)
+	ListToolCallLog(ctx context.Context, in *WindListToolCallLogReq, opts ...grpc.CallOption) (*WindListToolCallLogResp, error)
+}
+
+type aiWindAgentServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAiWindAgentServiceClient(cc grpc.ClientConnInterface) AiWindAgentServiceClient {
+	return &aiWindAgentServiceClient{cc}
+}
+
+func (c *aiWindAgentServiceClient) CreateTicketDraft(ctx context.Context, in *WindTicketDraftReq, opts ...grpc.CallOption) (*WindScaffoldResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindScaffoldResp)
+	err := c.cc.Invoke(ctx, AiWindAgentService_CreateTicketDraft_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindAgentServiceClient) RunAgent(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (*WindAgentRunResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindAgentRunResp)
+	err := c.cc.Invoke(ctx, AiWindAgentService_RunAgent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindAgentServiceClient) ListToolCallLog(ctx context.Context, in *WindListToolCallLogReq, opts ...grpc.CallOption) (*WindListToolCallLogResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindListToolCallLogResp)
+	err := c.cc.Invoke(ctx, AiWindAgentService_ListToolCallLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AiWindAgentServiceServer is the server API for AiWindAgentService service.
+// All implementations must embed UnimplementedAiWindAgentServiceServer
+// for forward compatibility.
+type AiWindAgentServiceServer interface {
+	CreateTicketDraft(context.Context, *WindTicketDraftReq) (*WindScaffoldResp, error)
+	RunAgent(context.Context, *WindAgentRunReq) (*WindAgentRunResp, error)
+	ListToolCallLog(context.Context, *WindListToolCallLogReq) (*WindListToolCallLogResp, error)
+	mustEmbedUnimplementedAiWindAgentServiceServer()
+}
+
+// UnimplementedAiWindAgentServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAiWindAgentServiceServer struct{}
+
+func (UnimplementedAiWindAgentServiceServer) CreateTicketDraft(context.Context, *WindTicketDraftReq) (*WindScaffoldResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTicketDraft not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) RunAgent(context.Context, *WindAgentRunReq) (*WindAgentRunResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunAgent not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) ListToolCallLog(context.Context, *WindListToolCallLogReq) (*WindListToolCallLogResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListToolCallLog not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) mustEmbedUnimplementedAiWindAgentServiceServer() {}
+func (UnimplementedAiWindAgentServiceServer) testEmbeddedByValue()                            {}
+
+// UnsafeAiWindAgentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AiWindAgentServiceServer will
+// result in compilation errors.
+type UnsafeAiWindAgentServiceServer interface {
+	mustEmbedUnimplementedAiWindAgentServiceServer()
+}
+
+func RegisterAiWindAgentServiceServer(s grpc.ServiceRegistrar, srv AiWindAgentServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAiWindAgentServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AiWindAgentService_ServiceDesc, srv)
+}
+
+func _AiWindAgentService_CreateTicketDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindTicketDraftReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAgentServiceServer).CreateTicketDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAgentService_CreateTicketDraft_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAgentServiceServer).CreateTicketDraft(ctx, req.(*WindTicketDraftReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindAgentService_RunAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindAgentRunReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAgentServiceServer).RunAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAgentService_RunAgent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAgentServiceServer).RunAgent(ctx, req.(*WindAgentRunReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindAgentService_ListToolCallLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindListToolCallLogReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAgentServiceServer).ListToolCallLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAgentService_ListToolCallLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAgentServiceServer).ListToolCallLog(ctx, req.(*WindListToolCallLogReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AiWindAgentService_ServiceDesc is the grpc.ServiceDesc for AiWindAgentService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AiWindAgentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ai.AiWindAgentService",
+	HandlerType: (*AiWindAgentServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateTicketDraft",
+			Handler:    _AiWindAgentService_CreateTicketDraft_Handler,
+		},
+		{
+			MethodName: "RunAgent",
+			Handler:    _AiWindAgentService_RunAgent_Handler,
+		},
+		{
+			MethodName: "ListToolCallLog",
+			Handler:    _AiWindAgentService_ListToolCallLog_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

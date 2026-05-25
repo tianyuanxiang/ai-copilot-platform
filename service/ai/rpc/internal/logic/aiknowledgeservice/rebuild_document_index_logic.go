@@ -103,7 +103,7 @@ func (l *RebuildDocumentIndexLogic) runRebuildDocumentIndexJob(doc model.AiDocum
 		return
 	}
 
-	embedded, err := ingestLogic.callEmbed(ctx, texts)
+	embedded, err := l.svcCtx.EngineCallClient.EngineEmbed(ctx, texts)
 	if err != nil {
 		ingestLogic.markDocumentFailed(doc.Id, err)
 		return

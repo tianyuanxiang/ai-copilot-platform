@@ -1,175 +1,224 @@
-# 开发者 AI 副驾驶平台
+# 风机混塔智能运维 AI Copilot
 
-基于 Go + Python 的微服务架构 AI 副驾驶平台，包含**知识副驾驶**（RAG 知识库）和**安全副驾驶**（SSH 登录日志分析）两条业务主线，覆盖 RAG、Hybrid Search、Rerank、Agent / Function Calling、LLMOps 等企业级 AI 应用开发核心能力。
+基于 Go + Python 的风机混塔智能运维 AI Copilot，面向风场运维场景提供运维知识问答、测点时序分析、告警处置、健康报告和工单草稿能力。项目保留原有 RAG 知识库底座，将旧的 SSH 安全分析、AI 安全日报和旧 Agent 占位接口替换为风机混塔运维业务闭环。
 
-## 业务主线
+核心原则：
 
-| 方向 | 核心能力 | 典型场景 |
+```text
+Go 管事实和权限，Python 管总结和生成。
+```
+
+## 业务目标
+
+运维人员可以用自然语言提出问题，系统只基于可追溯的事实证据生成结构化回答：
+
+- PostgreSQL 中的风场、风机、设备、测点和 AI 草稿数据。
+- TDengine 中的测点时序数据和告警事件。
+- 知识库中的设备说明书、SOP、验收文档和历史故障案例。
+- LLMOps 与 `ai_tool_call_log` 中的工具调用、trace 和 token 日志。
+
+一期先跑通工程闭环：元数据查询、TDengine 查询封装、evidence 汇总、Python 规则模板生成、工具日志留痕。后续再逐步接入更完整的告警归因、SOP 检索、健康报告、故障复盘和 LangGraph Agent 编排。
+
+## 功能模块
+
+| 模块 | 一期能力 | 后续扩展 |
 | --- | --- | --- |
-| **知识副驾驶** | 文档解析、父子分块、向量召回、BM25 召回、Rerank、引用溯源 | "这个项目怎么部署""某个错误以前怎么解决过" |
-| **安全副驾驶** | Filebeat 日志采集、规则引擎告警、AI 安全日报、自然语言查询 | "昨天最可疑的 IP 是谁""今天有没有异常登录" |
+| 运维知识副驾驶 | 复用文档入库、父子分块、pgvector + Elasticsearch Hybrid Search、RAG 问答和引用溯源 | SOP 专用检索、历史案例召回、带证据的处置问答 |
+| 测点分析副驾驶 | 查询风场/风机/设备元数据，按白名单查询 TDengine 时序数据，生成 points evidence | 多窗口趋势对比、持续超限判断、异常测点排名 |
+| 告警处置副驾驶 | 查询 TDengine alarm 数据，按等级、状态、风机聚合，返回归因草稿结构 | 告警前后测点回查、SOP/历史案例检索、归因候选入库 |
+| 健康报告副驾驶 | 基于 evidence 生成风场日报、周报、单机报告或故障复盘草稿 | 在线率、缺测率、重复告警、风险趋势和引用报告 |
+| Agent 与工单 | 返回 traceId、工具白名单、可编辑工单草稿和工具调用日志 | 意图解析、受控工具编排、自动保存分析结果 |
 
 ## 总体架构
 
 ```mermaid
 flowchart TB
-    subgraph Source["用户与数据源"]
-        Web["管理前端 / AI 对话页"]
-        Docs["Markdown / PDF / Word / README"]
-        ECS["阿里云 ECS auth.log"]
+    subgraph User["运维人员 / 管理前端"]
+        Web["AI 对话页 / 运维控制台"]
+        Docs["SOP / 手册 / 故障案例"]
     end
 
-    subgraph Gateway["接入层：Go Gateway"]
-        Auth["JWT 鉴权"]
-        RBAC["Casbin 授权"]
-        RateLimit["限流"]
+    subgraph Gateway["Gateway: go-zero HTTP"]
+        Auth["JWT / Casbin / 限流"]
+        WindAPI["风机运维 API"]
+        KbAPI["知识库 / RAG API"]
         Stream["SSE / WebSocket"]
     end
 
-    subgraph GoLayer["Go 业务层"]
-        Sys["sys.rpc"]
-        Job["job 服务"]
-        AIRPC["ai.rpc"]
+    subgraph GoRPC["service/ai/rpc: Go 事实层"]
+        Metadata["风场 / 风机 / 设备元数据"]
+        Tdengine["TDengine 安全查询封装"]
+        Evidence["evidence 汇总"]
+        Audit["工具调用与 LLMOps 日志"]
     end
 
-    subgraph PythonLayer["Python AI 引擎"]
-        Parse["文档解析"]
-        Chunk["父子分块"]
-        Embed["Embedding"]
-        Retrieve["Hybrid Search"]
-        Rerank["Rerank"]
-        LLM["LLM"]
-        Agent["受控 Agent"]
-        Enrich["日志解析 / 富化"]
+    subgraph Python["service/ai/engine: Python 生成层"]
+        Rag["解析 / 分块 / Embedding / 检索 / Rerank"]
+        Summary["时序 / 告警规则摘要"]
+        Draft["报告 / 工单草稿生成"]
     end
 
-    subgraph Storage["存储层"]
-        PG["PostgreSQL"]
-        Vector["pgvector"]
-        ES["Elasticsearch"]
+    subgraph Storage["数据层"]
+        PG["PostgreSQL + pgvector"]
+        ES["Elasticsearch BM25"]
         Redis["Redis"]
+        TD["TDengine"]
     end
 
     Web --> Gateway
     Docs --> Gateway
-    ECS --> ES
-    Gateway --> AIRPC
-    Gateway --> Sys
-    AIRPC --> PythonLayer
-    AIRPC --> PG
-    AIRPC --> Redis
-    PythonLayer --> Vector
-    PythonLayer --> ES
-    Job --> AIRPC
+    Gateway --> GoRPC
+    GoRPC --> PG
+    GoRPC --> Redis
+    GoRPC --> TD
+    GoRPC --> Python
+    Python --> PG
+    Python --> ES
 ```
 
 ### 分层职责
 
 | 层 | 职责 |
 | --- | --- |
-| Gateway | 统一入口、JWT 鉴权、Casbin 授权、限流、SSE/WebSocket 流式转发 |
-| ai.rpc | 业务编排、状态管理、任务调度、工具注册 |
-| Python AI Engine | 文档解析、分块、Embedding、检索、Rerank、LLM 调用、Agent 推理 |
-| PostgreSQL | 业务数据、会话、告警、日报 |
-| pgvector | 文档向量索引 |
-| Elasticsearch | 文档 BM25 关键词召回 + 安全日志全文检索 |
+| Gateway | 统一 HTTP 入口、鉴权、限流、WebSocket/SSE 转发、DTO 转换 |
+| Go AI RPC | 权限校验、元数据查询、TDengine 查询、RAG 编排、evidence 汇总、审计日志 |
+| Python AI Engine | 文档解析、分块、Embedding、Hybrid Search、规则模板摘要、报告和工单草稿 |
+| PostgreSQL | 知识库、会话、LLMOps、风机元数据、报告草稿、工单草稿 |
+| TDengine | 风机传感器时序数据与告警超级表 |
+| Elasticsearch | 知识库 BM25 关键词召回 |
 | Redis | 缓存、限流、分布式锁 |
 
 ## 技术栈
 
 | 分类 | 技术 | 说明 |
 | --- | --- | --- |
-| 系统语言 | Go 1.24 | go-zero v1.10 微服务框架 |
-| AI 引擎 | Python 3.10+ | FastAPI ASGI + uvicorn |
-| 网关 | go-zero rest.Server | JWT + Casbin RBAC + 限流 |
-| RPC | gRPC / protobuf | 7 个服务域 |
-| 服务发现 | etcd | 服务注册与发现 |
-| 数据库 | PostgreSQL | 业务数据存储 |
-| 向量库 | pgvector | 文档 Embedding 向量索引 |
-| 搜索引擎 | Elasticsearch 9.x | BM25 + 全文检索 |
+| 后端框架 | Go 1.24 + go-zero | Gateway 与 AI RPC |
+| RPC | gRPC / protobuf | AI 服务内部接口 |
+| AI 引擎 | Python 3.10+ + FastAPI | RAG、摘要、报告草稿 |
+| 业务库 | PostgreSQL | 元数据、知识库、报告与日志 |
+| 向量库 | pgvector | 文档向量索引 |
+| 搜索 | Elasticsearch | BM25 召回 |
+| 时序库 | TDengine | 风机测点和告警数据 |
 | 缓存 | Redis | 缓存、限流、分布式锁 |
-| 前端 | Vue.js (Vite) | 管理后台 + AI 对话页 |
-| 容器化 | Docker + Kubernetes | 全服务 Dockerfile + K8s Manifests |
-| 日志采集 | Filebeat | SSH auth.log 采集 |
-
-## 核心特性
-
-### 知识副驾驶 - RAG 检索链路
-
-```mermaid
-flowchart LR
-    Q["用户问题"] --> Rewrite["Query 规范化"]
-    Rewrite --> Vec["pgvector 语义召回 top20"]
-    Rewrite --> BM25["ES BM25 召回 top20"]
-    Vec --> Fuse["RRF 融合 top20"]
-    BM25 --> Fuse
-    Fuse --> Rerank["Rerank top5"]
-    Rerank --> Cut["Token 预算截断 3-5"]
-    Cut --> Prompt["组装上下文"]
-    Prompt --> LLM["LLM 生成"]
-```
-
-- **父子分块索引**：子块小负责精准召回，父块大负责提供完整上下文
-- **Hybrid Search**：pgvector 语义召回 + ES BM25 关键词召回，双路融合
-- **Rerank**：融合后精排，提升最终上下文质量
-- **上下文工程**：System Prompt + 短期记忆 + 检索片段 + 用户问题 + 输出格式
-
-### 安全副驾驶 - 日志分析链路
-
-```mermaid
-flowchart LR
-    ECS["Filebeat 采集 auth.log"] --> ES["Elasticsearch 原始日志"]
-    ES --> AIRPC["ai.rpc 查询 / 聚合"]
-    AIRPC --> PY["Python 解析 / 富化"]
-    PY --> PG["PostgreSQL 事件 / 告警 / 日报"]
-```
-
-- **规则引擎**：暴力破解（5 分钟同 IP 失败 >= 10 次）、高危 IP、异常地区登录
-- **AI 安全日报**：攻击趋势、Top IP、Top 国家、AI 总结、建议动作
-- **自然语言查询**："昨天有多少次恶意登录？"
-
-### 受控 Agent
-
-首版只做受控工具调用，不做任意 shell 执行或自治决策：
-
-- 工具白名单：`search_knowledge_base`、`query_security_events`、`query_security_alerts`、`get_daily_report`、`generate_daily_report`
-- 安全控制：参数 Schema 校验、权限校验、工具只读、检索隔离、Prompt 注入防护、全链路审计
-
-> LLM 负责建议，系统负责裁决，权限系统拥有最后否决权。
+| 服务发现 | etcd | go-zero 服务注册与发现 |
+| 容器化 | Docker / Kubernetes | 部署脚本与清单 |
 
 ## 项目结构
 
 ```text
 ai-copilot-platform/
-├── gateway/                    # Go HTTP 网关 (go-zero rest.Server)
-│   ├── gateway.go              # 入口
-│   ├── api/                    # API 定义 (.api 文件)
-│   │   └── desc/ai/            # AI 域 API 定义
-│   ├── etc/                    # 配置 (yaml gitignored, example 可提交)
-│   ├── internal/               # handler / logic / svc / types / middleware
-│   └── pkg/                    # sysgateway 注册包 / upload 工具
+├── gateway/                         # go-zero HTTP 网关
+│   ├── api/desc/ai/                 # AI 域 API 定义
+│   │   ├── wind_common.api
+│   │   ├── wind_metadata.api
+│   │   ├── wind_timeseries.api
+│   │   ├── wind_alarm.api
+│   │   ├── wind_report.api
+│   │   └── wind_agent.api
+│   ├── internal/handler/            # HTTP handler
+│   ├── internal/logic/              # Gateway 业务转发逻辑
+│   └── etc/                         # 本地 yaml 已忽略，example 可提交
 ├── service/
-│   ├── ai/
-│   │   ├── rpc/                # Go AI RPC 服务 (gRPC)
-│   │   │   ├── ai.go           # 入口
-│   │   │   ├── pb/             # protobuf 定义 + 生成代码
-│   │   │   ├── etc/            # 配置 (yaml gitignored)
-│   │   │   └── internal/       # config / logic / server / svc
-│   │   └── engine/             # Python AI 引擎 (FastAPI)
-│   │       ├── app/            # api / core / schemas / services
-│   │       ├── tests/          # 测试
-│   │       ├── scripts/        # 冒烟脚本
-│   │       ├── requirements.txt
-│   │       └── config.example.yaml
-│   └── job/                    # Go 定时任务服务
-├── deploy/                     # 部署配置
-│   ├── docker/                 # Dockerfile + SQL
-│   ├── elasticsearch/          # ES 索引模板
-│   ├── filebeat/               # Filebeat 配置模板
-│   └── k8s/                    # Kubernetes Manifests
-├── etc/                        # 通用配置 (Casbin rbac_model.conf)
-├── go.work                     # Go workspace
+│   └── ai/
+│       ├── rpc/                     # Go AI RPC
+│       │   ├── pb/ai.proto          # 知识库、会话、LLMOps、Wind RPC 定义
+│       │   ├── internal/model/      # PostgreSQL 与 TDengine 查询封装
+│       │   ├── internal/logic/      # AI RPC 业务逻辑
+│       │   └── etc/                 # 本地 yaml 已忽略，example 可提交
+│       └── engine/                  # Python FastAPI AI Engine
+│           ├── app/api/routes_wind.py
+│           ├── app/schemas/wind.py
+│           ├── app/services/wind.py
+│           └── tests/test_wind.py
+├── deploy/sql/
+│   ├── ai_copilot.sql               # AI 知识库与平台表
+│   ├── ai_wind_copilot.sql          # 风机混塔 AI Copilot 表
+│   └── wind_data.sql                # 原风机业务数据表重构来源
+├── etc/                             # 通用配置模板
+├── go.work
 └── go.mod
+```
+
+## 核心数据设计
+
+### PostgreSQL 风机业务表
+
+| 表 | 作用 |
+| --- | --- |
+| `wind_farm` | 风场信息与 TDengine database 映射 |
+| `wind_turbine` | 风机/混塔元数据 |
+| `wind_device_type` | 设备类型与 TDengine stable 映射 |
+| `wind_device` | 设备实例、通道和安装位置 |
+| `wind_device_meta` | 字段白名单、单位、阈值和测点描述 |
+| `wind_structure_type` | 风机结构位置 |
+| `wind_model`, `wind_model_device_map`, `wind_model_record` | 模型与设备映射预留 |
+| `wind_camera_record` | 摄像机记录预留 |
+
+### AI 草稿与审计表
+
+| 表 | 作用 |
+| --- | --- |
+| `ai_alarm_analysis` | 告警归因草稿与 evidence |
+| `ai_health_report` | 健康报告草稿 |
+| `ai_maintenance_ticket_draft` | 可编辑维修工单草稿 |
+| `ai_tool_call_log` | 受控工具调用日志 |
+| `ai_llm_call_log` | LLM 调用 trace 与 token 统计 |
+
+### TDengine stable 映射
+
+| 数据类型 | stable |
+| --- | --- |
+| 应变 | `strain` |
+| 加速度 | `accel` |
+| 倾角 | `inclinometer` |
+| 锚索计 | `tension` |
+| 测风雷达 | `radar` |
+| 测缝计 | `joint_meter` |
+| 静力水准仪 | `hydrostatic` |
+| 超声波液位 | `ultrasonic_level` |
+| GNSS | `gnss` |
+| 告警 | `alarm` |
+
+TDengine 查询必须经过 Go RPC model 封装，`database`、`stable` 和 `field` 分别只能来自 `wind_farm.td_database`、`wind_device_type.td_stable` 和 `wind_device_meta.column_name`，前端不能传任意 SQL。
+
+## API 概览
+
+### Gateway 风机运维接口
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/ai/wind/metadata/farms` | 查询风场列表和 TDengine database 映射 |
+| GET | `/api/v1/ai/wind/metadata/turbines` | 查询风机列表 |
+| GET | `/api/v1/ai/wind/metadata/devices` | 查询设备、测点和 stable 映射 |
+| POST | `/api/v1/ai/wind/timeseries/query` | 查询测点时序数据并返回 evidence |
+| POST | `/api/v1/ai/wind/timeseries/compare` | 趋势对比草稿 |
+| POST | `/api/v1/ai/wind/alarms/query` | 查询 TDengine alarm 数据 |
+| POST | `/api/v1/ai/wind/alarms/analyze` | 告警归因草稿 |
+| POST | `/api/v1/ai/wind/reports/health/generate` | 生成健康报告草稿 |
+| GET | `/api/v1/ai/wind/reports/health/:reportId` | 查询健康报告草稿 |
+| POST | `/api/v1/ai/wind/tickets/draft` | 创建维修工单草稿 |
+| POST | `/api/v1/ai/wind/agent/run` | 运行受控 Agent |
+| GET | `/api/v1/ai/wind/agent/tool-calls` | 查询工具调用日志 |
+
+### Python Engine 内部接口
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/v1/wind/summary/timeseries` | 根据 points evidence 生成测点统计摘要 |
+| POST | `/v1/wind/summary/alarm` | 根据 alarm evidence 聚合告警 |
+| POST | `/v1/wind/reports/health/draft` | 生成健康报告草稿 |
+| POST | `/v1/wind/tickets/draft` | 生成维修工单草稿 |
+
+### Agent 工具白名单
+
+```text
+search_maintenance_sop
+query_sensor_timeseries
+query_alarm_events
+get_turbine_metadata
+compare_sensor_trend
+generate_health_report
+create_maintenance_ticket_draft
 ```
 
 ## 快速开始
@@ -178,19 +227,29 @@ ai-copilot-platform/
 
 - Go 1.24+
 - Python 3.10+
-- PostgreSQL + pgvector 扩展
-- Elasticsearch 9.x
+- PostgreSQL + pgvector
+- Elasticsearch
 - Redis
 - etcd
+- TDengine，开发期 `TDengine.Link` 可先留空
 
-### 启动 Python AI 引擎
+### 初始化数据库
+
+```bash
+psql -f deploy/sql/ai_copilot.sql
+psql -f deploy/sql/ai_wind_copilot.sql
+```
+
+如需导入原风机业务表参考数据，可结合 `deploy/sql/wind_data.sql` 做迁移或重构。
+
+### 启动 Python AI Engine
 
 ```bash
 cd service/ai/engine
 python -m venv .venv
 source .venv/bin/activate  # Windows: .\.venv\Scripts\activate
 pip install -r requirements.txt
-cp config.example.yaml config.yaml  # 修改为实际配置
+cp config.example.yaml config.yaml
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 ```
 
@@ -200,75 +259,69 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 curl http://127.0.0.1:8001/v1/health
 ```
 
-### 启动 Go 服务
+### 启动 Go AI RPC
 
 ```bash
-# 启动 sys-rpc (依赖 go-zero-rpc 架构仓)
-cd <go-zero-rpc>/service/sys/rpc
-go run sys.go -f etc/sys.yaml
-
-# 启动 ai.rpc
 cd service/ai/rpc
-cp etc/ai.example.yaml etc/ai.yaml  # 修改为实际配置
+cp etc/ai.example.yaml etc/ai.yaml
 go run ai.go -f etc/ai.yaml
+```
 
-# 启动 Gateway
+`etc/ai.yaml` 是本地敏感配置，已被 `.gitignore` 忽略。TDengine 未配置时，相关接口应返回空结果和 scaffold evidence，不影响服务启动。
+
+### 启动 Gateway
+
+```bash
 cd gateway
-cp etc/gateway-api.example.yaml etc/gateway.yaml  # 修改为实际配置
+cp etc/gateway-api.example.yaml etc/gateway.yaml
 go run gateway.go -f etc/gateway.yaml
 ```
 
-## API 概览
+## 开发命令
 
-### 对外接口 (Gateway)
+重新生成 Gateway：
 
-```text
-知识库
-POST   /api/ai/kb                    创建知识库
-GET    /api/ai/kb                    知识库列表
-POST   /api/ai/document/upload       上传文档
-GET    /api/ai/document/:id          文档详情
-
-对话
-POST   /api/ai/chat/conversation     创建会话
-GET    /api/ai/chat/conversation/:id/messages  消息列表
-POST   /api/ai/chat/stream           流式对话
-
-安全
-POST   /api/ai/security/logs/ingest  日志入库
-GET    /api/ai/security/events       安全事件
-GET    /api/ai/security/alerts       安全告警
-GET    /api/ai/security/reports/daily AI 日报
-
-平台
-GET    /api/ai/models                模型配置
-GET    /api/ai/llm-calls             LLM 调用记录
+```powershell
+cd D:\GoProject\project_new\ai-copilot-platform\gateway
+goctl api go -api api\gateway.api -dir . --style=go_zero
 ```
 
-### Python 内部接口 (AI Engine)
+重新生成 AI RPC：
 
-```text
-POST /v1/parse          文档解析
-POST /v1/chunk          文档分块
-POST /v1/embed          向量化
-POST /v1/retrieve       检索
-POST /v1/rerank         重排
-POST /v1/chat/stream    流式对话
-POST /v1/log/enrich     日志富化
-POST /v1/summarize      摘要生成
-POST /v1/agent/run      Agent 执行
+```powershell
+cd D:\GoProject\project_new\ai-copilot-platform\service\ai\rpc
+goctl rpc protoc pb\ai.proto --go_out=. --go-grpc_out=. --zrpc_out=. --style=go_zero -m
 ```
 
-## 数据库设计
+## 验证
 
-| 域 | 表 |
-| --- | --- |
-| 知识域 | `ai_knowledge_base`, `ai_document`, `ai_document_parent_chunk`, `ai_document_chunk` |
-| 对话域 | `ai_conversation`, `ai_message` |
-| 安全域 | `ai_security_event`, `ai_security_alert`, `ai_daily_report` |
-| 平台域 | `ai_model_config`, `ai_llm_call_log` |
+```bash
+cd service/ai/rpc
+go test ./...
 
-ES 索引：`kb_chunks_index`（文档关键词索引）、`security_logs_index`（安全日志全文索引）
+cd ../../../gateway
+go test ./...
+
+cd ../service/ai/engine
+python -m pytest -q
+```
+
+一期验收重点：
+
+- `routes_security`、`AiSecurityService`、`SearchSecurityLogs`、旧 `DailyReport` 和 `/security` 不再出现。
+- 元数据接口能返回风场、风机、设备结构化响应。
+- TDengine Link 为空时，测点和告警接口不导致服务失败。
+- Python evidence 为空时拒绝事实判断，有 evidence 时能生成统计、报告和工单草稿。
+- 工具调用带 `trace_id`，结果可审计。
+
+## 敏感文件策略
+
+仓库只提交模板和代码，不提交本地真实配置或临时材料：
+
+- 忽略 `docs/`、`prompt.md`、IDE 状态、`.env*`、`*.local*`。
+- 忽略 `gateway/etc/*.yaml`、`service/*/rpc/etc/*.yaml`、`service/ai/engine/config.yaml`。
+- 只提交 `*.example.yaml`、`*.example.yml`、`*.example.env` 这类示例配置。
+- 忽略私钥、证书、备份配置、日志、虚拟环境和上传目录。
 
 ## License
 

@@ -16,6 +16,11 @@ Engine:
 Storage:
   UploadPath: "D:/GoProject/project_new/ai-copilot-platform/gateway/uploads"
 
+TDengine:
+  Link: ""
+  MaxOpenConn: 50
+  MaxIdleConn: 10
+
 Elasticsearch:
   URL: "http://127.0.0.1:9200"
   KbChunksIndex: "kb_chunks_index"

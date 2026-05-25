@@ -26,6 +26,12 @@ type Config struct {
 		UploadPath string
 	}
 
+	TDengine struct {
+		Link        string
+		MaxOpenConn int
+		MaxIdleConn int
+	}
+
 	Elasticsearch ElasticsearchConf
 }
 

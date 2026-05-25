@@ -6,6 +6,11 @@ package svc
 import (
 	aiknowledgeclient "ai-copilot-platform/ai-rpc/client/aiknowledgeservice"
 	aistatusclient "ai-copilot-platform/ai-rpc/client/aistatusservice"
+	aiwindagentclient "ai-copilot-platform/ai-rpc/client/aiwindagentservice"
+	aiwindalarmclient "ai-copilot-platform/ai-rpc/client/aiwindalarmservice"
+	aiwindmetadataclient "ai-copilot-platform/ai-rpc/client/aiwindmetadataservice"
+	aiwindreportclient "ai-copilot-platform/ai-rpc/client/aiwindreportservice"
+	aiwindtimeseriesclient "ai-copilot-platform/ai-rpc/client/aiwindtimeseriesservice"
 	"ai-copilot-platform/gateway/internal/config"
 	"ai-copilot-platform/gateway/internal/ws"
 	"go-zero-rpc/common/middleware"
@@ -24,8 +29,13 @@ type ServiceContext struct {
 	SysRpc  systemclient.SystemService
 	PermRpc permclient.PermissionService
 
-	AiStatusClient    aistatusclient.AiStatusService
-	AiKnowledgeClient aiknowledgeclient.AiKnowledgeService
+	AiStatusClient         aistatusclient.AiStatusService
+	AiKnowledgeClient      aiknowledgeclient.AiKnowledgeService
+	AiWindMetadataClient   aiwindmetadataclient.AiWindMetadataService
+	AiWindTimeseriesClient aiwindtimeseriesclient.AiWindTimeseriesService
+	AiWindAlarmClient      aiwindalarmclient.AiWindAlarmService
+	AiWindReportClient     aiwindreportclient.AiWindReportService
+	AiWindAgentClient      aiwindagentclient.AiWindAgentService
 
 	WsHub *ws.Hub
 
@@ -45,6 +55,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	aiStatusSvc := aistatusclient.NewAiStatusService(aiCli)
 	aiKnowledgeSvc := aiknowledgeclient.NewAiKnowledgeService(aiCli)
+	aiWindMetadataSvc := aiwindmetadataclient.NewAiWindMetadataService(aiCli)
+	aiWindTimeseriesSvc := aiwindtimeseriesclient.NewAiWindTimeseriesService(aiCli)
+	aiWindAlarmSvc := aiwindalarmclient.NewAiWindAlarmService(aiCli)
+	aiWindReportSvc := aiwindreportclient.NewAiWindReportService(aiCli)
+	aiWindAgentSvc := aiwindagentclient.NewAiWindAgentService(aiCli)
 
 	wsHub := ws.NewHub()
 	go wsHub.Run()
@@ -55,8 +70,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SysRpc:  sysSvc,
 		PermRpc: permSvc,
 
-		AiStatusClient:    aiStatusSvc,
-		AiKnowledgeClient: aiKnowledgeSvc,
+		AiStatusClient:         aiStatusSvc,
+		AiKnowledgeClient:      aiKnowledgeSvc,
+		AiWindMetadataClient:   aiWindMetadataSvc,
+		AiWindTimeseriesClient: aiWindTimeseriesSvc,
+		AiWindAlarmClient:      aiWindAlarmSvc,
+		AiWindReportClient:     aiWindReportSvc,
+		AiWindAgentClient:      aiWindAgentSvc,
 
 		WsHub: wsHub,
 

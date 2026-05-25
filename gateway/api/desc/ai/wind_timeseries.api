@@ -1,0 +1,52 @@
+// 风机测点时序数据接口。
+
+type AiWindTimeseriesQueryReq {
+	farmCode string `json:"farmCode"`
+	towerCode string `json:"towerCode,optional"`
+	deviceCode string `json:"deviceCode,optional"`
+	deviceTypeCode string `json:"deviceTypeCode"`
+	field string `json:"field,optional"`
+	startTime string `json:"startTime,optional"`
+	endTime string `json:"endTime,optional"`
+	page int `json:"page,optional"`
+	pageSize int `json:"pageSize,optional"`
+}
+
+type AiWindTimeseriesQueryResp {
+	total int64 `json:"total"`
+	database string `json:"database"`
+	stable string `json:"stable"`
+	fields []string `json:"fields"`
+	points []AiWindDataPoint `json:"points"`
+	evidenceJson string `json:"evidenceJson"`
+	message string `json:"message"`
+}
+
+type AiWindTrendCompareReq {
+	farmCode string `json:"farmCode"`
+	towerCode string `json:"towerCode,optional"`
+	deviceTypeCode string `json:"deviceTypeCode"`
+	field string `json:"field,optional"`
+	startTime string `json:"startTime,optional"`
+	endTime string `json:"endTime,optional"`
+}
+
+type AiWindTrendCompareResp {
+	summary string `json:"summary"`
+	evidenceJson string `json:"evidenceJson"`
+	message string `json:"message"`
+}
+
+@server (
+	group: ai_wind_timeseries
+	prefix: /api/v1/ai/wind
+)
+service gateway {
+	// 查询测点时序数据，字段只允许来自 wind_device_meta 白名单。
+	@handler aiWindQueryTimeseries
+	post /timeseries/query (AiWindTimeseriesQueryReq) returns (AiWindTimeseriesQueryResp)
+
+	// 趋势对比接口，一期返回结构化 evidence 草稿。
+	@handler aiWindCompareTrend
+	post /timeseries/compare (AiWindTrendCompareReq) returns (AiWindTrendCompareResp)
+}

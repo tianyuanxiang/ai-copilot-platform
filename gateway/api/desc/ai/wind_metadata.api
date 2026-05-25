@@ -1,0 +1,53 @@
+// 风场、风机、设备和测点元数据接口。
+
+type AiWindListFarmReq {
+	keyword string `form:"keyword,optional"`
+}
+
+type AiWindListFarmResp {
+	total int64 `json:"total"`
+	list []AiWindFarmItem `json:"list"`
+	message string `json:"message"`
+}
+
+type AiWindListTurbineReq {
+	farmCode string `form:"farmCode,optional"`
+	keyword string `form:"keyword,optional"`
+}
+
+type AiWindListTurbineResp {
+	total int64 `json:"total"`
+	list []AiWindTurbineItem `json:"list"`
+	message string `json:"message"`
+}
+
+type AiWindListDeviceReq {
+	farmCode string `form:"farmCode,optional"`
+	towerCode string `form:"towerCode,optional"`
+	deviceTypeCode string `form:"deviceTypeCode,optional"`
+	keyword string `form:"keyword,optional"`
+}
+
+type AiWindListDeviceResp {
+	total int64 `json:"total"`
+	list []AiWindDeviceItem `json:"list"`
+	message string `json:"message"`
+}
+
+@server (
+	group: ai_wind_metadata
+	prefix: /api/v1/ai/wind
+)
+service gateway {
+	// 查询风场列表，返回 TDengine database 映射。
+	@handler aiWindListFarms
+	get /metadata/farms (AiWindListFarmReq) returns (AiWindListFarmResp)
+
+	// 查询风机列表，支持按风场和关键字过滤。
+	@handler aiWindListTurbines
+	get /metadata/turbines (AiWindListTurbineReq) returns (AiWindListTurbineResp)
+
+	// 查询设备和测点列表，返回 TDengine stable 映射。
+	@handler aiWindListDevices
+	get /metadata/devices (AiWindListDeviceReq) returns (AiWindListDeviceResp)
+}
