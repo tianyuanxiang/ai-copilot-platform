@@ -6,13 +6,15 @@ import (
 	"time"
 
 	"ai-copilot-platform/ai-rpc/internal/config"
-	aiagentservice "ai-copilot-platform/ai-rpc/internal/server/aiagentservice"
 	aichatservice "ai-copilot-platform/ai-rpc/internal/server/aichatservice"
 	aiknowledgeservice "ai-copilot-platform/ai-rpc/internal/server/aiknowledgeservice"
 	aiobservabilityservice "ai-copilot-platform/ai-rpc/internal/server/aiobservabilityservice"
-	aireportservice "ai-copilot-platform/ai-rpc/internal/server/aireportservice"
-	aisecurityservice "ai-copilot-platform/ai-rpc/internal/server/aisecurityservice"
 	aistatusservice "ai-copilot-platform/ai-rpc/internal/server/aistatusservice"
+	aiwindagentservice "ai-copilot-platform/ai-rpc/internal/server/aiwindagentservice"
+	aiwindalarmservice "ai-copilot-platform/ai-rpc/internal/server/aiwindalarmservice"
+	aiwindmetadataservice "ai-copilot-platform/ai-rpc/internal/server/aiwindmetadataservice"
+	aiwindreportservice "ai-copilot-platform/ai-rpc/internal/server/aiwindreportservice"
+	aiwindtimeseriesservice "ai-copilot-platform/ai-rpc/internal/server/aiwindtimeseriesservice"
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
 
@@ -39,13 +41,15 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterAiAgentServiceServer(grpcServer, aiagentservice.NewAiAgentServiceServer(ctx))
 		pb.RegisterAiChatServiceServer(grpcServer, aichatservice.NewAiChatServiceServer(ctx))
 		pb.RegisterAiKnowledgeServiceServer(grpcServer, aiknowledgeservice.NewAiKnowledgeServiceServer(ctx))
 		pb.RegisterAiObservabilityServiceServer(grpcServer, aiobservabilityservice.NewAiObservabilityServiceServer(ctx))
-		pb.RegisterAiReportServiceServer(grpcServer, aireportservice.NewAiReportServiceServer(ctx))
-		pb.RegisterAiSecurityServiceServer(grpcServer, aisecurityservice.NewAiSecurityServiceServer(ctx))
 		pb.RegisterAiStatusServiceServer(grpcServer, aistatusservice.NewAiStatusServiceServer(ctx))
+		pb.RegisterAiWindAgentServiceServer(grpcServer, aiwindagentservice.NewAiWindAgentServiceServer(ctx))
+		pb.RegisterAiWindAlarmServiceServer(grpcServer, aiwindalarmservice.NewAiWindAlarmServiceServer(ctx))
+		pb.RegisterAiWindMetadataServiceServer(grpcServer, aiwindmetadataservice.NewAiWindMetadataServiceServer(ctx))
+		pb.RegisterAiWindReportServiceServer(grpcServer, aiwindreportservice.NewAiWindReportServiceServer(ctx))
+		pb.RegisterAiWindTimeseriesServiceServer(grpcServer, aiwindtimeseriesservice.NewAiWindTimeseriesServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

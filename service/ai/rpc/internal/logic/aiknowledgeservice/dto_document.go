@@ -20,30 +20,6 @@ const (
 	documentStatusFailed   = "failed"
 )
 
-type parseResponse struct {
-	Text     string                 `json:"text"`
-	Metadata map[string]interface{} `json:"metadata"`
-	Parents  []parentChunk          `json:"parents"`
-}
-
-type parentChunk struct {
-	ParentIndex int64        `json:"parent_index"`
-	Content     string       `json:"content"`
-	TokenCount  int64        `json:"token_count"`
-	Children    []childChunk `json:"children"`
-}
-
-type childChunk struct {
-	ChunkIndex int64  `json:"chunk_index"`
-	Content    string `json:"content"`
-	TokenCount int64  `json:"token_count"`
-}
-
-type embedResponse struct {
-	Vectors     [][]float64 `json:"vectors"`
-	TokenCounts []int64     `json:"token_counts"`
-}
-
 type flatChunk struct {
 	ParentDBID int64
 	ChunkDBID  int64

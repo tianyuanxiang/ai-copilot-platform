@@ -1,0 +1,73 @@
+// 风机混塔智能运维 AI Copilot 通用类型。
+
+type AiWindFarmItem {
+	farmId int64 `json:"farmId"`
+	farmCode string `json:"farmCode"`
+	farmName string `json:"farmName"`
+	province string `json:"province"`
+	location string `json:"location"`
+	tdDatabase string `json:"tdDatabase"`
+	aiEnabled bool `json:"aiEnabled"`
+}
+
+type AiWindTurbineItem {
+	turbineId int64 `json:"turbineId"`
+	towerId int64 `json:"towerId"`
+	towerCode string `json:"towerCode"`
+	towerName string `json:"towerName"`
+	farmCode string `json:"farmCode"`
+	farmName string `json:"farmName"`
+	riskLevel string `json:"riskLevel"`
+	aiEnabled bool `json:"aiEnabled"`
+}
+
+type AiWindDeviceItem {
+	deviceId int64 `json:"deviceId"`
+	deviceCode string `json:"deviceCode"`
+	deviceTypeCode string `json:"deviceTypeCode"`
+	deviceTypeName string `json:"deviceTypeName"`
+	towerId int64 `json:"towerId"`
+	towerCode string `json:"towerCode"`
+	structureCode string `json:"structureCode"`
+	structureName string `json:"structureName"`
+	tdStable string `json:"tdStable"`
+	status int `json:"status"`
+	aiEnabled bool `json:"aiEnabled"`
+}
+
+type AiWindDataPoint {
+	ts string `json:"ts"`
+	values map[string]string `json:"values"`
+}
+
+type AiWindAlarmItem {
+	ts string `json:"ts"`
+	farmCode string `json:"farmCode"`
+	towerCode string `json:"towerCode"`
+	deviceChannel int64 `json:"deviceChannel"`
+	deviceType int64 `json:"deviceType"`
+	alarmLocation string `json:"alarmLocation"`
+	alarmLevel int64 `json:"alarmLevel"`
+	alarmCode int64 `json:"alarmCode"`
+	alarmValue string `json:"alarmValue"`
+	status int64 `json:"status"`
+}
+
+type AiWindScaffoldResp {
+	id int64 `json:"id"`
+	traceId string `json:"traceId"`
+	title string `json:"title"`
+	content string `json:"content"`
+	evidenceJson string `json:"evidenceJson"`
+	message string `json:"message"`
+}
+
+type AiWindToolCallItem {
+	toolCallId int64 `json:"toolCallId"`
+	toolName string `json:"toolName"`
+	status string `json:"status"`
+	argumentsJson string `json:"argumentsJson"`
+	resultJson string `json:"resultJson"`
+	message string `json:"message"`
+	createdAt string `json:"createdAt"`
+}

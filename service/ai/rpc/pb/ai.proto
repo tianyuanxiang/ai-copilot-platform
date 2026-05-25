@@ -417,167 +417,7 @@ message GetConversationMessagesResp {
   repeated MessageItem list = 2;
 }
 
-// ==================== 安全日志、事件、告警 ====================
-
-message SearchSecurityLogsReq {
-  int64 user_id = 1;
-  string query = 2;
-  string ip = 3;
-  string username = 4;
-  string start_time = 5;
-  string end_time = 6;
-  int64 page = 7;
-  int64 page_size = 8;
-}
-
-message SecurityLogItem {
-  string id = 1;
-  string timestamp = 2;
-  string host = 3;
-  string ip = 4;
-  string username = 5;
-  string message = 6;
-}
-
-message SecurityLogSearchResp {
-  int64 total = 1;
-  repeated SecurityLogItem list = 2;
-  string message = 3;
-}
-
-message AnalyzeSecurityEventsReq {
-  int64 user_id = 1;
-  repeated string raw_logs = 2;
-  int64 operator_id = 20;
-}
-
-message SecurityEventItem {
-  int64 event_id = 1;
-  string event_type = 2;
-  string severity = 3;
-  string ip = 4;
-  string username = 5;
-  string summary = 6;
-  string detail = 7;
-  string occurred_at = 8;
-  string created_at = 9;
-}
-
-message AnalyzeSecurityEventsResp {
-  repeated SecurityEventItem events = 1;
-  repeated string alerts = 2;
-  string message = 3;
-}
-
-message ListSecurityEventsReq {
-  int64 page = 1;
-  int64 page_size = 2;
-  int64 user_id = 3;
-  string event_type = 4;
-  bool has_event_type = 5;
-  string severity = 6;
-  bool has_severity = 7;
-  string ip = 8;
-  string username = 9;
-  string start_time = 10;
-  string end_time = 11;
-}
-
-message ListSecurityEventsResp {
-  int64 total = 1;
-  repeated SecurityEventItem list = 2;
-}
-
-message SecurityAlertItem {
-  int64 alert_id = 1;
-  string alert_type = 2;
-  string severity = 3;
-  string ip = 4;
-  string username = 5;
-  string title = 6;
-  string summary = 7;
-  string detail = 8;
-  string status = 9;
-  string occurred_at = 10;
-  string created_at = 11;
-}
-
-message ListSecurityAlertsReq {
-  int64 page = 1;
-  int64 page_size = 2;
-  int64 user_id = 3;
-  string alert_type = 4;
-  bool has_alert_type = 5;
-  string severity = 6;
-  bool has_severity = 7;
-  string status = 8;
-  bool has_status = 9;
-  string ip = 10;
-  string start_time = 11;
-  string end_time = 12;
-}
-
-message ListSecurityAlertsResp {
-  int64 total = 1;
-  repeated SecurityAlertItem list = 2;
-}
-
-message UpdateSecurityAlertStatusReq {
-  int64 alert_id = 1;
-  string status = 2;
-  int64 user_id = 3;
-  int64 operator_id = 20;
-}
-
-// ==================== 安全日报 ====================
-
-message GenerateDailyReportReq {
-  int64 user_id = 1;
-  string date = 2;
-  int64 operator_id = 20;
-}
-
-message DailyReportResp {
-  int64 report_id = 1;
-  string date = 2;
-  string title = 3;
-  string content = 4;
-  string status = 5;
-  int64 failed_login_count = 6;
-  int64 success_login_count = 7;
-  int64 alert_count = 8;
-  repeated TopCountItem top_ips = 9;
-  repeated TopCountItem top_users = 10;
-  string created_at = 11;
-}
-
-message ListDailyReportReq {
-  int64 page = 1;
-  int64 page_size = 2;
-  int64 user_id = 3;
-  string start_date = 4;
-  string end_date = 5;
-  string status = 6;
-  bool has_status = 7;
-}
-
-message ListDailyReportResp {
-  int64 total = 1;
-  repeated DailyReportResp list = 2;
-}
-
-message GetDailyReportReq {
-  int64 report_id = 1;
-  int64 user_id = 2;
-}
-
-// ==================== 受控 Agent ====================
-
-message AgentRunReq {
-  int64 user_id = 1;
-  string conversation_id = 2;
-  string input = 3;
-}
+// ==================== Tool call audit ====================
 
 message ToolCall {
   int64 tool_call_id = 1;
@@ -587,12 +427,6 @@ message ToolCall {
   string result_json = 5;
   string message = 6;
   string created_at = 7;
-}
-
-message AgentRunResp {
-  string answer = 1;
-  repeated ToolCall tool_calls = 2;
-  string trace_id = 3;
 }
 
 message ListToolCallLogReq {
@@ -734,38 +568,6 @@ service AiChatService {
   rpc GetConversationMessages(GetConversationMessagesReq) returns (GetConversationMessagesResp);
 }
 
-// AI 安全服务，负责 SSH 日志检索、事件分析和告警管理。
-service AiSecurityService {
-  // 检索 SSH 原始日志。
-  rpc SearchSecurityLogs(SearchSecurityLogsReq) returns (SecurityLogSearchResp);
-  // 分析原始日志并生成结构化安全事件和告警摘要。
-  rpc AnalyzeSecurityEvents(AnalyzeSecurityEventsReq) returns (AnalyzeSecurityEventsResp);
-  // 查询结构化安全事件列表。
-  rpc ListSecurityEvents(ListSecurityEventsReq) returns (ListSecurityEventsResp);
-  // 查询安全告警列表。
-  rpc ListSecurityAlerts(ListSecurityAlertsReq) returns (ListSecurityAlertsResp);
-  // 更新安全告警处理状态。
-  rpc UpdateSecurityAlertStatus(UpdateSecurityAlertStatusReq) returns (Empty);
-}
-
-// AI 日报服务，负责生成和查询安全日报。
-service AiReportService {
-  // 生成指定日期的 AI 安全日报。
-  rpc GenerateDailyReport(GenerateDailyReportReq) returns (DailyReportResp);
-  // 查询 AI 安全日报列表。
-  rpc ListDailyReport(ListDailyReportReq) returns (ListDailyReportResp);
-  // 查询单份 AI 安全日报详情。
-  rpc GetDailyReport(GetDailyReportReq) returns (DailyReportResp);
-}
-
-// AI Agent 服务，负责受控 Agent 执行和工具调用审计。
-service AiAgentService {
-  // 运行受控 Agent，只允许调用白名单工具。
-  rpc RunAgent(AgentRunReq) returns (AgentRunResp);
-  // 查询 Agent 工具调用日志。
-  rpc ListToolCallLog(ListToolCallLogReq) returns (ListToolCallLogResp);
-}
-
 // AI 可观测性服务，负责 LLM 调用 trace 和 token 统计。
 service AiObservabilityService {
   // 查询指定 traceId 下的 LLM 调用链路。
@@ -774,4 +576,247 @@ service AiObservabilityService {
   rpc ListLlmCallLog(ListLlmCallLogReq) returns (ListLlmCallLogResp);
   // 查询当前用户在指定范围内的 token 用量统计。
   rpc GetTokenStats(GetTokenStatsReq) returns (TokenStatsResp);
+}
+
+// ==================== 风机混塔智能运维一期脚手架 ====================
+
+message WindFarmItem {
+  int64 farm_id = 1;
+  string farm_code = 2;
+  string farm_name = 3;
+  string province = 4;
+  string location = 5;
+  string td_database = 6;
+  bool ai_enabled = 7;
+}
+
+message ListWindFarmReq {
+  string keyword = 1;
+}
+
+message ListWindFarmResp {
+  int64 total = 1;
+  repeated WindFarmItem list = 2;
+  string message = 3;
+}
+
+message WindTurbineItem {
+  int64 turbine_id = 1;
+  int64 tower_id = 2;
+  string tower_code = 3;
+  string tower_name = 4;
+  string farm_code = 5;
+  string farm_name = 6;
+  string risk_level = 7;
+  bool ai_enabled = 8;
+}
+
+message ListWindTurbineReq {
+  string farm_code = 1;
+  string keyword = 2;
+}
+
+message ListWindTurbineResp {
+  int64 total = 1;
+  repeated WindTurbineItem list = 2;
+  string message = 3;
+}
+
+message WindDeviceItem {
+  int64 device_id = 1;
+  string device_code = 2;
+  string device_type_code = 3;
+  string device_type_name = 4;
+  int64 tower_id = 5;
+  string tower_code = 6;
+  string structure_code = 7;
+  string structure_name = 8;
+  string td_stable = 9;
+  int64 status = 10;
+  bool ai_enabled = 11;
+}
+
+message ListWindDeviceReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string device_type_code = 3;
+  string keyword = 4;
+}
+
+message ListWindDeviceResp {
+  int64 total = 1;
+  repeated WindDeviceItem list = 2;
+  string message = 3;
+}
+
+message WindTimeseriesQueryReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string device_code = 3;
+  string device_type_code = 4;
+  string field = 5;
+  string start_time = 6;
+  string end_time = 7;
+  int64 page = 8;
+  int64 page_size = 9;
+  int64 user_id = 20;
+}
+
+message WindDataPoint {
+  string ts = 1;
+  map<string, string> values = 2;
+}
+
+message WindTimeseriesQueryResp {
+  int64 total = 1;
+  string database = 2;
+  string stable = 3;
+  repeated string fields = 4;
+  repeated WindDataPoint points = 5;
+  string evidence_json = 6;
+  string message = 7;
+}
+
+message WindTrendCompareReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string device_type_code = 3;
+  string field = 4;
+  string start_time = 5;
+  string end_time = 6;
+  int64 user_id = 20;
+}
+
+message WindTrendCompareResp {
+  string summary = 1;
+  string evidence_json = 2;
+  string message = 3;
+}
+
+message WindAlarmQueryReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string device_type_code = 3;
+  string device_code = 4;
+  string alarm_code = 5;
+  int64 alarm_level = 6;
+  int64 status = 7;
+  string start_time = 8;
+  string end_time = 9;
+  int64 page = 10;
+  int64 page_size = 11;
+  int64 user_id = 20;
+}
+
+message WindAlarmItem {
+  string ts = 1;
+  string farm_code = 2;
+  string tower_code = 3;
+  int64 device_channel = 4;
+  int64 device_type = 5;
+  string alarm_location = 6;
+  int64 alarm_level = 7;
+  int64 alarm_code = 8;
+  string alarm_value = 9;
+  int64 status = 10;
+}
+
+message WindAlarmQueryResp {
+  int64 total = 1;
+  repeated WindAlarmItem list = 2;
+  string evidence_json = 3;
+  string message = 4;
+}
+
+message WindAlarmAnalyzeReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string alarm_code = 3;
+  string evidence_json = 4;
+  int64 user_id = 20;
+}
+
+message WindScaffoldResp {
+  int64 id = 1;
+  string trace_id = 2;
+  string title = 3;
+  string content = 4;
+  string evidence_json = 5;
+  string message = 6;
+}
+
+message WindHealthReportReq {
+  string report_type = 1;
+  string farm_code = 2;
+  string tower_code = 3;
+  string start_time = 4;
+  string end_time = 5;
+  string evidence_json = 6;
+  int64 user_id = 20;
+}
+
+message WindHealthReportGetReq {
+  int64 report_id = 1;
+  int64 user_id = 2;
+}
+
+message WindTicketDraftReq {
+  string farm_code = 1;
+  string tower_code = 2;
+  string alarm_code = 3;
+  string evidence_json = 4;
+  int64 user_id = 20;
+}
+
+message WindAgentRunReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+  string input = 3;
+}
+
+message WindAgentRunResp {
+  string answer = 1;
+  repeated ToolCall tool_calls = 2;
+  string trace_id = 3;
+}
+
+message WindListToolCallLogReq {
+  int64 page = 1;
+  int64 page_size = 2;
+  int64 user_id = 3;
+  string trace_id = 4;
+  string tool_name = 5;
+  string status = 6;
+}
+
+message WindListToolCallLogResp {
+  int64 total = 1;
+  repeated ToolCall list = 2;
+}
+
+service AiWindMetadataService {
+  rpc ListFarms(ListWindFarmReq) returns (ListWindFarmResp);
+  rpc ListTurbines(ListWindTurbineReq) returns (ListWindTurbineResp);
+  rpc ListDevices(ListWindDeviceReq) returns (ListWindDeviceResp);
+}
+
+service AiWindTimeseriesService {
+  rpc QueryTimeseries(WindTimeseriesQueryReq) returns (WindTimeseriesQueryResp);
+  rpc CompareTrend(WindTrendCompareReq) returns (WindTrendCompareResp);
+}
+
+service AiWindAlarmService {
+  rpc QueryAlarms(WindAlarmQueryReq) returns (WindAlarmQueryResp);
+  rpc AnalyzeAlarm(WindAlarmAnalyzeReq) returns (WindScaffoldResp);
+}
+
+service AiWindReportService {
+  rpc GenerateHealthReport(WindHealthReportReq) returns (WindScaffoldResp);
+  rpc GetHealthReport(WindHealthReportGetReq) returns (WindScaffoldResp);
+}
+
+service AiWindAgentService {
+  rpc CreateTicketDraft(WindTicketDraftReq) returns (WindScaffoldResp);
+  rpc RunAgent(WindAgentRunReq) returns (WindAgentRunResp);
+  rpc ListToolCallLog(WindListToolCallLogReq) returns (WindListToolCallLogResp);
 }

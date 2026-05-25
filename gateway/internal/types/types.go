@@ -9,27 +9,6 @@ type AiAddKbMemberReq struct {
 	Role   string `json:"role"`
 }
 
-type AiAgentRunReq struct {
-	ConversationId string `json:"conversationId,optional"`
-	Input          string `json:"input"`
-}
-
-type AiAgentRunResp struct {
-	Answer    string           `json:"answer"`
-	TraceId   string           `json:"traceId"`
-	ToolCalls []AiToolCallItem `json:"toolCalls"`
-}
-
-type AiAnalyzeSecurityEventsReq struct {
-	RawLogs []string `json:"rawLogs"`
-}
-
-type AiAnalyzeSecurityEventsResp struct {
-	Events  []AiSecurityEventItem `json:"events"`
-	Alerts  []string              `json:"alerts"`
-	Message string                `json:"message"`
-}
-
 type AiChatMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
@@ -108,40 +87,6 @@ type AiCreatePublicKbResp struct {
 	KbId int64 `json:"kbId"`
 }
 
-type AiDailyReportItem struct {
-	ReportId          int64            `json:"reportId"`
-	Date              string           `json:"date"`
-	Title             string           `json:"title"`
-	Content           string           `json:"content"`
-	Status            string           `json:"status"`
-	FailedLoginCount  int64            `json:"failedLoginCount"`
-	SuccessLoginCount int64            `json:"successLoginCount"`
-	AlertCount        int64            `json:"alertCount"`
-	TopIps            []AiTopCountItem `json:"topIps"`
-	TopUsers          []AiTopCountItem `json:"topUsers"`
-	CreatedAt         string           `json:"createdAt"`
-}
-
-type AiDailyReportPathReq struct {
-	ReportId int64 `path:"reportId"`
-}
-
-type AiDailyReportQueryReq struct {
-	Page      int    `form:"page,optional"`
-	PageSize  int    `form:"pageSize,optional"`
-	StartDate string `form:"startDate,optional"`
-	EndDate   string `form:"endDate,optional"`
-	Status    string `form:"status,optional"`
-}
-
-type AiDailyReportReq struct {
-	Date string `json:"date"`
-}
-
-type AiDailyReportResp struct {
-	Report AiDailyReportItem `json:"report"`
-}
-
 type AiDocumentItem struct {
 	DocumentId   int64  `json:"documentId"`
 	KbId         int64  `json:"kbId"`
@@ -206,11 +151,6 @@ type AiKbMemberItem struct {
 type AiKbMemberPathReq struct {
 	KbId   int64 `path:"kbId"`
 	UserId int64 `path:"userId"`
-}
-
-type AiListDailyReportResp struct {
-	Total int64               `json:"total"`
-	List  []AiDailyReportItem `json:"list"`
 }
 
 type AiListDocumentReq struct {
@@ -293,53 +233,6 @@ type AiListPublicKbResp struct {
 	List  []AiPublicKbItem `json:"list"`
 }
 
-type AiListSecurityAlertsReq struct {
-	Page      int    `form:"page,optional"`
-	PageSize  int    `form:"pageSize,optional"`
-	AlertType string `form:"alertType,optional"`
-	Severity  string `form:"severity,optional"`
-	Status    string `form:"status,optional"`
-	Ip        string `form:"ip,optional"`
-	StartTime string `form:"startTime,optional"`
-	EndTime   string `form:"endTime,optional"`
-}
-
-type AiListSecurityAlertsResp struct {
-	Total int64                 `json:"total"`
-	List  []AiSecurityAlertItem `json:"list"`
-}
-
-type AiListSecurityEventsReq struct {
-	Page      int    `form:"page,optional"`
-	PageSize  int    `form:"pageSize,optional"`
-	EventType string `form:"eventType,optional"`
-	Severity  string `form:"severity,optional"`
-	Ip        string `form:"ip,optional"`
-	Username  string `form:"username,optional"`
-	StartTime string `form:"startTime,optional"`
-	EndTime   string `form:"endTime,optional"`
-}
-
-type AiListSecurityEventsResp struct {
-	Total int64                 `json:"total"`
-	List  []AiSecurityEventItem `json:"list"`
-}
-
-type AiListToolCallReq struct {
-	Page      int    `form:"page,optional"`
-	PageSize  int    `form:"pageSize,optional"`
-	TraceId   string `form:"traceId,optional"`
-	ToolName  string `form:"toolName,optional"`
-	Status    string `form:"status,optional"`
-	StartTime string `form:"startTime,optional"`
-	EndTime   string `form:"endTime,optional"`
-}
-
-type AiListToolCallResp struct {
-	Total int64            `json:"total"`
-	List  []AiToolCallItem `json:"list"`
-}
-
 type AiLlmCallItem struct {
 	TraceId          string `json:"traceId"`
 	Provider         string `json:"provider"`
@@ -413,57 +306,6 @@ type AiSearchKnowledgeResp struct {
 	Message string        `json:"message"`
 }
 
-type AiSecurityAlertItem struct {
-	AlertId    int64  `json:"alertId"`
-	AlertType  string `json:"alertType"`
-	Severity   string `json:"severity"`
-	Ip         string `json:"ip"`
-	Username   string `json:"username"`
-	Title      string `json:"title"`
-	Summary    string `json:"summary"`
-	Detail     string `json:"detail"`
-	Status     string `json:"status"`
-	OccurredAt string `json:"occurredAt"`
-	CreatedAt  string `json:"createdAt"`
-}
-
-type AiSecurityEventItem struct {
-	EventId    int64  `json:"eventId"`
-	EventType  string `json:"eventType"`
-	Severity   string `json:"severity"`
-	Ip         string `json:"ip"`
-	Username   string `json:"username"`
-	Summary    string `json:"summary"`
-	Detail     string `json:"detail"`
-	OccurredAt string `json:"occurredAt"`
-	CreatedAt  string `json:"createdAt"`
-}
-
-type AiSecurityLogItem struct {
-	Id        string `json:"id"`
-	Timestamp string `json:"timestamp"`
-	Host      string `json:"host"`
-	Ip        string `json:"ip"`
-	Username  string `json:"username"`
-	Message   string `json:"message"`
-}
-
-type AiSecurityLogSearchReq struct {
-	Query     string `json:"query,optional"`
-	Ip        string `json:"ip,optional"`
-	Username  string `json:"username,optional"`
-	StartTime string `json:"startTime,optional"`
-	EndTime   string `json:"endTime,optional"`
-	Page      int    `json:"page,optional"`
-	PageSize  int    `json:"pageSize,optional"`
-}
-
-type AiSecurityLogSearchResp struct {
-	Total   int64               `json:"total"`
-	List    []AiSecurityLogItem `json:"list"`
-	Message string              `json:"message"`
-}
-
 type AiTaskResp struct {
 	TaskId  string `json:"taskId"`
 	Status  string `json:"status"`
@@ -482,16 +324,6 @@ type AiTokenStatsResp struct {
 	CompletionTokens int64 `json:"completionTokens"`
 	TotalTokens      int64 `json:"totalTokens"`
 	CallCount        int64 `json:"callCount"`
-}
-
-type AiToolCallItem struct {
-	ToolCallId    int64  `json:"toolCallId"`
-	ToolName      string `json:"toolName"`
-	Status        string `json:"status"`
-	ArgumentsJson string `json:"argumentsJson"`
-	ResultJson    string `json:"resultJson"`
-	Message       string `json:"message"`
-	CreatedAt     string `json:"createdAt"`
 }
 
 type AiTopCountItem struct {
@@ -530,7 +362,217 @@ type AiUpdatePublicKbReq struct {
 	Status      int    `json:"status,optional"`
 }
 
-type AiUpdateSecurityAlertStatusReq struct {
-	AlertId int64  `path:"alertId"`
-	Status  string `json:"status"`
+type AiWindAgentRunReq struct {
+	ConversationId string `json:"conversationId,optional"`
+	Input          string `json:"input"`
+}
+
+type AiWindAgentRunResp struct {
+	Answer    string               `json:"answer"`
+	TraceId   string               `json:"traceId"`
+	ToolCalls []AiWindToolCallItem `json:"toolCalls"`
+}
+
+type AiWindAlarmAnalyzeReq struct {
+	FarmCode     string `json:"farmCode"`
+	TowerCode    string `json:"towerCode,optional"`
+	AlarmCode    string `json:"alarmCode,optional"`
+	EvidenceJson string `json:"evidenceJson,optional"`
+}
+
+type AiWindAlarmItem struct {
+	Ts            string `json:"ts"`
+	FarmCode      string `json:"farmCode"`
+	TowerCode     string `json:"towerCode"`
+	DeviceChannel int64  `json:"deviceChannel"`
+	DeviceType    int64  `json:"deviceType"`
+	AlarmLocation string `json:"alarmLocation"`
+	AlarmLevel    int64  `json:"alarmLevel"`
+	AlarmCode     int64  `json:"alarmCode"`
+	AlarmValue    string `json:"alarmValue"`
+	Status        int64  `json:"status"`
+}
+
+type AiWindAlarmQueryReq struct {
+	FarmCode       string `json:"farmCode"`
+	TowerCode      string `json:"towerCode,optional"`
+	DeviceTypeCode string `json:"deviceTypeCode,optional"`
+	DeviceCode     string `json:"deviceCode,optional"`
+	AlarmCode      string `json:"alarmCode,optional"`
+	AlarmLevel     int    `json:"alarmLevel,optional"`
+	Status         int    `json:"status,optional"`
+	StartTime      string `json:"startTime,optional"`
+	EndTime        string `json:"endTime,optional"`
+	Page           int    `json:"page,optional"`
+	PageSize       int    `json:"pageSize,optional"`
+}
+
+type AiWindAlarmQueryResp struct {
+	Total        int64             `json:"total"`
+	List         []AiWindAlarmItem `json:"list"`
+	EvidenceJson string            `json:"evidenceJson"`
+	Message      string            `json:"message"`
+}
+
+type AiWindDataPoint struct {
+	Ts     string            `json:"ts"`
+	Values map[string]string `json:"values"`
+}
+
+type AiWindDeviceItem struct {
+	DeviceId       int64  `json:"deviceId"`
+	DeviceCode     string `json:"deviceCode"`
+	DeviceTypeCode string `json:"deviceTypeCode"`
+	DeviceTypeName string `json:"deviceTypeName"`
+	TowerId        int64  `json:"towerId"`
+	TowerCode      string `json:"towerCode"`
+	StructureCode  string `json:"structureCode"`
+	StructureName  string `json:"structureName"`
+	TdStable       string `json:"tdStable"`
+	Status         int    `json:"status"`
+	AiEnabled      bool   `json:"aiEnabled"`
+}
+
+type AiWindFarmItem struct {
+	FarmId     int64  `json:"farmId"`
+	FarmCode   string `json:"farmCode"`
+	FarmName   string `json:"farmName"`
+	Province   string `json:"province"`
+	Location   string `json:"location"`
+	TdDatabase string `json:"tdDatabase"`
+	AiEnabled  bool   `json:"aiEnabled"`
+}
+
+type AiWindHealthReportPathReq struct {
+	ReportId int64 `path:"reportId"`
+}
+
+type AiWindHealthReportReq struct {
+	ReportType   string `json:"reportType,optional"`
+	FarmCode     string `json:"farmCode"`
+	TowerCode    string `json:"towerCode,optional"`
+	StartTime    string `json:"startTime,optional"`
+	EndTime      string `json:"endTime,optional"`
+	EvidenceJson string `json:"evidenceJson,optional"`
+}
+
+type AiWindListDeviceReq struct {
+	FarmCode       string `form:"farmCode,optional"`
+	TowerCode      string `form:"towerCode,optional"`
+	DeviceTypeCode string `form:"deviceTypeCode,optional"`
+	Keyword        string `form:"keyword,optional"`
+}
+
+type AiWindListDeviceResp struct {
+	Total   int64              `json:"total"`
+	List    []AiWindDeviceItem `json:"list"`
+	Message string             `json:"message"`
+}
+
+type AiWindListFarmReq struct {
+	Keyword string `form:"keyword,optional"`
+}
+
+type AiWindListFarmResp struct {
+	Total   int64            `json:"total"`
+	List    []AiWindFarmItem `json:"list"`
+	Message string           `json:"message"`
+}
+
+type AiWindListToolCallReq struct {
+	Page     int    `form:"page,optional"`
+	PageSize int    `form:"pageSize,optional"`
+	TraceId  string `form:"traceId,optional"`
+	ToolName string `form:"toolName,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type AiWindListToolCallResp struct {
+	Total int64                `json:"total"`
+	List  []AiWindToolCallItem `json:"list"`
+}
+
+type AiWindListTurbineReq struct {
+	FarmCode string `form:"farmCode,optional"`
+	Keyword  string `form:"keyword,optional"`
+}
+
+type AiWindListTurbineResp struct {
+	Total   int64               `json:"total"`
+	List    []AiWindTurbineItem `json:"list"`
+	Message string              `json:"message"`
+}
+
+type AiWindScaffoldResp struct {
+	Id           int64  `json:"id"`
+	TraceId      string `json:"traceId"`
+	Title        string `json:"title"`
+	Content      string `json:"content"`
+	EvidenceJson string `json:"evidenceJson"`
+	Message      string `json:"message"`
+}
+
+type AiWindTicketDraftReq struct {
+	FarmCode     string `json:"farmCode"`
+	TowerCode    string `json:"towerCode,optional"`
+	AlarmCode    string `json:"alarmCode,optional"`
+	EvidenceJson string `json:"evidenceJson,optional"`
+}
+
+type AiWindTimeseriesQueryReq struct {
+	FarmCode       string `json:"farmCode"`
+	TowerCode      string `json:"towerCode,optional"`
+	DeviceCode     string `json:"deviceCode,optional"`
+	DeviceTypeCode string `json:"deviceTypeCode"`
+	Field          string `json:"field,optional"`
+	StartTime      string `json:"startTime,optional"`
+	EndTime        string `json:"endTime,optional"`
+	Page           int    `json:"page,optional"`
+	PageSize       int    `json:"pageSize,optional"`
+}
+
+type AiWindTimeseriesQueryResp struct {
+	Total        int64             `json:"total"`
+	Database     string            `json:"database"`
+	Stable       string            `json:"stable"`
+	Fields       []string          `json:"fields"`
+	Points       []AiWindDataPoint `json:"points"`
+	EvidenceJson string            `json:"evidenceJson"`
+	Message      string            `json:"message"`
+}
+
+type AiWindToolCallItem struct {
+	ToolCallId    int64  `json:"toolCallId"`
+	ToolName      string `json:"toolName"`
+	Status        string `json:"status"`
+	ArgumentsJson string `json:"argumentsJson"`
+	ResultJson    string `json:"resultJson"`
+	Message       string `json:"message"`
+	CreatedAt     string `json:"createdAt"`
+}
+
+type AiWindTrendCompareReq struct {
+	FarmCode       string `json:"farmCode"`
+	TowerCode      string `json:"towerCode,optional"`
+	DeviceTypeCode string `json:"deviceTypeCode"`
+	Field          string `json:"field,optional"`
+	StartTime      string `json:"startTime,optional"`
+	EndTime        string `json:"endTime,optional"`
+}
+
+type AiWindTrendCompareResp struct {
+	Summary      string `json:"summary"`
+	EvidenceJson string `json:"evidenceJson"`
+	Message      string `json:"message"`
+}
+
+type AiWindTurbineItem struct {
+	TurbineId int64  `json:"turbineId"`
+	TowerId   int64  `json:"towerId"`
+	TowerCode string `json:"towerCode"`
+	TowerName string `json:"towerName"`
+	FarmCode  string `json:"farmCode"`
+	FarmName  string `json:"farmName"`
+	RiskLevel string `json:"riskLevel"`
+	AiEnabled bool   `json:"aiEnabled"`
 }

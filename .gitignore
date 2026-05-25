@@ -6,6 +6,7 @@
 
 # Project documentation (not for public repo)
 docs/
+prompt.md
 
 # Local runtime configuration with private endpoints or credentials
 gateway/etc/*.yaml
@@ -30,6 +31,19 @@ service/ai/engine/config.*.yaml
 .env.*
 *.local
 *.local.*
+*.secret
+*.secret.*
+*.bak
+*.backup
+*.orig
+
+# Private keys and certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
 
 # Build outputs and generated runtime data
 bin/

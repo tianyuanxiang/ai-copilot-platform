@@ -1,9 +1,12 @@
 package svc
 
 import (
+	"ai-copilot-platform/ai-rpc/internal/engine"
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"ai-copilot-platform/ai-rpc/internal/config"
@@ -14,6 +17,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/redis/go-redis/v9"
+	_ "github.com/taosdata/driver-go/v3/taosWS"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"gorm.io/gorm"
@@ -25,14 +29,19 @@ type ServiceContext struct {
 	Orm *gorm.DB
 	RDB *redis.Client
 	ES  *elasticsearch.Client
+	TD  *sql.DB
 
 	AiDocumentModel            model.AiDocumentModel
 	AiDocumentParentChunkModel model.AiDocumentParentChunkModel
 	AiDocumentChunkModel       model.AiDocumentChunkModel
 	AiKnowledgeBaseModel       model.AiKnowledgeBaseModel
 	AiKbMemberModel            model.AiKbMemberModel
+	AiToolCallLogModel         model.AiToolCallLogModel
+	WindMetadataModel          model.WindMetadataModel
+	TdengineModel              model.TdengineModel
 
-	EngineClient *http.Client
+	EngineClient     *http.Client
+	EngineCallClient *engine.Client
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -83,6 +92,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	logx.Infof("elasticsearch connected: %s", res.Status())
 
+	td := initTDengine(c)
+
 	engineTimeout := time.Duration(c.Engine.TimeoutMs) * time.Millisecond
 	if engineTimeout <= 0 {
 		engineTimeout = 30 * time.Second
@@ -92,12 +103,41 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:                     c,
 		Orm:                        db,
 		ES:                         esClient,
+		TD:                         td,
 		AiDocumentModel:            model.NewAiDocumentModel(conn, db),
 		AiDocumentParentChunkModel: model.NewAiDocumentParentChunkModel(conn, db),
 		AiDocumentChunkModel:       model.NewAiDocumentChunkModel(db),
 		AiKnowledgeBaseModel:       model.NewAiKnowledgeBaseModel(conn, db),
 		AiKbMemberModel:            model.NewAiKbMemberModel(conn, db),
+		AiToolCallLogModel:         model.NewAiToolCallLogModel(conn),
+		WindMetadataModel:          model.NewWindMetadataModel(db),
+		TdengineModel:              model.NewTdengineModel(td),
 
-		EngineClient: &http.Client{Timeout: engineTimeout},
+		EngineClient:     &http.Client{Timeout: engineTimeout},
+		EngineCallClient: engine.NewClient(c.Engine.BaseURL, &http.Client{Timeout: engineTimeout}),
 	}
+}
+
+func initTDengine(c config.Config) *sql.DB {
+	link := strings.TrimSpace(c.TDengine.Link)
+	if link == "" {
+		logx.Info("TDengine link is empty; wind timeseries APIs will run in scaffold mode")
+		return nil
+	}
+
+	db, err := sql.Open("taosWS", link)
+	if err != nil {
+		logx.Errorf("init TDengine connection failed: %v", err)
+		return nil
+	}
+	if c.TDengine.MaxIdleConn > 0 {
+		db.SetMaxIdleConns(c.TDengine.MaxIdleConn)
+	}
+	if c.TDengine.MaxOpenConn > 0 {
+		db.SetMaxOpenConns(c.TDengine.MaxOpenConn)
+	}
+	db.SetConnMaxLifetime(0)
+	db.SetConnMaxIdleTime(0)
+	logx.Info("TDengine connection pool initialized")
+	return db
 }

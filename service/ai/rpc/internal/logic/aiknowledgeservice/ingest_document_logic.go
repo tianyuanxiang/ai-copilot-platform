@@ -1,6 +1,7 @@
 package aiknowledgeservicelogic
 
 import (
+	"ai-copilot-platform/ai-rpc/internal/engine"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -10,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -129,7 +129,7 @@ func (l *IngestDocumentLogic) runIngestDocumentJob(job ingestDocumentJob) {
 	ctx, cancel := context.WithTimeout(context.Background(), backgroundIngestTimeout)
 	defer cancel()
 
-	parsed, err := l.callParse(ctx, job.FileName, job.FileType, job.ParseContent)
+	parsed, err := l.svcCtx.EngineCallClient.EngineParse(ctx, job.FileName, job.FileType, job.ParseContent)
 	if err != nil {
 		l.Logger.Errorf("callParse err: %v", err)
 		l.markDocumentFailed(job.DocumentID, err)
@@ -142,7 +142,7 @@ func (l *IngestDocumentLogic) runIngestDocumentJob(job ingestDocumentJob) {
 		return
 	}
 
-	embedded, err := l.callEmbed(ctx, childTexts)
+	embedded, err := l.svcCtx.EngineCallClient.EngineEmbed(ctx, childTexts)
 	if err != nil {
 		l.Logger.Errorf("callEmbed err: %v", err)
 		l.markDocumentFailed(job.DocumentID, err)
@@ -150,7 +150,6 @@ func (l *IngestDocumentLogic) runIngestDocumentJob(job ingestDocumentJob) {
 	}
 	if len(embedded.Vectors) != len(childTexts) {
 		err = fmt.Errorf("embedding vector count mismatch: got %d, want %d", len(embedded.Vectors), len(childTexts))
-		l.Logger.Errorf("%v", err)
 		l.markDocumentFailed(job.DocumentID, err)
 		return
 	}
@@ -297,91 +296,14 @@ func (l *IngestDocumentLogic) createDocument(in *pb.IngestDocumentReq, fileType 
 		documentID = id
 		return nil
 	})
+	if err != nil {
+		l.Logger.Errorf("Insert aiDocument failed. document_id=%d err=%v", documentID, err)
+		return documentID, xerr.NewCodeErrorMsg(xerr.ErrInternal, "文档写入失败")
+	}
 	return documentID, err
 }
 
-func (l *IngestDocumentLogic) callParse(ctx context.Context, fileName string, fileType string, content string) (*parseResponse, error) {
-	baseURL := strings.TrimRight(strings.TrimSpace(l.svcCtx.Config.Engine.BaseURL), "/")
-	if baseURL == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "Engine.BaseURL 未配置")
-	}
-
-	payload := map[string]string{
-		"file_name": fileName,
-		"file_type": fileType,
-		"content":   content,
-	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/v1/parse", bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := l.svcCtx.EngineClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		return nil, fmt.Errorf("engine parse returned HTTP %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	var parsed parseResponse
-	if err := json.Unmarshal(respBody, &parsed); err != nil {
-		return nil, err
-	}
-	return &parsed, nil
-}
-
-func (l *IngestDocumentLogic) callEmbed(ctx context.Context, texts []string) (*embedResponse, error) {
-	baseURL := strings.TrimRight(strings.TrimSpace(l.svcCtx.Config.Engine.BaseURL), "/")
-	if baseURL == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "Engine.BaseURL 未配置")
-	}
-
-	body, err := json.Marshal(map[string][]string{"texts": texts})
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/v1/embed", bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := l.svcCtx.EngineClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		return nil, fmt.Errorf("engine embed returned HTTP %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	var embedded embedResponse
-	if err := json.Unmarshal(respBody, &embedded); err != nil {
-		return nil, err
-	}
-	return &embedded, nil
-}
-
-func (l *IngestDocumentLogic) writeChunks(ctx context.Context, documentID int64, parents []parentChunk, vectors [][]float64) ([]flatChunk, error) {
+func (l *IngestDocumentLogic) writeChunks(ctx context.Context, documentID int64, parents []engine.ParentChunk, vectors [][]float64) ([]flatChunk, error) {
 	indexItems := make([]flatChunk, 0, len(vectors))
 	vectorIndex := 0
 
@@ -524,7 +446,7 @@ func (l *IngestDocumentLogic) markDocumentFailed(documentID int64, cause error) 
 	}
 }
 
-func collectChildTexts(parents []parentChunk) []string {
+func collectChildTexts(parents []engine.ParentChunk) []string {
 	texts := make([]string, 0)
 	for _, parent := range parents {
 		for _, child := range parent.Children {

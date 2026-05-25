@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"ai-copilot-platform/common/jwtx"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/ws"
+	"go-zero-rpc/common/jwtx"
 
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"

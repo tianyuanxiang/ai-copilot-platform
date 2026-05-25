@@ -3873,1470 +3873,6 @@ func (x *GetConversationMessagesResp) GetList() []*MessageItem {
 	return nil
 }
 
-type SearchSecurityLogsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	Ip            string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
-	Username      string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
-	StartTime     string                 `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       string                 `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	Page          int64                  `protobuf:"varint,7,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,8,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SearchSecurityLogsReq) Reset() {
-	*x = SearchSecurityLogsReq{}
-	mi := &file_pb_ai_proto_msgTypes[53]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SearchSecurityLogsReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SearchSecurityLogsReq) ProtoMessage() {}
-
-func (x *SearchSecurityLogsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[53]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SearchSecurityLogsReq.ProtoReflect.Descriptor instead.
-func (*SearchSecurityLogsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{53}
-}
-
-func (x *SearchSecurityLogsReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *SearchSecurityLogsReq) GetQuery() string {
-	if x != nil {
-		return x.Query
-	}
-	return ""
-}
-
-func (x *SearchSecurityLogsReq) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *SearchSecurityLogsReq) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *SearchSecurityLogsReq) GetStartTime() string {
-	if x != nil {
-		return x.StartTime
-	}
-	return ""
-}
-
-func (x *SearchSecurityLogsReq) GetEndTime() string {
-	if x != nil {
-		return x.EndTime
-	}
-	return ""
-}
-
-func (x *SearchSecurityLogsReq) GetPage() int64 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *SearchSecurityLogsReq) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-type SecurityLogItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Timestamp     string                 `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Host          string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
-	Ip            string                 `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
-	Username      string                 `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
-	Message       string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecurityLogItem) Reset() {
-	*x = SecurityLogItem{}
-	mi := &file_pb_ai_proto_msgTypes[54]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecurityLogItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecurityLogItem) ProtoMessage() {}
-
-func (x *SecurityLogItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[54]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecurityLogItem.ProtoReflect.Descriptor instead.
-func (*SecurityLogItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{54}
-}
-
-func (x *SecurityLogItem) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *SecurityLogItem) GetTimestamp() string {
-	if x != nil {
-		return x.Timestamp
-	}
-	return ""
-}
-
-func (x *SecurityLogItem) GetHost() string {
-	if x != nil {
-		return x.Host
-	}
-	return ""
-}
-
-func (x *SecurityLogItem) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *SecurityLogItem) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *SecurityLogItem) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-type SecurityLogSearchResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	List          []*SecurityLogItem     `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
-	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecurityLogSearchResp) Reset() {
-	*x = SecurityLogSearchResp{}
-	mi := &file_pb_ai_proto_msgTypes[55]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecurityLogSearchResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecurityLogSearchResp) ProtoMessage() {}
-
-func (x *SecurityLogSearchResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[55]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecurityLogSearchResp.ProtoReflect.Descriptor instead.
-func (*SecurityLogSearchResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{55}
-}
-
-func (x *SecurityLogSearchResp) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *SecurityLogSearchResp) GetList() []*SecurityLogItem {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
-func (x *SecurityLogSearchResp) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-type AnalyzeSecurityEventsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RawLogs       []string               `protobuf:"bytes,2,rep,name=raw_logs,json=rawLogs,proto3" json:"raw_logs,omitempty"`
-	OperatorId    int64                  `protobuf:"varint,20,opt,name=operator_id,json=operatorId,proto3" json:"operator_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AnalyzeSecurityEventsReq) Reset() {
-	*x = AnalyzeSecurityEventsReq{}
-	mi := &file_pb_ai_proto_msgTypes[56]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AnalyzeSecurityEventsReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AnalyzeSecurityEventsReq) ProtoMessage() {}
-
-func (x *AnalyzeSecurityEventsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[56]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AnalyzeSecurityEventsReq.ProtoReflect.Descriptor instead.
-func (*AnalyzeSecurityEventsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{56}
-}
-
-func (x *AnalyzeSecurityEventsReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *AnalyzeSecurityEventsReq) GetRawLogs() []string {
-	if x != nil {
-		return x.RawLogs
-	}
-	return nil
-}
-
-func (x *AnalyzeSecurityEventsReq) GetOperatorId() int64 {
-	if x != nil {
-		return x.OperatorId
-	}
-	return 0
-}
-
-type SecurityEventItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	EventId       int64                  `protobuf:"varint,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventType     string                 `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
-	Severity      string                 `protobuf:"bytes,3,opt,name=severity,proto3" json:"severity,omitempty"`
-	Ip            string                 `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
-	Username      string                 `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
-	Summary       string                 `protobuf:"bytes,6,opt,name=summary,proto3" json:"summary,omitempty"`
-	Detail        string                 `protobuf:"bytes,7,opt,name=detail,proto3" json:"detail,omitempty"`
-	OccurredAt    string                 `protobuf:"bytes,8,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecurityEventItem) Reset() {
-	*x = SecurityEventItem{}
-	mi := &file_pb_ai_proto_msgTypes[57]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecurityEventItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecurityEventItem) ProtoMessage() {}
-
-func (x *SecurityEventItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[57]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecurityEventItem.ProtoReflect.Descriptor instead.
-func (*SecurityEventItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{57}
-}
-
-func (x *SecurityEventItem) GetEventId() int64 {
-	if x != nil {
-		return x.EventId
-	}
-	return 0
-}
-
-func (x *SecurityEventItem) GetEventType() string {
-	if x != nil {
-		return x.EventType
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetSeverity() string {
-	if x != nil {
-		return x.Severity
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetSummary() string {
-	if x != nil {
-		return x.Summary
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetDetail() string {
-	if x != nil {
-		return x.Detail
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetOccurredAt() string {
-	if x != nil {
-		return x.OccurredAt
-	}
-	return ""
-}
-
-func (x *SecurityEventItem) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-type AnalyzeSecurityEventsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Events        []*SecurityEventItem   `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
-	Alerts        []string               `protobuf:"bytes,2,rep,name=alerts,proto3" json:"alerts,omitempty"`
-	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AnalyzeSecurityEventsResp) Reset() {
-	*x = AnalyzeSecurityEventsResp{}
-	mi := &file_pb_ai_proto_msgTypes[58]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AnalyzeSecurityEventsResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AnalyzeSecurityEventsResp) ProtoMessage() {}
-
-func (x *AnalyzeSecurityEventsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[58]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AnalyzeSecurityEventsResp.ProtoReflect.Descriptor instead.
-func (*AnalyzeSecurityEventsResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{58}
-}
-
-func (x *AnalyzeSecurityEventsResp) GetEvents() []*SecurityEventItem {
-	if x != nil {
-		return x.Events
-	}
-	return nil
-}
-
-func (x *AnalyzeSecurityEventsResp) GetAlerts() []string {
-	if x != nil {
-		return x.Alerts
-	}
-	return nil
-}
-
-func (x *AnalyzeSecurityEventsResp) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-type ListSecurityEventsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int64                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	EventType     string                 `protobuf:"bytes,4,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
-	HasEventType  bool                   `protobuf:"varint,5,opt,name=has_event_type,json=hasEventType,proto3" json:"has_event_type,omitempty"`
-	Severity      string                 `protobuf:"bytes,6,opt,name=severity,proto3" json:"severity,omitempty"`
-	HasSeverity   bool                   `protobuf:"varint,7,opt,name=has_severity,json=hasSeverity,proto3" json:"has_severity,omitempty"`
-	Ip            string                 `protobuf:"bytes,8,opt,name=ip,proto3" json:"ip,omitempty"`
-	Username      string                 `protobuf:"bytes,9,opt,name=username,proto3" json:"username,omitempty"`
-	StartTime     string                 `protobuf:"bytes,10,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       string                 `protobuf:"bytes,11,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSecurityEventsReq) Reset() {
-	*x = ListSecurityEventsReq{}
-	mi := &file_pb_ai_proto_msgTypes[59]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSecurityEventsReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSecurityEventsReq) ProtoMessage() {}
-
-func (x *ListSecurityEventsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[59]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSecurityEventsReq.ProtoReflect.Descriptor instead.
-func (*ListSecurityEventsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{59}
-}
-
-func (x *ListSecurityEventsReq) GetPage() int64 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *ListSecurityEventsReq) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListSecurityEventsReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *ListSecurityEventsReq) GetEventType() string {
-	if x != nil {
-		return x.EventType
-	}
-	return ""
-}
-
-func (x *ListSecurityEventsReq) GetHasEventType() bool {
-	if x != nil {
-		return x.HasEventType
-	}
-	return false
-}
-
-func (x *ListSecurityEventsReq) GetSeverity() string {
-	if x != nil {
-		return x.Severity
-	}
-	return ""
-}
-
-func (x *ListSecurityEventsReq) GetHasSeverity() bool {
-	if x != nil {
-		return x.HasSeverity
-	}
-	return false
-}
-
-func (x *ListSecurityEventsReq) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *ListSecurityEventsReq) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *ListSecurityEventsReq) GetStartTime() string {
-	if x != nil {
-		return x.StartTime
-	}
-	return ""
-}
-
-func (x *ListSecurityEventsReq) GetEndTime() string {
-	if x != nil {
-		return x.EndTime
-	}
-	return ""
-}
-
-type ListSecurityEventsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	List          []*SecurityEventItem   `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSecurityEventsResp) Reset() {
-	*x = ListSecurityEventsResp{}
-	mi := &file_pb_ai_proto_msgTypes[60]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSecurityEventsResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSecurityEventsResp) ProtoMessage() {}
-
-func (x *ListSecurityEventsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[60]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSecurityEventsResp.ProtoReflect.Descriptor instead.
-func (*ListSecurityEventsResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{60}
-}
-
-func (x *ListSecurityEventsResp) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *ListSecurityEventsResp) GetList() []*SecurityEventItem {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
-type SecurityAlertItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AlertId       int64                  `protobuf:"varint,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
-	AlertType     string                 `protobuf:"bytes,2,opt,name=alert_type,json=alertType,proto3" json:"alert_type,omitempty"`
-	Severity      string                 `protobuf:"bytes,3,opt,name=severity,proto3" json:"severity,omitempty"`
-	Ip            string                 `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
-	Username      string                 `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
-	Title         string                 `protobuf:"bytes,6,opt,name=title,proto3" json:"title,omitempty"`
-	Summary       string                 `protobuf:"bytes,7,opt,name=summary,proto3" json:"summary,omitempty"`
-	Detail        string                 `protobuf:"bytes,8,opt,name=detail,proto3" json:"detail,omitempty"`
-	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
-	OccurredAt    string                 `protobuf:"bytes,10,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecurityAlertItem) Reset() {
-	*x = SecurityAlertItem{}
-	mi := &file_pb_ai_proto_msgTypes[61]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecurityAlertItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecurityAlertItem) ProtoMessage() {}
-
-func (x *SecurityAlertItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[61]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecurityAlertItem.ProtoReflect.Descriptor instead.
-func (*SecurityAlertItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{61}
-}
-
-func (x *SecurityAlertItem) GetAlertId() int64 {
-	if x != nil {
-		return x.AlertId
-	}
-	return 0
-}
-
-func (x *SecurityAlertItem) GetAlertType() string {
-	if x != nil {
-		return x.AlertType
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetSeverity() string {
-	if x != nil {
-		return x.Severity
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetSummary() string {
-	if x != nil {
-		return x.Summary
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetDetail() string {
-	if x != nil {
-		return x.Detail
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetOccurredAt() string {
-	if x != nil {
-		return x.OccurredAt
-	}
-	return ""
-}
-
-func (x *SecurityAlertItem) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-type ListSecurityAlertsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int64                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AlertType     string                 `protobuf:"bytes,4,opt,name=alert_type,json=alertType,proto3" json:"alert_type,omitempty"`
-	HasAlertType  bool                   `protobuf:"varint,5,opt,name=has_alert_type,json=hasAlertType,proto3" json:"has_alert_type,omitempty"`
-	Severity      string                 `protobuf:"bytes,6,opt,name=severity,proto3" json:"severity,omitempty"`
-	HasSeverity   bool                   `protobuf:"varint,7,opt,name=has_severity,json=hasSeverity,proto3" json:"has_severity,omitempty"`
-	Status        string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
-	HasStatus     bool                   `protobuf:"varint,9,opt,name=has_status,json=hasStatus,proto3" json:"has_status,omitempty"`
-	Ip            string                 `protobuf:"bytes,10,opt,name=ip,proto3" json:"ip,omitempty"`
-	StartTime     string                 `protobuf:"bytes,11,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       string                 `protobuf:"bytes,12,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSecurityAlertsReq) Reset() {
-	*x = ListSecurityAlertsReq{}
-	mi := &file_pb_ai_proto_msgTypes[62]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSecurityAlertsReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSecurityAlertsReq) ProtoMessage() {}
-
-func (x *ListSecurityAlertsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[62]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSecurityAlertsReq.ProtoReflect.Descriptor instead.
-func (*ListSecurityAlertsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{62}
-}
-
-func (x *ListSecurityAlertsReq) GetPage() int64 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *ListSecurityAlertsReq) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListSecurityAlertsReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *ListSecurityAlertsReq) GetAlertType() string {
-	if x != nil {
-		return x.AlertType
-	}
-	return ""
-}
-
-func (x *ListSecurityAlertsReq) GetHasAlertType() bool {
-	if x != nil {
-		return x.HasAlertType
-	}
-	return false
-}
-
-func (x *ListSecurityAlertsReq) GetSeverity() string {
-	if x != nil {
-		return x.Severity
-	}
-	return ""
-}
-
-func (x *ListSecurityAlertsReq) GetHasSeverity() bool {
-	if x != nil {
-		return x.HasSeverity
-	}
-	return false
-}
-
-func (x *ListSecurityAlertsReq) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *ListSecurityAlertsReq) GetHasStatus() bool {
-	if x != nil {
-		return x.HasStatus
-	}
-	return false
-}
-
-func (x *ListSecurityAlertsReq) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *ListSecurityAlertsReq) GetStartTime() string {
-	if x != nil {
-		return x.StartTime
-	}
-	return ""
-}
-
-func (x *ListSecurityAlertsReq) GetEndTime() string {
-	if x != nil {
-		return x.EndTime
-	}
-	return ""
-}
-
-type ListSecurityAlertsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	List          []*SecurityAlertItem   `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSecurityAlertsResp) Reset() {
-	*x = ListSecurityAlertsResp{}
-	mi := &file_pb_ai_proto_msgTypes[63]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSecurityAlertsResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSecurityAlertsResp) ProtoMessage() {}
-
-func (x *ListSecurityAlertsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[63]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSecurityAlertsResp.ProtoReflect.Descriptor instead.
-func (*ListSecurityAlertsResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{63}
-}
-
-func (x *ListSecurityAlertsResp) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *ListSecurityAlertsResp) GetList() []*SecurityAlertItem {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
-type UpdateSecurityAlertStatusReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AlertId       int64                  `protobuf:"varint,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
-	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	OperatorId    int64                  `protobuf:"varint,20,opt,name=operator_id,json=operatorId,proto3" json:"operator_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateSecurityAlertStatusReq) Reset() {
-	*x = UpdateSecurityAlertStatusReq{}
-	mi := &file_pb_ai_proto_msgTypes[64]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateSecurityAlertStatusReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateSecurityAlertStatusReq) ProtoMessage() {}
-
-func (x *UpdateSecurityAlertStatusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[64]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateSecurityAlertStatusReq.ProtoReflect.Descriptor instead.
-func (*UpdateSecurityAlertStatusReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{64}
-}
-
-func (x *UpdateSecurityAlertStatusReq) GetAlertId() int64 {
-	if x != nil {
-		return x.AlertId
-	}
-	return 0
-}
-
-func (x *UpdateSecurityAlertStatusReq) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *UpdateSecurityAlertStatusReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *UpdateSecurityAlertStatusReq) GetOperatorId() int64 {
-	if x != nil {
-		return x.OperatorId
-	}
-	return 0
-}
-
-type GenerateDailyReportReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Date          string                 `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	OperatorId    int64                  `protobuf:"varint,20,opt,name=operator_id,json=operatorId,proto3" json:"operator_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GenerateDailyReportReq) Reset() {
-	*x = GenerateDailyReportReq{}
-	mi := &file_pb_ai_proto_msgTypes[65]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GenerateDailyReportReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GenerateDailyReportReq) ProtoMessage() {}
-
-func (x *GenerateDailyReportReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[65]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GenerateDailyReportReq.ProtoReflect.Descriptor instead.
-func (*GenerateDailyReportReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{65}
-}
-
-func (x *GenerateDailyReportReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *GenerateDailyReportReq) GetDate() string {
-	if x != nil {
-		return x.Date
-	}
-	return ""
-}
-
-func (x *GenerateDailyReportReq) GetOperatorId() int64 {
-	if x != nil {
-		return x.OperatorId
-	}
-	return 0
-}
-
-type DailyReportResp struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	ReportId          int64                  `protobuf:"varint,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
-	Date              string                 `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	Title             string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Content           string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
-	Status            string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	FailedLoginCount  int64                  `protobuf:"varint,6,opt,name=failed_login_count,json=failedLoginCount,proto3" json:"failed_login_count,omitempty"`
-	SuccessLoginCount int64                  `protobuf:"varint,7,opt,name=success_login_count,json=successLoginCount,proto3" json:"success_login_count,omitempty"`
-	AlertCount        int64                  `protobuf:"varint,8,opt,name=alert_count,json=alertCount,proto3" json:"alert_count,omitempty"`
-	TopIps            []*TopCountItem        `protobuf:"bytes,9,rep,name=top_ips,json=topIps,proto3" json:"top_ips,omitempty"`
-	TopUsers          []*TopCountItem        `protobuf:"bytes,10,rep,name=top_users,json=topUsers,proto3" json:"top_users,omitempty"`
-	CreatedAt         string                 `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *DailyReportResp) Reset() {
-	*x = DailyReportResp{}
-	mi := &file_pb_ai_proto_msgTypes[66]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DailyReportResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DailyReportResp) ProtoMessage() {}
-
-func (x *DailyReportResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[66]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DailyReportResp.ProtoReflect.Descriptor instead.
-func (*DailyReportResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{66}
-}
-
-func (x *DailyReportResp) GetReportId() int64 {
-	if x != nil {
-		return x.ReportId
-	}
-	return 0
-}
-
-func (x *DailyReportResp) GetDate() string {
-	if x != nil {
-		return x.Date
-	}
-	return ""
-}
-
-func (x *DailyReportResp) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *DailyReportResp) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *DailyReportResp) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *DailyReportResp) GetFailedLoginCount() int64 {
-	if x != nil {
-		return x.FailedLoginCount
-	}
-	return 0
-}
-
-func (x *DailyReportResp) GetSuccessLoginCount() int64 {
-	if x != nil {
-		return x.SuccessLoginCount
-	}
-	return 0
-}
-
-func (x *DailyReportResp) GetAlertCount() int64 {
-	if x != nil {
-		return x.AlertCount
-	}
-	return 0
-}
-
-func (x *DailyReportResp) GetTopIps() []*TopCountItem {
-	if x != nil {
-		return x.TopIps
-	}
-	return nil
-}
-
-func (x *DailyReportResp) GetTopUsers() []*TopCountItem {
-	if x != nil {
-		return x.TopUsers
-	}
-	return nil
-}
-
-func (x *DailyReportResp) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-type ListDailyReportReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int64                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	StartDate     string                 `protobuf:"bytes,4,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	EndDate       string                 `protobuf:"bytes,5,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	HasStatus     bool                   `protobuf:"varint,7,opt,name=has_status,json=hasStatus,proto3" json:"has_status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListDailyReportReq) Reset() {
-	*x = ListDailyReportReq{}
-	mi := &file_pb_ai_proto_msgTypes[67]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListDailyReportReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListDailyReportReq) ProtoMessage() {}
-
-func (x *ListDailyReportReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[67]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListDailyReportReq.ProtoReflect.Descriptor instead.
-func (*ListDailyReportReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{67}
-}
-
-func (x *ListDailyReportReq) GetPage() int64 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *ListDailyReportReq) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListDailyReportReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *ListDailyReportReq) GetStartDate() string {
-	if x != nil {
-		return x.StartDate
-	}
-	return ""
-}
-
-func (x *ListDailyReportReq) GetEndDate() string {
-	if x != nil {
-		return x.EndDate
-	}
-	return ""
-}
-
-func (x *ListDailyReportReq) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *ListDailyReportReq) GetHasStatus() bool {
-	if x != nil {
-		return x.HasStatus
-	}
-	return false
-}
-
-type ListDailyReportResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	List          []*DailyReportResp     `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListDailyReportResp) Reset() {
-	*x = ListDailyReportResp{}
-	mi := &file_pb_ai_proto_msgTypes[68]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListDailyReportResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListDailyReportResp) ProtoMessage() {}
-
-func (x *ListDailyReportResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[68]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListDailyReportResp.ProtoReflect.Descriptor instead.
-func (*ListDailyReportResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{68}
-}
-
-func (x *ListDailyReportResp) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *ListDailyReportResp) GetList() []*DailyReportResp {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
-type GetDailyReportReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ReportId      int64                  `protobuf:"varint,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
-	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDailyReportReq) Reset() {
-	*x = GetDailyReportReq{}
-	mi := &file_pb_ai_proto_msgTypes[69]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDailyReportReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDailyReportReq) ProtoMessage() {}
-
-func (x *GetDailyReportReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[69]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDailyReportReq.ProtoReflect.Descriptor instead.
-func (*GetDailyReportReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{69}
-}
-
-func (x *GetDailyReportReq) GetReportId() int64 {
-	if x != nil {
-		return x.ReportId
-	}
-	return 0
-}
-
-func (x *GetDailyReportReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-type AgentRunReq struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	Input          string                 `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *AgentRunReq) Reset() {
-	*x = AgentRunReq{}
-	mi := &file_pb_ai_proto_msgTypes[70]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AgentRunReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AgentRunReq) ProtoMessage() {}
-
-func (x *AgentRunReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[70]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AgentRunReq.ProtoReflect.Descriptor instead.
-func (*AgentRunReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{70}
-}
-
-func (x *AgentRunReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *AgentRunReq) GetConversationId() string {
-	if x != nil {
-		return x.ConversationId
-	}
-	return ""
-}
-
-func (x *AgentRunReq) GetInput() string {
-	if x != nil {
-		return x.Input
-	}
-	return ""
-}
-
 type ToolCall struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ToolCallId    int64                  `protobuf:"varint,1,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
@@ -5352,7 +3888,7 @@ type ToolCall struct {
 
 func (x *ToolCall) Reset() {
 	*x = ToolCall{}
-	mi := &file_pb_ai_proto_msgTypes[71]
+	mi := &file_pb_ai_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5364,7 +3900,7 @@ func (x *ToolCall) String() string {
 func (*ToolCall) ProtoMessage() {}
 
 func (x *ToolCall) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[71]
+	mi := &file_pb_ai_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5377,7 +3913,7 @@ func (x *ToolCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToolCall.ProtoReflect.Descriptor instead.
 func (*ToolCall) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{71}
+	return file_pb_ai_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ToolCall) GetToolCallId() int64 {
@@ -5429,66 +3965,6 @@ func (x *ToolCall) GetCreatedAt() string {
 	return ""
 }
 
-type AgentRunResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Answer        string                 `protobuf:"bytes,1,opt,name=answer,proto3" json:"answer,omitempty"`
-	ToolCalls     []*ToolCall            `protobuf:"bytes,2,rep,name=tool_calls,json=toolCalls,proto3" json:"tool_calls,omitempty"`
-	TraceId       string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AgentRunResp) Reset() {
-	*x = AgentRunResp{}
-	mi := &file_pb_ai_proto_msgTypes[72]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AgentRunResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AgentRunResp) ProtoMessage() {}
-
-func (x *AgentRunResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[72]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AgentRunResp.ProtoReflect.Descriptor instead.
-func (*AgentRunResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{72}
-}
-
-func (x *AgentRunResp) GetAnswer() string {
-	if x != nil {
-		return x.Answer
-	}
-	return ""
-}
-
-func (x *AgentRunResp) GetToolCalls() []*ToolCall {
-	if x != nil {
-		return x.ToolCalls
-	}
-	return nil
-}
-
-func (x *AgentRunResp) GetTraceId() string {
-	if x != nil {
-		return x.TraceId
-	}
-	return ""
-}
-
 type ListToolCallLogReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          int64                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
@@ -5506,7 +3982,7 @@ type ListToolCallLogReq struct {
 
 func (x *ListToolCallLogReq) Reset() {
 	*x = ListToolCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[73]
+	mi := &file_pb_ai_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5518,7 +3994,7 @@ func (x *ListToolCallLogReq) String() string {
 func (*ListToolCallLogReq) ProtoMessage() {}
 
 func (x *ListToolCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[73]
+	mi := &file_pb_ai_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5531,7 +4007,7 @@ func (x *ListToolCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListToolCallLogReq.ProtoReflect.Descriptor instead.
 func (*ListToolCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{73}
+	return file_pb_ai_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListToolCallLogReq) GetPage() int64 {
@@ -5607,7 +4083,7 @@ type ListToolCallLogResp struct {
 
 func (x *ListToolCallLogResp) Reset() {
 	*x = ListToolCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[74]
+	mi := &file_pb_ai_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5619,7 +4095,7 @@ func (x *ListToolCallLogResp) String() string {
 func (*ListToolCallLogResp) ProtoMessage() {}
 
 func (x *ListToolCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[74]
+	mi := &file_pb_ai_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5632,7 +4108,7 @@ func (x *ListToolCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListToolCallLogResp.ProtoReflect.Descriptor instead.
 func (*ListToolCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{74}
+	return file_pb_ai_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListToolCallLogResp) GetTotal() int64 {
@@ -5666,7 +4142,7 @@ type LlmCallItem struct {
 
 func (x *LlmCallItem) Reset() {
 	*x = LlmCallItem{}
-	mi := &file_pb_ai_proto_msgTypes[75]
+	mi := &file_pb_ai_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5678,7 +4154,7 @@ func (x *LlmCallItem) String() string {
 func (*LlmCallItem) ProtoMessage() {}
 
 func (x *LlmCallItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[75]
+	mi := &file_pb_ai_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5691,7 +4167,7 @@ func (x *LlmCallItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LlmCallItem.ProtoReflect.Descriptor instead.
 func (*LlmCallItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{75}
+	return file_pb_ai_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *LlmCallItem) GetTraceId() string {
@@ -5767,7 +4243,7 @@ type GetLlmTraceReq struct {
 
 func (x *GetLlmTraceReq) Reset() {
 	*x = GetLlmTraceReq{}
-	mi := &file_pb_ai_proto_msgTypes[76]
+	mi := &file_pb_ai_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5779,7 +4255,7 @@ func (x *GetLlmTraceReq) String() string {
 func (*GetLlmTraceReq) ProtoMessage() {}
 
 func (x *GetLlmTraceReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[76]
+	mi := &file_pb_ai_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5792,7 +4268,7 @@ func (x *GetLlmTraceReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLlmTraceReq.ProtoReflect.Descriptor instead.
 func (*GetLlmTraceReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{76}
+	return file_pb_ai_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *GetLlmTraceReq) GetTraceId() string {
@@ -5819,7 +4295,7 @@ type LlmTraceResp struct {
 
 func (x *LlmTraceResp) Reset() {
 	*x = LlmTraceResp{}
-	mi := &file_pb_ai_proto_msgTypes[77]
+	mi := &file_pb_ai_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5831,7 +4307,7 @@ func (x *LlmTraceResp) String() string {
 func (*LlmTraceResp) ProtoMessage() {}
 
 func (x *LlmTraceResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[77]
+	mi := &file_pb_ai_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5844,7 +4320,7 @@ func (x *LlmTraceResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LlmTraceResp.ProtoReflect.Descriptor instead.
 func (*LlmTraceResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{77}
+	return file_pb_ai_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *LlmTraceResp) GetTraceId() string {
@@ -5879,7 +4355,7 @@ type ListLlmCallLogReq struct {
 
 func (x *ListLlmCallLogReq) Reset() {
 	*x = ListLlmCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[78]
+	mi := &file_pb_ai_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5891,7 +4367,7 @@ func (x *ListLlmCallLogReq) String() string {
 func (*ListLlmCallLogReq) ProtoMessage() {}
 
 func (x *ListLlmCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[78]
+	mi := &file_pb_ai_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5904,7 +4380,7 @@ func (x *ListLlmCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLlmCallLogReq.ProtoReflect.Descriptor instead.
 func (*ListLlmCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{78}
+	return file_pb_ai_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *ListLlmCallLogReq) GetPage() int64 {
@@ -5987,7 +4463,7 @@ type ListLlmCallLogResp struct {
 
 func (x *ListLlmCallLogResp) Reset() {
 	*x = ListLlmCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[79]
+	mi := &file_pb_ai_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5999,7 +4475,7 @@ func (x *ListLlmCallLogResp) String() string {
 func (*ListLlmCallLogResp) ProtoMessage() {}
 
 func (x *ListLlmCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[79]
+	mi := &file_pb_ai_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6012,7 +4488,7 @@ func (x *ListLlmCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLlmCallLogResp.ProtoReflect.Descriptor instead.
 func (*ListLlmCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{79}
+	return file_pb_ai_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *ListLlmCallLogResp) GetTotal() int64 {
@@ -6042,7 +4518,7 @@ type GetTokenStatsReq struct {
 
 func (x *GetTokenStatsReq) Reset() {
 	*x = GetTokenStatsReq{}
-	mi := &file_pb_ai_proto_msgTypes[80]
+	mi := &file_pb_ai_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6054,7 +4530,7 @@ func (x *GetTokenStatsReq) String() string {
 func (*GetTokenStatsReq) ProtoMessage() {}
 
 func (x *GetTokenStatsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[80]
+	mi := &file_pb_ai_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6067,7 +4543,7 @@ func (x *GetTokenStatsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTokenStatsReq.ProtoReflect.Descriptor instead.
 func (*GetTokenStatsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{80}
+	return file_pb_ai_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetTokenStatsReq) GetUserId() int64 {
@@ -6117,7 +4593,7 @@ type TokenStatsResp struct {
 
 func (x *TokenStatsResp) Reset() {
 	*x = TokenStatsResp{}
-	mi := &file_pb_ai_proto_msgTypes[81]
+	mi := &file_pb_ai_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6129,7 +4605,7 @@ func (x *TokenStatsResp) String() string {
 func (*TokenStatsResp) ProtoMessage() {}
 
 func (x *TokenStatsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[81]
+	mi := &file_pb_ai_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6142,7 +4618,7 @@ func (x *TokenStatsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenStatsResp.ProtoReflect.Descriptor instead.
 func (*TokenStatsResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{81}
+	return file_pb_ai_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *TokenStatsResp) GetPromptTokens() int64 {
@@ -6171,6 +4647,2030 @@ func (x *TokenStatsResp) GetCallCount() int64 {
 		return x.CallCount
 	}
 	return 0
+}
+
+type WindFarmItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FarmId        int64                  `protobuf:"varint,1,opt,name=farm_id,json=farmId,proto3" json:"farm_id,omitempty"`
+	FarmCode      string                 `protobuf:"bytes,2,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	FarmName      string                 `protobuf:"bytes,3,opt,name=farm_name,json=farmName,proto3" json:"farm_name,omitempty"`
+	Province      string                 `protobuf:"bytes,4,opt,name=province,proto3" json:"province,omitempty"`
+	Location      string                 `protobuf:"bytes,5,opt,name=location,proto3" json:"location,omitempty"`
+	TdDatabase    string                 `protobuf:"bytes,6,opt,name=td_database,json=tdDatabase,proto3" json:"td_database,omitempty"`
+	AiEnabled     bool                   `protobuf:"varint,7,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindFarmItem) Reset() {
+	*x = WindFarmItem{}
+	mi := &file_pb_ai_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindFarmItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindFarmItem) ProtoMessage() {}
+
+func (x *WindFarmItem) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindFarmItem.ProtoReflect.Descriptor instead.
+func (*WindFarmItem) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *WindFarmItem) GetFarmId() int64 {
+	if x != nil {
+		return x.FarmId
+	}
+	return 0
+}
+
+func (x *WindFarmItem) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindFarmItem) GetFarmName() string {
+	if x != nil {
+		return x.FarmName
+	}
+	return ""
+}
+
+func (x *WindFarmItem) GetProvince() string {
+	if x != nil {
+		return x.Province
+	}
+	return ""
+}
+
+func (x *WindFarmItem) GetLocation() string {
+	if x != nil {
+		return x.Location
+	}
+	return ""
+}
+
+func (x *WindFarmItem) GetTdDatabase() string {
+	if x != nil {
+		return x.TdDatabase
+	}
+	return ""
+}
+
+func (x *WindFarmItem) GetAiEnabled() bool {
+	if x != nil {
+		return x.AiEnabled
+	}
+	return false
+}
+
+type ListWindFarmReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWindFarmReq) Reset() {
+	*x = ListWindFarmReq{}
+	mi := &file_pb_ai_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindFarmReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindFarmReq) ProtoMessage() {}
+
+func (x *ListWindFarmReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindFarmReq.ProtoReflect.Descriptor instead.
+func (*ListWindFarmReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *ListWindFarmReq) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+type ListWindFarmResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	List          []*WindFarmItem        `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWindFarmResp) Reset() {
+	*x = ListWindFarmResp{}
+	mi := &file_pb_ai_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindFarmResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindFarmResp) ProtoMessage() {}
+
+func (x *ListWindFarmResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindFarmResp.ProtoReflect.Descriptor instead.
+func (*ListWindFarmResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ListWindFarmResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ListWindFarmResp) GetList() []*WindFarmItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+func (x *ListWindFarmResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindTurbineItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TurbineId     int64                  `protobuf:"varint,1,opt,name=turbine_id,json=turbineId,proto3" json:"turbine_id,omitempty"`
+	TowerId       int64                  `protobuf:"varint,2,opt,name=tower_id,json=towerId,proto3" json:"tower_id,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,3,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	TowerName     string                 `protobuf:"bytes,4,opt,name=tower_name,json=towerName,proto3" json:"tower_name,omitempty"`
+	FarmCode      string                 `protobuf:"bytes,5,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	FarmName      string                 `protobuf:"bytes,6,opt,name=farm_name,json=farmName,proto3" json:"farm_name,omitempty"`
+	RiskLevel     string                 `protobuf:"bytes,7,opt,name=risk_level,json=riskLevel,proto3" json:"risk_level,omitempty"`
+	AiEnabled     bool                   `protobuf:"varint,8,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindTurbineItem) Reset() {
+	*x = WindTurbineItem{}
+	mi := &file_pb_ai_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTurbineItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTurbineItem) ProtoMessage() {}
+
+func (x *WindTurbineItem) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTurbineItem.ProtoReflect.Descriptor instead.
+func (*WindTurbineItem) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *WindTurbineItem) GetTurbineId() int64 {
+	if x != nil {
+		return x.TurbineId
+	}
+	return 0
+}
+
+func (x *WindTurbineItem) GetTowerId() int64 {
+	if x != nil {
+		return x.TowerId
+	}
+	return 0
+}
+
+func (x *WindTurbineItem) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindTurbineItem) GetTowerName() string {
+	if x != nil {
+		return x.TowerName
+	}
+	return ""
+}
+
+func (x *WindTurbineItem) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindTurbineItem) GetFarmName() string {
+	if x != nil {
+		return x.FarmName
+	}
+	return ""
+}
+
+func (x *WindTurbineItem) GetRiskLevel() string {
+	if x != nil {
+		return x.RiskLevel
+	}
+	return ""
+}
+
+func (x *WindTurbineItem) GetAiEnabled() bool {
+	if x != nil {
+		return x.AiEnabled
+	}
+	return false
+}
+
+type ListWindTurbineReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode      string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	Keyword       string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWindTurbineReq) Reset() {
+	*x = ListWindTurbineReq{}
+	mi := &file_pb_ai_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindTurbineReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindTurbineReq) ProtoMessage() {}
+
+func (x *ListWindTurbineReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindTurbineReq.ProtoReflect.Descriptor instead.
+func (*ListWindTurbineReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *ListWindTurbineReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *ListWindTurbineReq) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+type ListWindTurbineResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	List          []*WindTurbineItem     `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWindTurbineResp) Reset() {
+	*x = ListWindTurbineResp{}
+	mi := &file_pb_ai_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindTurbineResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindTurbineResp) ProtoMessage() {}
+
+func (x *ListWindTurbineResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindTurbineResp.ProtoReflect.Descriptor instead.
+func (*ListWindTurbineResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *ListWindTurbineResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ListWindTurbineResp) GetList() []*WindTurbineItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+func (x *ListWindTurbineResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindDeviceItem struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId       int64                  `protobuf:"varint,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	DeviceCode     string                 `protobuf:"bytes,2,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
+	DeviceTypeCode string                 `protobuf:"bytes,3,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
+	DeviceTypeName string                 `protobuf:"bytes,4,opt,name=device_type_name,json=deviceTypeName,proto3" json:"device_type_name,omitempty"`
+	TowerId        int64                  `protobuf:"varint,5,opt,name=tower_id,json=towerId,proto3" json:"tower_id,omitempty"`
+	TowerCode      string                 `protobuf:"bytes,6,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	StructureCode  string                 `protobuf:"bytes,7,opt,name=structure_code,json=structureCode,proto3" json:"structure_code,omitempty"`
+	StructureName  string                 `protobuf:"bytes,8,opt,name=structure_name,json=structureName,proto3" json:"structure_name,omitempty"`
+	TdStable       string                 `protobuf:"bytes,9,opt,name=td_stable,json=tdStable,proto3" json:"td_stable,omitempty"`
+	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`
+	AiEnabled      bool                   `protobuf:"varint,11,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindDeviceItem) Reset() {
+	*x = WindDeviceItem{}
+	mi := &file_pb_ai_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindDeviceItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindDeviceItem) ProtoMessage() {}
+
+func (x *WindDeviceItem) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindDeviceItem.ProtoReflect.Descriptor instead.
+func (*WindDeviceItem) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *WindDeviceItem) GetDeviceId() int64 {
+	if x != nil {
+		return x.DeviceId
+	}
+	return 0
+}
+
+func (x *WindDeviceItem) GetDeviceCode() string {
+	if x != nil {
+		return x.DeviceCode
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetDeviceTypeCode() string {
+	if x != nil {
+		return x.DeviceTypeCode
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetDeviceTypeName() string {
+	if x != nil {
+		return x.DeviceTypeName
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetTowerId() int64 {
+	if x != nil {
+		return x.TowerId
+	}
+	return 0
+}
+
+func (x *WindDeviceItem) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetStructureCode() string {
+	if x != nil {
+		return x.StructureCode
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetStructureName() string {
+	if x != nil {
+		return x.StructureName
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetTdStable() string {
+	if x != nil {
+		return x.TdStable
+	}
+	return ""
+}
+
+func (x *WindDeviceItem) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *WindDeviceItem) GetAiEnabled() bool {
+	if x != nil {
+		return x.AiEnabled
+	}
+	return false
+}
+
+type ListWindDeviceReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode       string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	DeviceTypeCode string                 `protobuf:"bytes,3,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
+	Keyword        string                 `protobuf:"bytes,4,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListWindDeviceReq) Reset() {
+	*x = ListWindDeviceReq{}
+	mi := &file_pb_ai_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindDeviceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindDeviceReq) ProtoMessage() {}
+
+func (x *ListWindDeviceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindDeviceReq.ProtoReflect.Descriptor instead.
+func (*ListWindDeviceReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *ListWindDeviceReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *ListWindDeviceReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *ListWindDeviceReq) GetDeviceTypeCode() string {
+	if x != nil {
+		return x.DeviceTypeCode
+	}
+	return ""
+}
+
+func (x *ListWindDeviceReq) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+type ListWindDeviceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	List          []*WindDeviceItem      `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWindDeviceResp) Reset() {
+	*x = ListWindDeviceResp{}
+	mi := &file_pb_ai_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWindDeviceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWindDeviceResp) ProtoMessage() {}
+
+func (x *ListWindDeviceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWindDeviceResp.ProtoReflect.Descriptor instead.
+func (*ListWindDeviceResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *ListWindDeviceResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ListWindDeviceResp) GetList() []*WindDeviceItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+func (x *ListWindDeviceResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindTimeseriesQueryReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode       string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	DeviceCode     string                 `protobuf:"bytes,3,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
+	DeviceTypeCode string                 `protobuf:"bytes,4,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
+	Field          string                 `protobuf:"bytes,5,opt,name=field,proto3" json:"field,omitempty"`
+	StartTime      string                 `protobuf:"bytes,6,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime        string                 `protobuf:"bytes,7,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Page           int64                  `protobuf:"varint,8,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize       int64                  `protobuf:"varint,9,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindTimeseriesQueryReq) Reset() {
+	*x = WindTimeseriesQueryReq{}
+	mi := &file_pb_ai_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTimeseriesQueryReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTimeseriesQueryReq) ProtoMessage() {}
+
+func (x *WindTimeseriesQueryReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTimeseriesQueryReq.ProtoReflect.Descriptor instead.
+func (*WindTimeseriesQueryReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *WindTimeseriesQueryReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetDeviceCode() string {
+	if x != nil {
+		return x.DeviceCode
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetDeviceTypeCode() string {
+	if x != nil {
+		return x.DeviceTypeCode
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryReq) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *WindTimeseriesQueryReq) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *WindTimeseriesQueryReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindDataPoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ts            string                 `protobuf:"bytes,1,opt,name=ts,proto3" json:"ts,omitempty"`
+	Values        map[string]string      `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindDataPoint) Reset() {
+	*x = WindDataPoint{}
+	mi := &file_pb_ai_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindDataPoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindDataPoint) ProtoMessage() {}
+
+func (x *WindDataPoint) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindDataPoint.ProtoReflect.Descriptor instead.
+func (*WindDataPoint) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *WindDataPoint) GetTs() string {
+	if x != nil {
+		return x.Ts
+	}
+	return ""
+}
+
+func (x *WindDataPoint) GetValues() map[string]string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+type WindTimeseriesQueryResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Database      string                 `protobuf:"bytes,2,opt,name=database,proto3" json:"database,omitempty"`
+	Stable        string                 `protobuf:"bytes,3,opt,name=stable,proto3" json:"stable,omitempty"`
+	Fields        []string               `protobuf:"bytes,4,rep,name=fields,proto3" json:"fields,omitempty"`
+	Points        []*WindDataPoint       `protobuf:"bytes,5,rep,name=points,proto3" json:"points,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,6,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	Message       string                 `protobuf:"bytes,7,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindTimeseriesQueryResp) Reset() {
+	*x = WindTimeseriesQueryResp{}
+	mi := &file_pb_ai_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTimeseriesQueryResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTimeseriesQueryResp) ProtoMessage() {}
+
+func (x *WindTimeseriesQueryResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTimeseriesQueryResp.ProtoReflect.Descriptor instead.
+func (*WindTimeseriesQueryResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *WindTimeseriesQueryResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *WindTimeseriesQueryResp) GetDatabase() string {
+	if x != nil {
+		return x.Database
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryResp) GetStable() string {
+	if x != nil {
+		return x.Stable
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryResp) GetFields() []string {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+func (x *WindTimeseriesQueryResp) GetPoints() []*WindDataPoint {
+	if x != nil {
+		return x.Points
+	}
+	return nil
+}
+
+func (x *WindTimeseriesQueryResp) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindTimeseriesQueryResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindTrendCompareReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode       string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	DeviceTypeCode string                 `protobuf:"bytes,3,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
+	Field          string                 `protobuf:"bytes,4,opt,name=field,proto3" json:"field,omitempty"`
+	StartTime      string                 `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime        string                 `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindTrendCompareReq) Reset() {
+	*x = WindTrendCompareReq{}
+	mi := &file_pb_ai_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTrendCompareReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTrendCompareReq) ProtoMessage() {}
+
+func (x *WindTrendCompareReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTrendCompareReq.ProtoReflect.Descriptor instead.
+func (*WindTrendCompareReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *WindTrendCompareReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetDeviceTypeCode() string {
+	if x != nil {
+		return x.DeviceTypeCode
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindTrendCompareResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Summary       string                 `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,2,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindTrendCompareResp) Reset() {
+	*x = WindTrendCompareResp{}
+	mi := &file_pb_ai_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTrendCompareResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTrendCompareResp) ProtoMessage() {}
+
+func (x *WindTrendCompareResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTrendCompareResp.ProtoReflect.Descriptor instead.
+func (*WindTrendCompareResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *WindTrendCompareResp) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *WindTrendCompareResp) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindTrendCompareResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindAlarmQueryReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode       string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	DeviceTypeCode string                 `protobuf:"bytes,3,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
+	DeviceCode     string                 `protobuf:"bytes,4,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
+	AlarmCode      string                 `protobuf:"bytes,5,opt,name=alarm_code,json=alarmCode,proto3" json:"alarm_code,omitempty"`
+	AlarmLevel     int64                  `protobuf:"varint,6,opt,name=alarm_level,json=alarmLevel,proto3" json:"alarm_level,omitempty"`
+	Status         int64                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`
+	StartTime      string                 `protobuf:"bytes,8,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime        string                 `protobuf:"bytes,9,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Page           int64                  `protobuf:"varint,10,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize       int64                  `protobuf:"varint,11,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindAlarmQueryReq) Reset() {
+	*x = WindAlarmQueryReq{}
+	mi := &file_pb_ai_proto_msgTypes[77]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAlarmQueryReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAlarmQueryReq) ProtoMessage() {}
+
+func (x *WindAlarmQueryReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[77]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAlarmQueryReq.ProtoReflect.Descriptor instead.
+func (*WindAlarmQueryReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{77}
+}
+
+func (x *WindAlarmQueryReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetDeviceTypeCode() string {
+	if x != nil {
+		return x.DeviceTypeCode
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetDeviceCode() string {
+	if x != nil {
+		return x.DeviceCode
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetAlarmCode() string {
+	if x != nil {
+		return x.AlarmCode
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetAlarmLevel() int64 {
+	if x != nil {
+		return x.AlarmLevel
+	}
+	return 0
+}
+
+func (x *WindAlarmQueryReq) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *WindAlarmQueryReq) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryReq) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *WindAlarmQueryReq) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *WindAlarmQueryReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindAlarmItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ts            string                 `protobuf:"bytes,1,opt,name=ts,proto3" json:"ts,omitempty"`
+	FarmCode      string                 `protobuf:"bytes,2,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,3,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	DeviceChannel int64                  `protobuf:"varint,4,opt,name=device_channel,json=deviceChannel,proto3" json:"device_channel,omitempty"`
+	DeviceType    int64                  `protobuf:"varint,5,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"`
+	AlarmLocation string                 `protobuf:"bytes,6,opt,name=alarm_location,json=alarmLocation,proto3" json:"alarm_location,omitempty"`
+	AlarmLevel    int64                  `protobuf:"varint,7,opt,name=alarm_level,json=alarmLevel,proto3" json:"alarm_level,omitempty"`
+	AlarmCode     int64                  `protobuf:"varint,8,opt,name=alarm_code,json=alarmCode,proto3" json:"alarm_code,omitempty"`
+	AlarmValue    string                 `protobuf:"bytes,9,opt,name=alarm_value,json=alarmValue,proto3" json:"alarm_value,omitempty"`
+	Status        int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindAlarmItem) Reset() {
+	*x = WindAlarmItem{}
+	mi := &file_pb_ai_proto_msgTypes[78]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAlarmItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAlarmItem) ProtoMessage() {}
+
+func (x *WindAlarmItem) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[78]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAlarmItem.ProtoReflect.Descriptor instead.
+func (*WindAlarmItem) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{78}
+}
+
+func (x *WindAlarmItem) GetTs() string {
+	if x != nil {
+		return x.Ts
+	}
+	return ""
+}
+
+func (x *WindAlarmItem) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindAlarmItem) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindAlarmItem) GetDeviceChannel() int64 {
+	if x != nil {
+		return x.DeviceChannel
+	}
+	return 0
+}
+
+func (x *WindAlarmItem) GetDeviceType() int64 {
+	if x != nil {
+		return x.DeviceType
+	}
+	return 0
+}
+
+func (x *WindAlarmItem) GetAlarmLocation() string {
+	if x != nil {
+		return x.AlarmLocation
+	}
+	return ""
+}
+
+func (x *WindAlarmItem) GetAlarmLevel() int64 {
+	if x != nil {
+		return x.AlarmLevel
+	}
+	return 0
+}
+
+func (x *WindAlarmItem) GetAlarmCode() int64 {
+	if x != nil {
+		return x.AlarmCode
+	}
+	return 0
+}
+
+func (x *WindAlarmItem) GetAlarmValue() string {
+	if x != nil {
+		return x.AlarmValue
+	}
+	return ""
+}
+
+func (x *WindAlarmItem) GetStatus() int64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+type WindAlarmQueryResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	List          []*WindAlarmItem       `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,3,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindAlarmQueryResp) Reset() {
+	*x = WindAlarmQueryResp{}
+	mi := &file_pb_ai_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAlarmQueryResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAlarmQueryResp) ProtoMessage() {}
+
+func (x *WindAlarmQueryResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAlarmQueryResp.ProtoReflect.Descriptor instead.
+func (*WindAlarmQueryResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *WindAlarmQueryResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *WindAlarmQueryResp) GetList() []*WindAlarmItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+func (x *WindAlarmQueryResp) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindAlarmQueryResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindAlarmAnalyzeReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode      string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	AlarmCode     string                 `protobuf:"bytes,3,opt,name=alarm_code,json=alarmCode,proto3" json:"alarm_code,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,4,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	UserId        int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindAlarmAnalyzeReq) Reset() {
+	*x = WindAlarmAnalyzeReq{}
+	mi := &file_pb_ai_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAlarmAnalyzeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAlarmAnalyzeReq) ProtoMessage() {}
+
+func (x *WindAlarmAnalyzeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAlarmAnalyzeReq.ProtoReflect.Descriptor instead.
+func (*WindAlarmAnalyzeReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *WindAlarmAnalyzeReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetAlarmCode() string {
+	if x != nil {
+		return x.AlarmCode
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindScaffoldResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	TraceId       string                 `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,5,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	Message       string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindScaffoldResp) Reset() {
+	*x = WindScaffoldResp{}
+	mi := &file_pb_ai_proto_msgTypes[81]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindScaffoldResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindScaffoldResp) ProtoMessage() {}
+
+func (x *WindScaffoldResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[81]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindScaffoldResp.ProtoReflect.Descriptor instead.
+func (*WindScaffoldResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{81}
+}
+
+func (x *WindScaffoldResp) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *WindScaffoldResp) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *WindScaffoldResp) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *WindScaffoldResp) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *WindScaffoldResp) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindScaffoldResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type WindHealthReportReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReportType    string                 `protobuf:"bytes,1,opt,name=report_type,json=reportType,proto3" json:"report_type,omitempty"`
+	FarmCode      string                 `protobuf:"bytes,2,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,3,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	StartTime     string                 `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       string                 `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,6,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	UserId        int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindHealthReportReq) Reset() {
+	*x = WindHealthReportReq{}
+	mi := &file_pb_ai_proto_msgTypes[82]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindHealthReportReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindHealthReportReq) ProtoMessage() {}
+
+func (x *WindHealthReportReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[82]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindHealthReportReq.ProtoReflect.Descriptor instead.
+func (*WindHealthReportReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{82}
+}
+
+func (x *WindHealthReportReq) GetReportType() string {
+	if x != nil {
+		return x.ReportType
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindHealthReportReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindHealthReportGetReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReportId      int64                  `protobuf:"varint,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
+	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindHealthReportGetReq) Reset() {
+	*x = WindHealthReportGetReq{}
+	mi := &file_pb_ai_proto_msgTypes[83]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindHealthReportGetReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindHealthReportGetReq) ProtoMessage() {}
+
+func (x *WindHealthReportGetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[83]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindHealthReportGetReq.ProtoReflect.Descriptor instead.
+func (*WindHealthReportGetReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{83}
+}
+
+func (x *WindHealthReportGetReq) GetReportId() int64 {
+	if x != nil {
+		return x.ReportId
+	}
+	return 0
+}
+
+func (x *WindHealthReportGetReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindTicketDraftReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FarmCode      string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	AlarmCode     string                 `protobuf:"bytes,3,opt,name=alarm_code,json=alarmCode,proto3" json:"alarm_code,omitempty"`
+	EvidenceJson  string                 `protobuf:"bytes,4,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	UserId        int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindTicketDraftReq) Reset() {
+	*x = WindTicketDraftReq{}
+	mi := &file_pb_ai_proto_msgTypes[84]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindTicketDraftReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindTicketDraftReq) ProtoMessage() {}
+
+func (x *WindTicketDraftReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[84]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindTicketDraftReq.ProtoReflect.Descriptor instead.
+func (*WindTicketDraftReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{84}
+}
+
+func (x *WindTicketDraftReq) GetFarmCode() string {
+	if x != nil {
+		return x.FarmCode
+	}
+	return ""
+}
+
+func (x *WindTicketDraftReq) GetTowerCode() string {
+	if x != nil {
+		return x.TowerCode
+	}
+	return ""
+}
+
+func (x *WindTicketDraftReq) GetAlarmCode() string {
+	if x != nil {
+		return x.AlarmCode
+	}
+	return ""
+}
+
+func (x *WindTicketDraftReq) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindTicketDraftReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type WindAgentRunReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	Input          string                 `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindAgentRunReq) Reset() {
+	*x = WindAgentRunReq{}
+	mi := &file_pb_ai_proto_msgTypes[85]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAgentRunReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAgentRunReq) ProtoMessage() {}
+
+func (x *WindAgentRunReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[85]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAgentRunReq.ProtoReflect.Descriptor instead.
+func (*WindAgentRunReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{85}
+}
+
+func (x *WindAgentRunReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *WindAgentRunReq) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *WindAgentRunReq) GetInput() string {
+	if x != nil {
+		return x.Input
+	}
+	return ""
+}
+
+type WindAgentRunResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Answer        string                 `protobuf:"bytes,1,opt,name=answer,proto3" json:"answer,omitempty"`
+	ToolCalls     []*ToolCall            `protobuf:"bytes,2,rep,name=tool_calls,json=toolCalls,proto3" json:"tool_calls,omitempty"`
+	TraceId       string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindAgentRunResp) Reset() {
+	*x = WindAgentRunResp{}
+	mi := &file_pb_ai_proto_msgTypes[86]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAgentRunResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAgentRunResp) ProtoMessage() {}
+
+func (x *WindAgentRunResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[86]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAgentRunResp.ProtoReflect.Descriptor instead.
+func (*WindAgentRunResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{86}
+}
+
+func (x *WindAgentRunResp) GetAnswer() string {
+	if x != nil {
+		return x.Answer
+	}
+	return ""
+}
+
+func (x *WindAgentRunResp) GetToolCalls() []*ToolCall {
+	if x != nil {
+		return x.ToolCalls
+	}
+	return nil
+}
+
+func (x *WindAgentRunResp) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+type WindListToolCallLogReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int64                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int64                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TraceId       string                 `protobuf:"bytes,4,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	ToolName      string                 `protobuf:"bytes,5,opt,name=tool_name,json=toolName,proto3" json:"tool_name,omitempty"`
+	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindListToolCallLogReq) Reset() {
+	*x = WindListToolCallLogReq{}
+	mi := &file_pb_ai_proto_msgTypes[87]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindListToolCallLogReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindListToolCallLogReq) ProtoMessage() {}
+
+func (x *WindListToolCallLogReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[87]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindListToolCallLogReq.ProtoReflect.Descriptor instead.
+func (*WindListToolCallLogReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{87}
+}
+
+func (x *WindListToolCallLogReq) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *WindListToolCallLogReq) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *WindListToolCallLogReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *WindListToolCallLogReq) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *WindListToolCallLogReq) GetToolName() string {
+	if x != nil {
+		return x.ToolName
+	}
+	return ""
+}
+
+func (x *WindListToolCallLogReq) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type WindListToolCallLogResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	List          []*ToolCall            `protobuf:"bytes,2,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindListToolCallLogResp) Reset() {
+	*x = WindListToolCallLogResp{}
+	mi := &file_pb_ai_proto_msgTypes[88]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindListToolCallLogResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindListToolCallLogResp) ProtoMessage() {}
+
+func (x *WindListToolCallLogResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[88]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindListToolCallLogResp.ProtoReflect.Descriptor instead.
+func (*WindListToolCallLogResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{88}
+}
+
+func (x *WindListToolCallLogResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *WindListToolCallLogResp) GetList() []*ToolCall {
+	if x != nil {
+		return x.List
+	}
+	return nil
 }
 
 var File_pb_ai_proto protoreflect.FileDescriptor
@@ -6534,150 +7034,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x0fconversation_id\x18\x04 \x01(\tR\x0econversationId\"X\n" +
 	"\x1bGetConversationMessagesResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12#\n" +
-	"\x04list\x18\x02 \x03(\v2\x0f.ai.MessageItemR\x04list\"\xdd\x01\n" +
-	"\x15SearchSecurityLogsReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
-	"\x05query\x18\x02 \x01(\tR\x05query\x12\x0e\n" +
-	"\x02ip\x18\x03 \x01(\tR\x02ip\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12\x1d\n" +
-	"\n" +
-	"start_time\x18\x05 \x01(\tR\tstartTime\x12\x19\n" +
-	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x12\n" +
-	"\x04page\x18\a \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\b \x01(\x03R\bpageSize\"\x99\x01\n" +
-	"\x0fSecurityLogItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
-	"\ttimestamp\x18\x02 \x01(\tR\ttimestamp\x12\x12\n" +
-	"\x04host\x18\x03 \x01(\tR\x04host\x12\x0e\n" +
-	"\x02ip\x18\x04 \x01(\tR\x02ip\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x18\n" +
-	"\amessage\x18\x06 \x01(\tR\amessage\"p\n" +
-	"\x15SecurityLogSearchResp\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x03R\x05total\x12'\n" +
-	"\x04list\x18\x02 \x03(\v2\x13.ai.SecurityLogItemR\x04list\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"o\n" +
-	"\x18AnalyzeSecurityEventsReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x19\n" +
-	"\braw_logs\x18\x02 \x03(\tR\arawLogs\x12\x1f\n" +
-	"\voperator_id\x18\x14 \x01(\x03R\n" +
-	"operatorId\"\x87\x02\n" +
-	"\x11SecurityEventItem\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\x03R\aeventId\x12\x1d\n" +
-	"\n" +
-	"event_type\x18\x02 \x01(\tR\teventType\x12\x1a\n" +
-	"\bseverity\x18\x03 \x01(\tR\bseverity\x12\x0e\n" +
-	"\x02ip\x18\x04 \x01(\tR\x02ip\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x18\n" +
-	"\asummary\x18\x06 \x01(\tR\asummary\x12\x16\n" +
-	"\x06detail\x18\a \x01(\tR\x06detail\x12\x1f\n" +
-	"\voccurred_at\x18\b \x01(\tR\n" +
-	"occurredAt\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\t \x01(\tR\tcreatedAt\"|\n" +
-	"\x19AnalyzeSecurityEventsResp\x12-\n" +
-	"\x06events\x18\x01 \x03(\v2\x15.ai.SecurityEventItemR\x06events\x12\x16\n" +
-	"\x06alerts\x18\x02 \x03(\tR\x06alerts\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xcb\x02\n" +
-	"\x15ListSecurityEventsReq\x12\x12\n" +
-	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x1d\n" +
-	"\n" +
-	"event_type\x18\x04 \x01(\tR\teventType\x12$\n" +
-	"\x0ehas_event_type\x18\x05 \x01(\bR\fhasEventType\x12\x1a\n" +
-	"\bseverity\x18\x06 \x01(\tR\bseverity\x12!\n" +
-	"\fhas_severity\x18\a \x01(\bR\vhasSeverity\x12\x0e\n" +
-	"\x02ip\x18\b \x01(\tR\x02ip\x12\x1a\n" +
-	"\busername\x18\t \x01(\tR\busername\x12\x1d\n" +
-	"\n" +
-	"start_time\x18\n" +
-	" \x01(\tR\tstartTime\x12\x19\n" +
-	"\bend_time\x18\v \x01(\tR\aendTime\"Y\n" +
-	"\x16ListSecurityEventsResp\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x03R\x05total\x12)\n" +
-	"\x04list\x18\x02 \x03(\v2\x15.ai.SecurityEventItemR\x04list\"\xb5\x02\n" +
-	"\x11SecurityAlertItem\x12\x19\n" +
-	"\balert_id\x18\x01 \x01(\x03R\aalertId\x12\x1d\n" +
-	"\n" +
-	"alert_type\x18\x02 \x01(\tR\talertType\x12\x1a\n" +
-	"\bseverity\x18\x03 \x01(\tR\bseverity\x12\x0e\n" +
-	"\x02ip\x18\x04 \x01(\tR\x02ip\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x14\n" +
-	"\x05title\x18\x06 \x01(\tR\x05title\x12\x18\n" +
-	"\asummary\x18\a \x01(\tR\asummary\x12\x16\n" +
-	"\x06detail\x18\b \x01(\tR\x06detail\x12\x16\n" +
-	"\x06status\x18\t \x01(\tR\x06status\x12\x1f\n" +
-	"\voccurred_at\x18\n" +
-	" \x01(\tR\n" +
-	"occurredAt\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\v \x01(\tR\tcreatedAt\"\xe6\x02\n" +
-	"\x15ListSecurityAlertsReq\x12\x12\n" +
-	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x1d\n" +
-	"\n" +
-	"alert_type\x18\x04 \x01(\tR\talertType\x12$\n" +
-	"\x0ehas_alert_type\x18\x05 \x01(\bR\fhasAlertType\x12\x1a\n" +
-	"\bseverity\x18\x06 \x01(\tR\bseverity\x12!\n" +
-	"\fhas_severity\x18\a \x01(\bR\vhasSeverity\x12\x16\n" +
-	"\x06status\x18\b \x01(\tR\x06status\x12\x1d\n" +
-	"\n" +
-	"has_status\x18\t \x01(\bR\thasStatus\x12\x0e\n" +
-	"\x02ip\x18\n" +
-	" \x01(\tR\x02ip\x12\x1d\n" +
-	"\n" +
-	"start_time\x18\v \x01(\tR\tstartTime\x12\x19\n" +
-	"\bend_time\x18\f \x01(\tR\aendTime\"Y\n" +
-	"\x16ListSecurityAlertsResp\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x03R\x05total\x12)\n" +
-	"\x04list\x18\x02 \x03(\v2\x15.ai.SecurityAlertItemR\x04list\"\x8b\x01\n" +
-	"\x1cUpdateSecurityAlertStatusReq\x12\x19\n" +
-	"\balert_id\x18\x01 \x01(\x03R\aalertId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x1f\n" +
-	"\voperator_id\x18\x14 \x01(\x03R\n" +
-	"operatorId\"f\n" +
-	"\x16GenerateDailyReportReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x12\n" +
-	"\x04date\x18\x02 \x01(\tR\x04date\x12\x1f\n" +
-	"\voperator_id\x18\x14 \x01(\x03R\n" +
-	"operatorId\"\x82\x03\n" +
-	"\x0fDailyReportResp\x12\x1b\n" +
-	"\treport_id\x18\x01 \x01(\x03R\breportId\x12\x12\n" +
-	"\x04date\x18\x02 \x01(\tR\x04date\x12\x14\n" +
-	"\x05title\x18\x03 \x01(\tR\x05title\x12\x18\n" +
-	"\acontent\x18\x04 \x01(\tR\acontent\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\x12,\n" +
-	"\x12failed_login_count\x18\x06 \x01(\x03R\x10failedLoginCount\x12.\n" +
-	"\x13success_login_count\x18\a \x01(\x03R\x11successLoginCount\x12\x1f\n" +
-	"\valert_count\x18\b \x01(\x03R\n" +
-	"alertCount\x12)\n" +
-	"\atop_ips\x18\t \x03(\v2\x10.ai.TopCountItemR\x06topIps\x12-\n" +
-	"\ttop_users\x18\n" +
-	" \x03(\v2\x10.ai.TopCountItemR\btopUsers\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\v \x01(\tR\tcreatedAt\"\xcf\x01\n" +
-	"\x12ListDailyReportReq\x12\x12\n" +
-	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x1d\n" +
-	"\n" +
-	"start_date\x18\x04 \x01(\tR\tstartDate\x12\x19\n" +
-	"\bend_date\x18\x05 \x01(\tR\aendDate\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1d\n" +
-	"\n" +
-	"has_status\x18\a \x01(\bR\thasStatus\"T\n" +
-	"\x13ListDailyReportResp\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x03R\x05total\x12'\n" +
-	"\x04list\x18\x02 \x03(\v2\x13.ai.DailyReportRespR\x04list\"I\n" +
-	"\x11GetDailyReportReq\x12\x1b\n" +
-	"\treport_id\x18\x01 \x01(\x03R\breportId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\x03R\x06userId\"e\n" +
-	"\vAgentRunReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
-	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x14\n" +
-	"\x05input\x18\x03 \x01(\tR\x05input\"\xe2\x01\n" +
+	"\x04list\x18\x02 \x03(\v2\x0f.ai.MessageItemR\x04list\"\xe2\x01\n" +
 	"\bToolCall\x12 \n" +
 	"\ftool_call_id\x18\x01 \x01(\x03R\n" +
 	"toolCallId\x12\x1b\n" +
@@ -6688,12 +7045,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"resultJson\x12\x18\n" +
 	"\amessage\x18\x06 \x01(\tR\amessage\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tR\tcreatedAt\"n\n" +
-	"\fAgentRunResp\x12\x16\n" +
-	"\x06answer\x18\x01 \x01(\tR\x06answer\x12+\n" +
-	"\n" +
-	"tool_calls\x18\x02 \x03(\v2\f.ai.ToolCallR\ttoolCalls\x12\x19\n" +
-	"\btrace_id\x18\x03 \x01(\tR\atraceId\"\x87\x02\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\"\x87\x02\n" +
 	"\x12ListToolCallLogReq\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
@@ -6756,7 +7108,209 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x11completion_tokens\x18\x02 \x01(\x03R\x10completionTokens\x12!\n" +
 	"\ftotal_tokens\x18\x03 \x01(\x03R\vtotalTokens\x12\x1d\n" +
 	"\n" +
-	"call_count\x18\x04 \x01(\x03R\tcallCount2:\n" +
+	"call_count\x18\x04 \x01(\x03R\tcallCount\"\xd9\x01\n" +
+	"\fWindFarmItem\x12\x17\n" +
+	"\afarm_id\x18\x01 \x01(\x03R\x06farmId\x12\x1b\n" +
+	"\tfarm_code\x18\x02 \x01(\tR\bfarmCode\x12\x1b\n" +
+	"\tfarm_name\x18\x03 \x01(\tR\bfarmName\x12\x1a\n" +
+	"\bprovince\x18\x04 \x01(\tR\bprovince\x12\x1a\n" +
+	"\blocation\x18\x05 \x01(\tR\blocation\x12\x1f\n" +
+	"\vtd_database\x18\x06 \x01(\tR\n" +
+	"tdDatabase\x12\x1d\n" +
+	"\n" +
+	"ai_enabled\x18\a \x01(\bR\taiEnabled\"+\n" +
+	"\x0fListWindFarmReq\x12\x18\n" +
+	"\akeyword\x18\x01 \x01(\tR\akeyword\"h\n" +
+	"\x10ListWindFarmResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12$\n" +
+	"\x04list\x18\x02 \x03(\v2\x10.ai.WindFarmItemR\x04list\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\x81\x02\n" +
+	"\x0fWindTurbineItem\x12\x1d\n" +
+	"\n" +
+	"turbine_id\x18\x01 \x01(\x03R\tturbineId\x12\x19\n" +
+	"\btower_id\x18\x02 \x01(\x03R\atowerId\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x03 \x01(\tR\ttowerCode\x12\x1d\n" +
+	"\n" +
+	"tower_name\x18\x04 \x01(\tR\ttowerName\x12\x1b\n" +
+	"\tfarm_code\x18\x05 \x01(\tR\bfarmCode\x12\x1b\n" +
+	"\tfarm_name\x18\x06 \x01(\tR\bfarmName\x12\x1d\n" +
+	"\n" +
+	"risk_level\x18\a \x01(\tR\triskLevel\x12\x1d\n" +
+	"\n" +
+	"ai_enabled\x18\b \x01(\bR\taiEnabled\"K\n" +
+	"\x12ListWindTurbineReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x18\n" +
+	"\akeyword\x18\x02 \x01(\tR\akeyword\"n\n" +
+	"\x13ListWindTurbineResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12'\n" +
+	"\x04list\x18\x02 \x03(\v2\x13.ai.WindTurbineItemR\x04list\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xfe\x02\n" +
+	"\x0eWindDeviceItem\x12\x1b\n" +
+	"\tdevice_id\x18\x01 \x01(\x03R\bdeviceId\x12\x1f\n" +
+	"\vdevice_code\x18\x02 \x01(\tR\n" +
+	"deviceCode\x12(\n" +
+	"\x10device_type_code\x18\x03 \x01(\tR\x0edeviceTypeCode\x12(\n" +
+	"\x10device_type_name\x18\x04 \x01(\tR\x0edeviceTypeName\x12\x19\n" +
+	"\btower_id\x18\x05 \x01(\x03R\atowerId\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x06 \x01(\tR\ttowerCode\x12%\n" +
+	"\x0estructure_code\x18\a \x01(\tR\rstructureCode\x12%\n" +
+	"\x0estructure_name\x18\b \x01(\tR\rstructureName\x12\x1b\n" +
+	"\ttd_stable\x18\t \x01(\tR\btdStable\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\x03R\x06status\x12\x1d\n" +
+	"\n" +
+	"ai_enabled\x18\v \x01(\bR\taiEnabled\"\x93\x01\n" +
+	"\x11ListWindDeviceReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12(\n" +
+	"\x10device_type_code\x18\x03 \x01(\tR\x0edeviceTypeCode\x12\x18\n" +
+	"\akeyword\x18\x04 \x01(\tR\akeyword\"l\n" +
+	"\x12ListWindDeviceResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12&\n" +
+	"\x04list\x18\x02 \x03(\v2\x12.ai.WindDeviceItemR\x04list\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xb9\x02\n" +
+	"\x16WindTimeseriesQueryReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12\x1f\n" +
+	"\vdevice_code\x18\x03 \x01(\tR\n" +
+	"deviceCode\x12(\n" +
+	"\x10device_type_code\x18\x04 \x01(\tR\x0edeviceTypeCode\x12\x14\n" +
+	"\x05field\x18\x05 \x01(\tR\x05field\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x06 \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\a \x01(\tR\aendTime\x12\x12\n" +
+	"\x04page\x18\b \x01(\x03R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\t \x01(\x03R\bpageSize\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\x91\x01\n" +
+	"\rWindDataPoint\x12\x0e\n" +
+	"\x02ts\x18\x01 \x01(\tR\x02ts\x125\n" +
+	"\x06values\x18\x02 \x03(\v2\x1d.ai.WindDataPoint.ValuesEntryR\x06values\x1a9\n" +
+	"\vValuesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe5\x01\n" +
+	"\x17WindTimeseriesQueryResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x1a\n" +
+	"\bdatabase\x18\x02 \x01(\tR\bdatabase\x12\x16\n" +
+	"\x06stable\x18\x03 \x01(\tR\x06stable\x12\x16\n" +
+	"\x06fields\x18\x04 \x03(\tR\x06fields\x12)\n" +
+	"\x06points\x18\x05 \x03(\v2\x11.ai.WindDataPointR\x06points\x12#\n" +
+	"\revidence_json\x18\x06 \x01(\tR\fevidenceJson\x12\x18\n" +
+	"\amessage\x18\a \x01(\tR\amessage\"\xe4\x01\n" +
+	"\x13WindTrendCompareReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12(\n" +
+	"\x10device_type_code\x18\x03 \x01(\tR\x0edeviceTypeCode\x12\x14\n" +
+	"\x05field\x18\x04 \x01(\tR\x05field\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x05 \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"o\n" +
+	"\x14WindTrendCompareResp\x12\x18\n" +
+	"\asummary\x18\x01 \x01(\tR\asummary\x12#\n" +
+	"\revidence_json\x18\x02 \x01(\tR\fevidenceJson\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xf6\x02\n" +
+	"\x11WindAlarmQueryReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12(\n" +
+	"\x10device_type_code\x18\x03 \x01(\tR\x0edeviceTypeCode\x12\x1f\n" +
+	"\vdevice_code\x18\x04 \x01(\tR\n" +
+	"deviceCode\x12\x1d\n" +
+	"\n" +
+	"alarm_code\x18\x05 \x01(\tR\talarmCode\x12\x1f\n" +
+	"\valarm_level\x18\x06 \x01(\x03R\n" +
+	"alarmLevel\x12\x16\n" +
+	"\x06status\x18\a \x01(\x03R\x06status\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\b \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\t \x01(\tR\aendTime\x12\x12\n" +
+	"\x04page\x18\n" +
+	" \x01(\x03R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\v \x01(\x03R\bpageSize\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\xc3\x02\n" +
+	"\rWindAlarmItem\x12\x0e\n" +
+	"\x02ts\x18\x01 \x01(\tR\x02ts\x12\x1b\n" +
+	"\tfarm_code\x18\x02 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x03 \x01(\tR\ttowerCode\x12%\n" +
+	"\x0edevice_channel\x18\x04 \x01(\x03R\rdeviceChannel\x12\x1f\n" +
+	"\vdevice_type\x18\x05 \x01(\x03R\n" +
+	"deviceType\x12%\n" +
+	"\x0ealarm_location\x18\x06 \x01(\tR\ralarmLocation\x12\x1f\n" +
+	"\valarm_level\x18\a \x01(\x03R\n" +
+	"alarmLevel\x12\x1d\n" +
+	"\n" +
+	"alarm_code\x18\b \x01(\x03R\talarmCode\x12\x1f\n" +
+	"\valarm_value\x18\t \x01(\tR\n" +
+	"alarmValue\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\x03R\x06status\"\x90\x01\n" +
+	"\x12WindAlarmQueryResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12%\n" +
+	"\x04list\x18\x02 \x03(\v2\x11.ai.WindAlarmItemR\x04list\x12#\n" +
+	"\revidence_json\x18\x03 \x01(\tR\fevidenceJson\x12\x18\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"\xae\x01\n" +
+	"\x13WindAlarmAnalyzeReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12\x1d\n" +
+	"\n" +
+	"alarm_code\x18\x03 \x01(\tR\talarmCode\x12#\n" +
+	"\revidence_json\x18\x04 \x01(\tR\fevidenceJson\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\xac\x01\n" +
+	"\x10WindScaffoldResp\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
+	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\x12#\n" +
+	"\revidence_json\x18\x05 \x01(\tR\fevidenceJson\x12\x18\n" +
+	"\amessage\x18\x06 \x01(\tR\amessage\"\xea\x01\n" +
+	"\x13WindHealthReportReq\x12\x1f\n" +
+	"\vreport_type\x18\x01 \x01(\tR\n" +
+	"reportType\x12\x1b\n" +
+	"\tfarm_code\x18\x02 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x03 \x01(\tR\ttowerCode\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x04 \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x05 \x01(\tR\aendTime\x12#\n" +
+	"\revidence_json\x18\x06 \x01(\tR\fevidenceJson\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"N\n" +
+	"\x16WindHealthReportGetReq\x12\x1b\n" +
+	"\treport_id\x18\x01 \x01(\x03R\breportId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\"\xad\x01\n" +
+	"\x12WindTicketDraftReq\x12\x1b\n" +
+	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
+	"\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12\x1d\n" +
+	"\n" +
+	"alarm_code\x18\x03 \x01(\tR\talarmCode\x12#\n" +
+	"\revidence_json\x18\x04 \x01(\tR\fevidenceJson\x12\x17\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"i\n" +
+	"\x0fWindAgentRunReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
+	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x14\n" +
+	"\x05input\x18\x03 \x01(\tR\x05input\"r\n" +
+	"\x10WindAgentRunResp\x12\x16\n" +
+	"\x06answer\x18\x01 \x01(\tR\x06answer\x12+\n" +
+	"\n" +
+	"tool_calls\x18\x02 \x03(\v2\f.ai.ToolCallR\ttoolCalls\x12\x19\n" +
+	"\btrace_id\x18\x03 \x01(\tR\atraceId\"\xb2\x01\n" +
+	"\x16WindListToolCallLogReq\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x19\n" +
+	"\btrace_id\x18\x04 \x01(\tR\atraceId\x12\x1b\n" +
+	"\ttool_name\x18\x05 \x01(\tR\btoolName\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status\"Q\n" +
+	"\x17WindListToolCallLogResp\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12 \n" +
+	"\x04list\x18\x02 \x03(\v2\f.ai.ToolCallR\x04list2:\n" +
 	"\x0fAiStatusService\x12'\n" +
 	"\x06Health\x12\r.ai.HealthReq\x1a\x0e.ai.HealthResp2\xf1\b\n" +
 	"\x12AiKnowledgeService\x129\n" +
@@ -6784,24 +7338,28 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\aRagChat\x12\x0e.ai.RagChatReq\x1a\x0f.ai.RagChatResp\x129\n" +
 	"\rRagChatStream\x12\x0e.ai.RagChatReq\x1a\x16.ai.RagChatStreamEvent0\x01\x12E\n" +
 	"\x10ListConversation\x12\x17.ai.ListConversationReq\x1a\x18.ai.ListConversationResp\x12Z\n" +
-	"\x17GetConversationMessages\x12\x1e.ai.GetConversationMessagesReq\x1a\x1f.ai.GetConversationMessagesResp2\x99\x03\n" +
-	"\x11AiSecurityService\x12J\n" +
-	"\x12SearchSecurityLogs\x12\x19.ai.SearchSecurityLogsReq\x1a\x19.ai.SecurityLogSearchResp\x12T\n" +
-	"\x15AnalyzeSecurityEvents\x12\x1c.ai.AnalyzeSecurityEventsReq\x1a\x1d.ai.AnalyzeSecurityEventsResp\x12K\n" +
-	"\x12ListSecurityEvents\x12\x19.ai.ListSecurityEventsReq\x1a\x1a.ai.ListSecurityEventsResp\x12K\n" +
-	"\x12ListSecurityAlerts\x12\x19.ai.ListSecurityAlertsReq\x1a\x1a.ai.ListSecurityAlertsResp\x12H\n" +
-	"\x19UpdateSecurityAlertStatus\x12 .ai.UpdateSecurityAlertStatusReq\x1a\t.ai.Empty2\xdb\x01\n" +
-	"\x0fAiReportService\x12F\n" +
-	"\x13GenerateDailyReport\x12\x1a.ai.GenerateDailyReportReq\x1a\x13.ai.DailyReportResp\x12B\n" +
-	"\x0fListDailyReport\x12\x16.ai.ListDailyReportReq\x1a\x17.ai.ListDailyReportResp\x12<\n" +
-	"\x0eGetDailyReport\x12\x15.ai.GetDailyReportReq\x1a\x13.ai.DailyReportResp2\x83\x01\n" +
-	"\x0eAiAgentService\x12-\n" +
-	"\bRunAgent\x12\x0f.ai.AgentRunReq\x1a\x10.ai.AgentRunResp\x12B\n" +
-	"\x0fListToolCallLog\x12\x16.ai.ListToolCallLogReq\x1a\x17.ai.ListToolCallLogResp2\xc9\x01\n" +
+	"\x17GetConversationMessages\x12\x1e.ai.GetConversationMessagesReq\x1a\x1f.ai.GetConversationMessagesResp2\xc9\x01\n" +
 	"\x16AiObservabilityService\x123\n" +
 	"\vGetLlmTrace\x12\x12.ai.GetLlmTraceReq\x1a\x10.ai.LlmTraceResp\x12?\n" +
 	"\x0eListLlmCallLog\x12\x15.ai.ListLlmCallLogReq\x1a\x16.ai.ListLlmCallLogResp\x129\n" +
-	"\rGetTokenStats\x12\x14.ai.GetTokenStatsReq\x1a\x12.ai.TokenStatsRespB\x06Z\x04./pbb\x06proto3"
+	"\rGetTokenStats\x12\x14.ai.GetTokenStatsReq\x1a\x12.ai.TokenStatsResp2\xce\x01\n" +
+	"\x15AiWindMetadataService\x126\n" +
+	"\tListFarms\x12\x13.ai.ListWindFarmReq\x1a\x14.ai.ListWindFarmResp\x12?\n" +
+	"\fListTurbines\x12\x16.ai.ListWindTurbineReq\x1a\x17.ai.ListWindTurbineResp\x12<\n" +
+	"\vListDevices\x12\x15.ai.ListWindDeviceReq\x1a\x16.ai.ListWindDeviceResp2\xa8\x01\n" +
+	"\x17AiWindTimeseriesService\x12J\n" +
+	"\x0fQueryTimeseries\x12\x1a.ai.WindTimeseriesQueryReq\x1a\x1b.ai.WindTimeseriesQueryResp\x12A\n" +
+	"\fCompareTrend\x12\x17.ai.WindTrendCompareReq\x1a\x18.ai.WindTrendCompareResp2\x91\x01\n" +
+	"\x12AiWindAlarmService\x12<\n" +
+	"\vQueryAlarms\x12\x15.ai.WindAlarmQueryReq\x1a\x16.ai.WindAlarmQueryResp\x12=\n" +
+	"\fAnalyzeAlarm\x12\x17.ai.WindAlarmAnalyzeReq\x1a\x14.ai.WindScaffoldResp2\xa1\x01\n" +
+	"\x13AiWindReportService\x12E\n" +
+	"\x14GenerateHealthReport\x12\x17.ai.WindHealthReportReq\x1a\x14.ai.WindScaffoldResp\x12C\n" +
+	"\x0fGetHealthReport\x12\x1a.ai.WindHealthReportGetReq\x1a\x14.ai.WindScaffoldResp2\xda\x01\n" +
+	"\x12AiWindAgentService\x12A\n" +
+	"\x11CreateTicketDraft\x12\x16.ai.WindTicketDraftReq\x1a\x14.ai.WindScaffoldResp\x125\n" +
+	"\bRunAgent\x12\x13.ai.WindAgentRunReq\x1a\x14.ai.WindAgentRunResp\x12J\n" +
+	"\x0fListToolCallLog\x12\x1a.ai.WindListToolCallLogReq\x1a\x1b.ai.WindListToolCallLogRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_ai_proto_rawDescOnce sync.Once
@@ -6815,90 +7373,98 @@ func file_pb_ai_proto_rawDescGZIP() []byte {
 	return file_pb_ai_proto_rawDescData
 }
 
-var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
+var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 90)
 var file_pb_ai_proto_goTypes = []any{
-	(*Empty)(nil),                        // 0: ai.Empty
-	(*CommonResp)(nil),                   // 1: ai.CommonResp
-	(*IdReq)(nil),                        // 2: ai.IdReq
-	(*PageReq)(nil),                      // 3: ai.PageReq
-	(*PageResp)(nil),                     // 4: ai.PageResp
-	(*TimeRangeReq)(nil),                 // 5: ai.TimeRangeReq
-	(*StringList)(nil),                   // 6: ai.StringList
-	(*Citation)(nil),                     // 7: ai.Citation
-	(*ChunkItem)(nil),                    // 8: ai.ChunkItem
-	(*TopCountItem)(nil),                 // 9: ai.TopCountItem
-	(*TaskResp)(nil),                     // 10: ai.TaskResp
-	(*HealthReq)(nil),                    // 11: ai.HealthReq
-	(*HealthResp)(nil),                   // 12: ai.HealthResp
-	(*DomainItem)(nil),                   // 13: ai.DomainItem
-	(*CreateDomainReq)(nil),              // 14: ai.CreateDomainReq
-	(*CreateDomainResp)(nil),             // 15: ai.CreateDomainResp
-	(*UpdateDomainReq)(nil),              // 16: ai.UpdateDomainReq
-	(*DeleteDomainReq)(nil),              // 17: ai.DeleteDomainReq
-	(*ListDomainReq)(nil),                // 18: ai.ListDomainReq
-	(*ListDomainResp)(nil),               // 19: ai.ListDomainResp
-	(*KnowledgeBaseItem)(nil),            // 20: ai.KnowledgeBaseItem
-	(*CreateKnowledgeBaseReq)(nil),       // 21: ai.CreateKnowledgeBaseReq
-	(*CreateKnowledgeBaseResp)(nil),      // 22: ai.CreateKnowledgeBaseResp
-	(*UpdateKnowledgeBaseReq)(nil),       // 23: ai.UpdateKnowledgeBaseReq
-	(*DeleteKnowledgeBaseReq)(nil),       // 24: ai.DeleteKnowledgeBaseReq
-	(*GetKnowledgeBaseReq)(nil),          // 25: ai.GetKnowledgeBaseReq
-	(*ListKnowledgeBaseReq)(nil),         // 26: ai.ListKnowledgeBaseReq
-	(*ListKnowledgeBaseResp)(nil),        // 27: ai.ListKnowledgeBaseResp
-	(*KbMemberItem)(nil),                 // 28: ai.KbMemberItem
-	(*ListKbMemberReq)(nil),              // 29: ai.ListKbMemberReq
-	(*ListKbMemberResp)(nil),             // 30: ai.ListKbMemberResp
-	(*AddKbMemberReq)(nil),               // 31: ai.AddKbMemberReq
-	(*UpdateKbMemberReq)(nil),            // 32: ai.UpdateKbMemberReq
-	(*RemoveKbMemberReq)(nil),            // 33: ai.RemoveKbMemberReq
-	(*DocumentItem)(nil),                 // 34: ai.DocumentItem
-	(*IngestDocumentReq)(nil),            // 35: ai.IngestDocumentReq
-	(*ListDocumentReq)(nil),              // 36: ai.ListDocumentReq
-	(*ListDocumentResp)(nil),             // 37: ai.ListDocumentResp
-	(*GetDocumentReq)(nil),               // 38: ai.GetDocumentReq
-	(*DeleteDocumentReq)(nil),            // 39: ai.DeleteDocumentReq
-	(*RebuildDocumentIndexReq)(nil),      // 40: ai.RebuildDocumentIndexReq
-	(*SearchKnowledgeReq)(nil),           // 41: ai.SearchKnowledgeReq
-	(*SearchKnowledgeResp)(nil),          // 42: ai.SearchKnowledgeResp
-	(*ChatMessage)(nil),                  // 43: ai.ChatMessage
-	(*RagChatReq)(nil),                   // 44: ai.RagChatReq
-	(*RagChatResp)(nil),                  // 45: ai.RagChatResp
-	(*RagChatStreamEvent)(nil),           // 46: ai.RagChatStreamEvent
-	(*ConversationItem)(nil),             // 47: ai.ConversationItem
-	(*ListConversationReq)(nil),          // 48: ai.ListConversationReq
-	(*ListConversationResp)(nil),         // 49: ai.ListConversationResp
-	(*MessageItem)(nil),                  // 50: ai.MessageItem
-	(*GetConversationMessagesReq)(nil),   // 51: ai.GetConversationMessagesReq
-	(*GetConversationMessagesResp)(nil),  // 52: ai.GetConversationMessagesResp
-	(*SearchSecurityLogsReq)(nil),        // 53: ai.SearchSecurityLogsReq
-	(*SecurityLogItem)(nil),              // 54: ai.SecurityLogItem
-	(*SecurityLogSearchResp)(nil),        // 55: ai.SecurityLogSearchResp
-	(*AnalyzeSecurityEventsReq)(nil),     // 56: ai.AnalyzeSecurityEventsReq
-	(*SecurityEventItem)(nil),            // 57: ai.SecurityEventItem
-	(*AnalyzeSecurityEventsResp)(nil),    // 58: ai.AnalyzeSecurityEventsResp
-	(*ListSecurityEventsReq)(nil),        // 59: ai.ListSecurityEventsReq
-	(*ListSecurityEventsResp)(nil),       // 60: ai.ListSecurityEventsResp
-	(*SecurityAlertItem)(nil),            // 61: ai.SecurityAlertItem
-	(*ListSecurityAlertsReq)(nil),        // 62: ai.ListSecurityAlertsReq
-	(*ListSecurityAlertsResp)(nil),       // 63: ai.ListSecurityAlertsResp
-	(*UpdateSecurityAlertStatusReq)(nil), // 64: ai.UpdateSecurityAlertStatusReq
-	(*GenerateDailyReportReq)(nil),       // 65: ai.GenerateDailyReportReq
-	(*DailyReportResp)(nil),              // 66: ai.DailyReportResp
-	(*ListDailyReportReq)(nil),           // 67: ai.ListDailyReportReq
-	(*ListDailyReportResp)(nil),          // 68: ai.ListDailyReportResp
-	(*GetDailyReportReq)(nil),            // 69: ai.GetDailyReportReq
-	(*AgentRunReq)(nil),                  // 70: ai.AgentRunReq
-	(*ToolCall)(nil),                     // 71: ai.ToolCall
-	(*AgentRunResp)(nil),                 // 72: ai.AgentRunResp
-	(*ListToolCallLogReq)(nil),           // 73: ai.ListToolCallLogReq
-	(*ListToolCallLogResp)(nil),          // 74: ai.ListToolCallLogResp
-	(*LlmCallItem)(nil),                  // 75: ai.LlmCallItem
-	(*GetLlmTraceReq)(nil),               // 76: ai.GetLlmTraceReq
-	(*LlmTraceResp)(nil),                 // 77: ai.LlmTraceResp
-	(*ListLlmCallLogReq)(nil),            // 78: ai.ListLlmCallLogReq
-	(*ListLlmCallLogResp)(nil),           // 79: ai.ListLlmCallLogResp
-	(*GetTokenStatsReq)(nil),             // 80: ai.GetTokenStatsReq
-	(*TokenStatsResp)(nil),               // 81: ai.TokenStatsResp
+	(*Empty)(nil),                       // 0: ai.Empty
+	(*CommonResp)(nil),                  // 1: ai.CommonResp
+	(*IdReq)(nil),                       // 2: ai.IdReq
+	(*PageReq)(nil),                     // 3: ai.PageReq
+	(*PageResp)(nil),                    // 4: ai.PageResp
+	(*TimeRangeReq)(nil),                // 5: ai.TimeRangeReq
+	(*StringList)(nil),                  // 6: ai.StringList
+	(*Citation)(nil),                    // 7: ai.Citation
+	(*ChunkItem)(nil),                   // 8: ai.ChunkItem
+	(*TopCountItem)(nil),                // 9: ai.TopCountItem
+	(*TaskResp)(nil),                    // 10: ai.TaskResp
+	(*HealthReq)(nil),                   // 11: ai.HealthReq
+	(*HealthResp)(nil),                  // 12: ai.HealthResp
+	(*DomainItem)(nil),                  // 13: ai.DomainItem
+	(*CreateDomainReq)(nil),             // 14: ai.CreateDomainReq
+	(*CreateDomainResp)(nil),            // 15: ai.CreateDomainResp
+	(*UpdateDomainReq)(nil),             // 16: ai.UpdateDomainReq
+	(*DeleteDomainReq)(nil),             // 17: ai.DeleteDomainReq
+	(*ListDomainReq)(nil),               // 18: ai.ListDomainReq
+	(*ListDomainResp)(nil),              // 19: ai.ListDomainResp
+	(*KnowledgeBaseItem)(nil),           // 20: ai.KnowledgeBaseItem
+	(*CreateKnowledgeBaseReq)(nil),      // 21: ai.CreateKnowledgeBaseReq
+	(*CreateKnowledgeBaseResp)(nil),     // 22: ai.CreateKnowledgeBaseResp
+	(*UpdateKnowledgeBaseReq)(nil),      // 23: ai.UpdateKnowledgeBaseReq
+	(*DeleteKnowledgeBaseReq)(nil),      // 24: ai.DeleteKnowledgeBaseReq
+	(*GetKnowledgeBaseReq)(nil),         // 25: ai.GetKnowledgeBaseReq
+	(*ListKnowledgeBaseReq)(nil),        // 26: ai.ListKnowledgeBaseReq
+	(*ListKnowledgeBaseResp)(nil),       // 27: ai.ListKnowledgeBaseResp
+	(*KbMemberItem)(nil),                // 28: ai.KbMemberItem
+	(*ListKbMemberReq)(nil),             // 29: ai.ListKbMemberReq
+	(*ListKbMemberResp)(nil),            // 30: ai.ListKbMemberResp
+	(*AddKbMemberReq)(nil),              // 31: ai.AddKbMemberReq
+	(*UpdateKbMemberReq)(nil),           // 32: ai.UpdateKbMemberReq
+	(*RemoveKbMemberReq)(nil),           // 33: ai.RemoveKbMemberReq
+	(*DocumentItem)(nil),                // 34: ai.DocumentItem
+	(*IngestDocumentReq)(nil),           // 35: ai.IngestDocumentReq
+	(*ListDocumentReq)(nil),             // 36: ai.ListDocumentReq
+	(*ListDocumentResp)(nil),            // 37: ai.ListDocumentResp
+	(*GetDocumentReq)(nil),              // 38: ai.GetDocumentReq
+	(*DeleteDocumentReq)(nil),           // 39: ai.DeleteDocumentReq
+	(*RebuildDocumentIndexReq)(nil),     // 40: ai.RebuildDocumentIndexReq
+	(*SearchKnowledgeReq)(nil),          // 41: ai.SearchKnowledgeReq
+	(*SearchKnowledgeResp)(nil),         // 42: ai.SearchKnowledgeResp
+	(*ChatMessage)(nil),                 // 43: ai.ChatMessage
+	(*RagChatReq)(nil),                  // 44: ai.RagChatReq
+	(*RagChatResp)(nil),                 // 45: ai.RagChatResp
+	(*RagChatStreamEvent)(nil),          // 46: ai.RagChatStreamEvent
+	(*ConversationItem)(nil),            // 47: ai.ConversationItem
+	(*ListConversationReq)(nil),         // 48: ai.ListConversationReq
+	(*ListConversationResp)(nil),        // 49: ai.ListConversationResp
+	(*MessageItem)(nil),                 // 50: ai.MessageItem
+	(*GetConversationMessagesReq)(nil),  // 51: ai.GetConversationMessagesReq
+	(*GetConversationMessagesResp)(nil), // 52: ai.GetConversationMessagesResp
+	(*ToolCall)(nil),                    // 53: ai.ToolCall
+	(*ListToolCallLogReq)(nil),          // 54: ai.ListToolCallLogReq
+	(*ListToolCallLogResp)(nil),         // 55: ai.ListToolCallLogResp
+	(*LlmCallItem)(nil),                 // 56: ai.LlmCallItem
+	(*GetLlmTraceReq)(nil),              // 57: ai.GetLlmTraceReq
+	(*LlmTraceResp)(nil),                // 58: ai.LlmTraceResp
+	(*ListLlmCallLogReq)(nil),           // 59: ai.ListLlmCallLogReq
+	(*ListLlmCallLogResp)(nil),          // 60: ai.ListLlmCallLogResp
+	(*GetTokenStatsReq)(nil),            // 61: ai.GetTokenStatsReq
+	(*TokenStatsResp)(nil),              // 62: ai.TokenStatsResp
+	(*WindFarmItem)(nil),                // 63: ai.WindFarmItem
+	(*ListWindFarmReq)(nil),             // 64: ai.ListWindFarmReq
+	(*ListWindFarmResp)(nil),            // 65: ai.ListWindFarmResp
+	(*WindTurbineItem)(nil),             // 66: ai.WindTurbineItem
+	(*ListWindTurbineReq)(nil),          // 67: ai.ListWindTurbineReq
+	(*ListWindTurbineResp)(nil),         // 68: ai.ListWindTurbineResp
+	(*WindDeviceItem)(nil),              // 69: ai.WindDeviceItem
+	(*ListWindDeviceReq)(nil),           // 70: ai.ListWindDeviceReq
+	(*ListWindDeviceResp)(nil),          // 71: ai.ListWindDeviceResp
+	(*WindTimeseriesQueryReq)(nil),      // 72: ai.WindTimeseriesQueryReq
+	(*WindDataPoint)(nil),               // 73: ai.WindDataPoint
+	(*WindTimeseriesQueryResp)(nil),     // 74: ai.WindTimeseriesQueryResp
+	(*WindTrendCompareReq)(nil),         // 75: ai.WindTrendCompareReq
+	(*WindTrendCompareResp)(nil),        // 76: ai.WindTrendCompareResp
+	(*WindAlarmQueryReq)(nil),           // 77: ai.WindAlarmQueryReq
+	(*WindAlarmItem)(nil),               // 78: ai.WindAlarmItem
+	(*WindAlarmQueryResp)(nil),          // 79: ai.WindAlarmQueryResp
+	(*WindAlarmAnalyzeReq)(nil),         // 80: ai.WindAlarmAnalyzeReq
+	(*WindScaffoldResp)(nil),            // 81: ai.WindScaffoldResp
+	(*WindHealthReportReq)(nil),         // 82: ai.WindHealthReportReq
+	(*WindHealthReportGetReq)(nil),      // 83: ai.WindHealthReportGetReq
+	(*WindTicketDraftReq)(nil),          // 84: ai.WindTicketDraftReq
+	(*WindAgentRunReq)(nil),             // 85: ai.WindAgentRunReq
+	(*WindAgentRunResp)(nil),            // 86: ai.WindAgentRunResp
+	(*WindListToolCallLogReq)(nil),      // 87: ai.WindListToolCallLogReq
+	(*WindListToolCallLogResp)(nil),     // 88: ai.WindListToolCallLogResp
+	nil,                                 // 89: ai.WindDataPoint.ValuesEntry
 }
 var file_pb_ai_proto_depIdxs = []int32{
 	13, // 0: ai.ListDomainResp.list:type_name -> ai.DomainItem
@@ -6912,17 +7478,17 @@ var file_pb_ai_proto_depIdxs = []int32{
 	47, // 8: ai.ListConversationResp.list:type_name -> ai.ConversationItem
 	7,  // 9: ai.MessageItem.citations:type_name -> ai.Citation
 	50, // 10: ai.GetConversationMessagesResp.list:type_name -> ai.MessageItem
-	54, // 11: ai.SecurityLogSearchResp.list:type_name -> ai.SecurityLogItem
-	57, // 12: ai.AnalyzeSecurityEventsResp.events:type_name -> ai.SecurityEventItem
-	57, // 13: ai.ListSecurityEventsResp.list:type_name -> ai.SecurityEventItem
-	61, // 14: ai.ListSecurityAlertsResp.list:type_name -> ai.SecurityAlertItem
-	9,  // 15: ai.DailyReportResp.top_ips:type_name -> ai.TopCountItem
-	9,  // 16: ai.DailyReportResp.top_users:type_name -> ai.TopCountItem
-	66, // 17: ai.ListDailyReportResp.list:type_name -> ai.DailyReportResp
-	71, // 18: ai.AgentRunResp.tool_calls:type_name -> ai.ToolCall
-	71, // 19: ai.ListToolCallLogResp.list:type_name -> ai.ToolCall
-	75, // 20: ai.LlmTraceResp.calls:type_name -> ai.LlmCallItem
-	75, // 21: ai.ListLlmCallLogResp.list:type_name -> ai.LlmCallItem
+	53, // 11: ai.ListToolCallLogResp.list:type_name -> ai.ToolCall
+	56, // 12: ai.LlmTraceResp.calls:type_name -> ai.LlmCallItem
+	56, // 13: ai.ListLlmCallLogResp.list:type_name -> ai.LlmCallItem
+	63, // 14: ai.ListWindFarmResp.list:type_name -> ai.WindFarmItem
+	66, // 15: ai.ListWindTurbineResp.list:type_name -> ai.WindTurbineItem
+	69, // 16: ai.ListWindDeviceResp.list:type_name -> ai.WindDeviceItem
+	89, // 17: ai.WindDataPoint.values:type_name -> ai.WindDataPoint.ValuesEntry
+	73, // 18: ai.WindTimeseriesQueryResp.points:type_name -> ai.WindDataPoint
+	78, // 19: ai.WindAlarmQueryResp.list:type_name -> ai.WindAlarmItem
+	53, // 20: ai.WindAgentRunResp.tool_calls:type_name -> ai.ToolCall
+	53, // 21: ai.WindListToolCallLogResp.list:type_name -> ai.ToolCall
 	11, // 22: ai.AiStatusService.Health:input_type -> ai.HealthReq
 	14, // 23: ai.AiKnowledgeService.CreateDomain:input_type -> ai.CreateDomainReq
 	16, // 24: ai.AiKnowledgeService.UpdateDomain:input_type -> ai.UpdateDomainReq
@@ -6947,58 +7513,62 @@ var file_pb_ai_proto_depIdxs = []int32{
 	44, // 43: ai.AiChatService.RagChatStream:input_type -> ai.RagChatReq
 	48, // 44: ai.AiChatService.ListConversation:input_type -> ai.ListConversationReq
 	51, // 45: ai.AiChatService.GetConversationMessages:input_type -> ai.GetConversationMessagesReq
-	53, // 46: ai.AiSecurityService.SearchSecurityLogs:input_type -> ai.SearchSecurityLogsReq
-	56, // 47: ai.AiSecurityService.AnalyzeSecurityEvents:input_type -> ai.AnalyzeSecurityEventsReq
-	59, // 48: ai.AiSecurityService.ListSecurityEvents:input_type -> ai.ListSecurityEventsReq
-	62, // 49: ai.AiSecurityService.ListSecurityAlerts:input_type -> ai.ListSecurityAlertsReq
-	64, // 50: ai.AiSecurityService.UpdateSecurityAlertStatus:input_type -> ai.UpdateSecurityAlertStatusReq
-	65, // 51: ai.AiReportService.GenerateDailyReport:input_type -> ai.GenerateDailyReportReq
-	67, // 52: ai.AiReportService.ListDailyReport:input_type -> ai.ListDailyReportReq
-	69, // 53: ai.AiReportService.GetDailyReport:input_type -> ai.GetDailyReportReq
-	70, // 54: ai.AiAgentService.RunAgent:input_type -> ai.AgentRunReq
-	73, // 55: ai.AiAgentService.ListToolCallLog:input_type -> ai.ListToolCallLogReq
-	76, // 56: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
-	78, // 57: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
-	80, // 58: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
-	12, // 59: ai.AiStatusService.Health:output_type -> ai.HealthResp
-	15, // 60: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
-	0,  // 61: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
-	0,  // 62: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
-	19, // 63: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
-	22, // 64: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
-	0,  // 65: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
-	0,  // 66: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
-	20, // 67: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
-	27, // 68: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
-	30, // 69: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
-	0,  // 70: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
-	0,  // 71: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
-	0,  // 72: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
-	10, // 73: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
-	37, // 74: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
-	34, // 75: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
-	0,  // 76: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
-	10, // 77: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
-	42, // 78: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
-	45, // 79: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
-	46, // 80: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
-	49, // 81: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
-	52, // 82: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
-	55, // 83: ai.AiSecurityService.SearchSecurityLogs:output_type -> ai.SecurityLogSearchResp
-	58, // 84: ai.AiSecurityService.AnalyzeSecurityEvents:output_type -> ai.AnalyzeSecurityEventsResp
-	60, // 85: ai.AiSecurityService.ListSecurityEvents:output_type -> ai.ListSecurityEventsResp
-	63, // 86: ai.AiSecurityService.ListSecurityAlerts:output_type -> ai.ListSecurityAlertsResp
-	0,  // 87: ai.AiSecurityService.UpdateSecurityAlertStatus:output_type -> ai.Empty
-	66, // 88: ai.AiReportService.GenerateDailyReport:output_type -> ai.DailyReportResp
-	68, // 89: ai.AiReportService.ListDailyReport:output_type -> ai.ListDailyReportResp
-	66, // 90: ai.AiReportService.GetDailyReport:output_type -> ai.DailyReportResp
-	72, // 91: ai.AiAgentService.RunAgent:output_type -> ai.AgentRunResp
-	74, // 92: ai.AiAgentService.ListToolCallLog:output_type -> ai.ListToolCallLogResp
-	77, // 93: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
-	79, // 94: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
-	81, // 95: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
-	59, // [59:96] is the sub-list for method output_type
-	22, // [22:59] is the sub-list for method input_type
+	57, // 46: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
+	59, // 47: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
+	61, // 48: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
+	64, // 49: ai.AiWindMetadataService.ListFarms:input_type -> ai.ListWindFarmReq
+	67, // 50: ai.AiWindMetadataService.ListTurbines:input_type -> ai.ListWindTurbineReq
+	70, // 51: ai.AiWindMetadataService.ListDevices:input_type -> ai.ListWindDeviceReq
+	72, // 52: ai.AiWindTimeseriesService.QueryTimeseries:input_type -> ai.WindTimeseriesQueryReq
+	75, // 53: ai.AiWindTimeseriesService.CompareTrend:input_type -> ai.WindTrendCompareReq
+	77, // 54: ai.AiWindAlarmService.QueryAlarms:input_type -> ai.WindAlarmQueryReq
+	80, // 55: ai.AiWindAlarmService.AnalyzeAlarm:input_type -> ai.WindAlarmAnalyzeReq
+	82, // 56: ai.AiWindReportService.GenerateHealthReport:input_type -> ai.WindHealthReportReq
+	83, // 57: ai.AiWindReportService.GetHealthReport:input_type -> ai.WindHealthReportGetReq
+	84, // 58: ai.AiWindAgentService.CreateTicketDraft:input_type -> ai.WindTicketDraftReq
+	85, // 59: ai.AiWindAgentService.RunAgent:input_type -> ai.WindAgentRunReq
+	87, // 60: ai.AiWindAgentService.ListToolCallLog:input_type -> ai.WindListToolCallLogReq
+	12, // 61: ai.AiStatusService.Health:output_type -> ai.HealthResp
+	15, // 62: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
+	0,  // 63: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
+	0,  // 64: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
+	19, // 65: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
+	22, // 66: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
+	0,  // 67: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
+	0,  // 68: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
+	20, // 69: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
+	27, // 70: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
+	30, // 71: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
+	0,  // 72: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
+	0,  // 73: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
+	0,  // 74: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
+	10, // 75: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
+	37, // 76: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
+	34, // 77: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
+	0,  // 78: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
+	10, // 79: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
+	42, // 80: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
+	45, // 81: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
+	46, // 82: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
+	49, // 83: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
+	52, // 84: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
+	58, // 85: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
+	60, // 86: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
+	62, // 87: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
+	65, // 88: ai.AiWindMetadataService.ListFarms:output_type -> ai.ListWindFarmResp
+	68, // 89: ai.AiWindMetadataService.ListTurbines:output_type -> ai.ListWindTurbineResp
+	71, // 90: ai.AiWindMetadataService.ListDevices:output_type -> ai.ListWindDeviceResp
+	74, // 91: ai.AiWindTimeseriesService.QueryTimeseries:output_type -> ai.WindTimeseriesQueryResp
+	76, // 92: ai.AiWindTimeseriesService.CompareTrend:output_type -> ai.WindTrendCompareResp
+	79, // 93: ai.AiWindAlarmService.QueryAlarms:output_type -> ai.WindAlarmQueryResp
+	81, // 94: ai.AiWindAlarmService.AnalyzeAlarm:output_type -> ai.WindScaffoldResp
+	81, // 95: ai.AiWindReportService.GenerateHealthReport:output_type -> ai.WindScaffoldResp
+	81, // 96: ai.AiWindReportService.GetHealthReport:output_type -> ai.WindScaffoldResp
+	81, // 97: ai.AiWindAgentService.CreateTicketDraft:output_type -> ai.WindScaffoldResp
+	86, // 98: ai.AiWindAgentService.RunAgent:output_type -> ai.WindAgentRunResp
+	88, // 99: ai.AiWindAgentService.ListToolCallLog:output_type -> ai.WindListToolCallLogResp
+	61, // [61:100] is the sub-list for method output_type
+	22, // [22:61] is the sub-list for method input_type
 	22, // [22:22] is the sub-list for extension type_name
 	22, // [22:22] is the sub-list for extension extendee
 	0,  // [0:22] is the sub-list for field type_name
@@ -7015,9 +7585,9 @@ func file_pb_ai_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_ai_proto_rawDesc), len(file_pb_ai_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   82,
+			NumMessages:   90,
 			NumExtensions: 0,
-			NumServices:   7,
+			NumServices:   9,
 		},
 		GoTypes:           file_pb_ai_proto_goTypes,
 		DependencyIndexes: file_pb_ai_proto_depIdxs,
