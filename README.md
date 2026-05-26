@@ -293,36 +293,6 @@ cd D:\GoProject\project_new\ai-copilot-platform\service\ai\rpc
 goctl rpc protoc pb\ai.proto --go_out=. --go-grpc_out=. --zrpc_out=. --style=go_zero -m
 ```
 
-## 验证
-
-```bash
-cd service/ai/rpc
-go test ./...
-
-cd ../../../gateway
-go test ./...
-
-cd ../service/ai/engine
-python -m pytest -q
-```
-
-一期验收重点：
-
-- `routes_security`、`AiSecurityService`、`SearchSecurityLogs`、旧 `DailyReport` 和 `/security` 不再出现。
-- 元数据接口能返回风场、风机、设备结构化响应。
-- TDengine Link 为空时，测点和告警接口不导致服务失败。
-- Python evidence 为空时拒绝事实判断，有 evidence 时能生成统计、报告和工单草稿。
-- 工具调用带 `trace_id`，结果可审计。
-
-## 敏感文件策略
-
-仓库只提交模板和代码，不提交本地真实配置或临时材料：
-
-- 忽略 `docs/`、`prompt.md`、IDE 状态、`.env*`、`*.local*`。
-- 忽略 `gateway/etc/*.yaml`、`service/*/rpc/etc/*.yaml`、`service/ai/engine/config.yaml`。
-- 只提交 `*.example.yaml`、`*.example.yml`、`*.example.env` 这类示例配置。
-- 忽略私钥、证书、备份配置、日志、虚拟环境和上传目录。
-
 ## License
 
 MIT License
