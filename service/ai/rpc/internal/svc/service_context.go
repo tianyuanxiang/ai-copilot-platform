@@ -40,6 +40,9 @@ type ServiceContext struct {
 	AiKbDomainModel            model.AiKbDomainModel
 	AiKbMemberModel            model.AiKbMemberModel
 	AiToolCallLogModel         model.AiToolCallLogModel
+	AiConversationModel        model.AiConversationModel
+	AiMessageModel             model.AiMessageModel
+	AiLlmCallLogModel          model.AiLlmCallLogModel
 
 	PermRpc permclient.PermissionService
 	// WindMetadataModel          model.WindMetadataModel
@@ -126,6 +129,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AiKbDomainModel:            model.NewAiKbDomainModel(conn, db),
 		AiKbMemberModel:            model.NewAiKbMemberModel(conn, db),
 		AiToolCallLogModel:         model.NewAiToolCallLogModel(conn),
+		AiConversationModel:        model.NewAiConversationModel(conn),
+		AiMessageModel:             model.NewAiMessageModel(conn),
+		AiLlmCallLogModel:          model.NewAiLlmCallLogModel(conn),
 		// WindMetadataModel:          model.NewWindMetadataModel(db),
 		WindFarmModel:          model.NewWindFarmModel(conn, db),
 		WindTowerModel:         model.NewWindTowerModel(conn, db),

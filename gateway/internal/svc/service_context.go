@@ -4,6 +4,7 @@
 package svc
 
 import (
+	aichatclient "ai-copilot-platform/ai-rpc/client/aichatservice"
 	aiknowledgeclient "ai-copilot-platform/ai-rpc/client/aiknowledgeservice"
 	aistatusclient "ai-copilot-platform/ai-rpc/client/aistatusservice"
 	aiwindagentclient "ai-copilot-platform/ai-rpc/client/aiwindagentservice"
@@ -30,6 +31,7 @@ type ServiceContext struct {
 	PermRpc permclient.PermissionService
 
 	AiStatusClient         aistatusclient.AiStatusService
+	AiChatClient           aichatclient.AiChatService
 	AiKnowledgeClient      aiknowledgeclient.AiKnowledgeService
 	AiWindMetadataClient   aiwindmetadataclient.AiWindMetadataService
 	AiWindTimeseriesClient aiwindtimeseriesclient.AiWindTimeseriesService
@@ -54,6 +56,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	permSvc := permclient.NewPermissionService(sysCli)
 
 	aiStatusSvc := aistatusclient.NewAiStatusService(aiCli)
+	aiChatSvc := aichatclient.NewAiChatService(aiCli)
 	aiKnowledgeSvc := aiknowledgeclient.NewAiKnowledgeService(aiCli)
 	aiWindMetadataSvc := aiwindmetadataclient.NewAiWindMetadataService(aiCli)
 	aiWindTimeseriesSvc := aiwindtimeseriesclient.NewAiWindTimeseriesService(aiCli)
@@ -71,6 +74,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PermRpc: permSvc,
 
 		AiStatusClient:         aiStatusSvc,
+		AiChatClient:           aiChatSvc,
 		AiKnowledgeClient:      aiKnowledgeSvc,
 		AiWindMetadataClient:   aiWindMetadataSvc,
 		AiWindTimeseriesClient: aiWindTimeseriesSvc,

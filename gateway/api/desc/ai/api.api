@@ -10,6 +10,7 @@ import (
 	"document.api"
 	"search.api"
 	"chat.api"
+	"conversation.api"
 	"wind_common.api"
 	"wind_metadata.api"
 	"wind_timeseries.api"

@@ -959,6 +959,9 @@ const (
 	AiChatService_RagChatStream_FullMethodName           = "/ai.AiChatService/RagChatStream"
 	AiChatService_ListConversation_FullMethodName        = "/ai.AiChatService/ListConversation"
 	AiChatService_GetConversationMessages_FullMethodName = "/ai.AiChatService/GetConversationMessages"
+	AiChatService_UpdateConversationTitle_FullMethodName = "/ai.AiChatService/UpdateConversationTitle"
+	AiChatService_DeleteConversation_FullMethodName      = "/ai.AiChatService/DeleteConversation"
+	AiChatService_DeleteMessage_FullMethodName           = "/ai.AiChatService/DeleteMessage"
 )
 
 // AiChatServiceClient is the client API for AiChatService service.
@@ -975,6 +978,9 @@ type AiChatServiceClient interface {
 	ListConversation(ctx context.Context, in *ListConversationReq, opts ...grpc.CallOption) (*ListConversationResp, error)
 	// 查询指定会话的消息历史。
 	GetConversationMessages(ctx context.Context, in *GetConversationMessagesReq, opts ...grpc.CallOption) (*GetConversationMessagesResp, error)
+	UpdateConversationTitle(ctx context.Context, in *UpdateConversationTitleReq, opts ...grpc.CallOption) (*Empty, error)
+	DeleteConversation(ctx context.Context, in *DeleteConversationReq, opts ...grpc.CallOption) (*Empty, error)
+	DeleteMessage(ctx context.Context, in *DeleteMessageReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type aiChatServiceClient struct {
@@ -1034,6 +1040,36 @@ func (c *aiChatServiceClient) GetConversationMessages(ctx context.Context, in *G
 	return out, nil
 }
 
+func (c *aiChatServiceClient) UpdateConversationTitle(ctx context.Context, in *UpdateConversationTitleReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, AiChatService_UpdateConversationTitle_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiChatServiceClient) DeleteConversation(ctx context.Context, in *DeleteConversationReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, AiChatService_DeleteConversation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiChatServiceClient) DeleteMessage(ctx context.Context, in *DeleteMessageReq, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, AiChatService_DeleteMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiChatServiceServer is the server API for AiChatService service.
 // All implementations must embed UnimplementedAiChatServiceServer
 // for forward compatibility.
@@ -1048,6 +1084,9 @@ type AiChatServiceServer interface {
 	ListConversation(context.Context, *ListConversationReq) (*ListConversationResp, error)
 	// 查询指定会话的消息历史。
 	GetConversationMessages(context.Context, *GetConversationMessagesReq) (*GetConversationMessagesResp, error)
+	UpdateConversationTitle(context.Context, *UpdateConversationTitleReq) (*Empty, error)
+	DeleteConversation(context.Context, *DeleteConversationReq) (*Empty, error)
+	DeleteMessage(context.Context, *DeleteMessageReq) (*Empty, error)
 	mustEmbedUnimplementedAiChatServiceServer()
 }
 
@@ -1069,6 +1108,15 @@ func (UnimplementedAiChatServiceServer) ListConversation(context.Context, *ListC
 }
 func (UnimplementedAiChatServiceServer) GetConversationMessages(context.Context, *GetConversationMessagesReq) (*GetConversationMessagesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConversationMessages not implemented")
+}
+func (UnimplementedAiChatServiceServer) UpdateConversationTitle(context.Context, *UpdateConversationTitleReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateConversationTitle not implemented")
+}
+func (UnimplementedAiChatServiceServer) DeleteConversation(context.Context, *DeleteConversationReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteConversation not implemented")
+}
+func (UnimplementedAiChatServiceServer) DeleteMessage(context.Context, *DeleteMessageReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessage not implemented")
 }
 func (UnimplementedAiChatServiceServer) mustEmbedUnimplementedAiChatServiceServer() {}
 func (UnimplementedAiChatServiceServer) testEmbeddedByValue()                       {}
@@ -1156,6 +1204,60 @@ func _AiChatService_GetConversationMessages_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiChatService_UpdateConversationTitle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateConversationTitleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiChatServiceServer).UpdateConversationTitle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiChatService_UpdateConversationTitle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiChatServiceServer).UpdateConversationTitle(ctx, req.(*UpdateConversationTitleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiChatService_DeleteConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteConversationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiChatServiceServer).DeleteConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiChatService_DeleteConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiChatServiceServer).DeleteConversation(ctx, req.(*DeleteConversationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiChatService_DeleteMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteMessageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiChatServiceServer).DeleteMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiChatService_DeleteMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiChatServiceServer).DeleteMessage(ctx, req.(*DeleteMessageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiChatService_ServiceDesc is the grpc.ServiceDesc for AiChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1174,6 +1276,18 @@ var AiChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConversationMessages",
 			Handler:    _AiChatService_GetConversationMessages_Handler,
+		},
+		{
+			MethodName: "UpdateConversationTitle",
+			Handler:    _AiChatService_UpdateConversationTitle_Handler,
+		},
+		{
+			MethodName: "DeleteConversation",
+			Handler:    _AiChatService_DeleteConversation_Handler,
+		},
+		{
+			MethodName: "DeleteMessage",
+			Handler:    _AiChatService_DeleteMessage_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

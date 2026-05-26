@@ -363,6 +363,7 @@ message RagChatResp {
   repeated Citation citations = 2;
   string trace_id = 3;
   string mode = 4;
+  string conversation_id = 5;
 }
 
 message RagChatStreamEvent {
@@ -415,6 +416,23 @@ message GetConversationMessagesReq {
 message GetConversationMessagesResp {
   int64 total = 1;
   repeated MessageItem list = 2;
+}
+
+message UpdateConversationTitleReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+  string title = 3;
+}
+
+message DeleteConversationReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+}
+
+message DeleteMessageReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+  int64 message_id = 3;
 }
 
 // ==================== Tool call audit ====================
@@ -566,6 +584,9 @@ service AiChatService {
   rpc ListConversation(ListConversationReq) returns (ListConversationResp);
   // 查询指定会话的消息历史。
   rpc GetConversationMessages(GetConversationMessagesReq) returns (GetConversationMessagesResp);
+  rpc UpdateConversationTitle(UpdateConversationTitleReq) returns (Empty);
+  rpc DeleteConversation(DeleteConversationReq) returns (Empty);
+  rpc DeleteMessage(DeleteMessageReq) returns (Empty);
 }
 
 // AI 可观测性服务，负责 LLM 调用 trace 和 token 统计。

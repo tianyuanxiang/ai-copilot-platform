@@ -46,3 +46,18 @@ func (s *AiChatServiceServer) GetConversationMessages(ctx context.Context, in *p
 	l := aichatservicelogic.NewGetConversationMessagesLogic(ctx, s.svcCtx)
 	return l.GetConversationMessages(in)
 }
+
+func (s *AiChatServiceServer) UpdateConversationTitle(ctx context.Context, in *pb.UpdateConversationTitleReq) (*pb.Empty, error) {
+	l := aichatservicelogic.NewUpdateConversationTitleLogic(ctx, s.svcCtx)
+	return l.UpdateConversationTitle(in)
+}
+
+func (s *AiChatServiceServer) DeleteConversation(ctx context.Context, in *pb.DeleteConversationReq) (*pb.Empty, error) {
+	l := aichatservicelogic.NewDeleteConversationLogic(ctx, s.svcCtx)
+	return l.DeleteConversation(in)
+}
+
+func (s *AiChatServiceServer) DeleteMessage(ctx context.Context, in *pb.DeleteMessageReq) (*pb.Empty, error) {
+	l := aichatservicelogic.NewDeleteMessageLogic(ctx, s.svcCtx)
+	return l.DeleteMessage(in)
+}

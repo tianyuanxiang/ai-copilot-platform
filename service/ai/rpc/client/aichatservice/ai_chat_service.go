@@ -14,6 +14,9 @@ import (
 )
 
 type (
+	DeleteConversationReq       = pb.DeleteConversationReq
+	DeleteMessageReq            = pb.DeleteMessageReq
+	Empty                       = pb.Empty
 	GetConversationMessagesReq  = pb.GetConversationMessagesReq
 	GetConversationMessagesResp = pb.GetConversationMessagesResp
 	ListConversationReq         = pb.ListConversationReq
@@ -21,6 +24,7 @@ type (
 	RagChatReq                  = pb.RagChatReq
 	RagChatResp                 = pb.RagChatResp
 	RagChatStreamEvent          = pb.RagChatStreamEvent
+	UpdateConversationTitleReq  = pb.UpdateConversationTitleReq
 
 	AiChatService interface {
 		// 执行普通 RAG 问答，返回完整答案。
@@ -31,6 +35,9 @@ type (
 		ListConversation(ctx context.Context, in *ListConversationReq, opts ...grpc.CallOption) (*ListConversationResp, error)
 		// 查询指定会话的消息历史。
 		GetConversationMessages(ctx context.Context, in *GetConversationMessagesReq, opts ...grpc.CallOption) (*GetConversationMessagesResp, error)
+		UpdateConversationTitle(ctx context.Context, in *UpdateConversationTitleReq, opts ...grpc.CallOption) (*Empty, error)
+		DeleteConversation(ctx context.Context, in *DeleteConversationReq, opts ...grpc.CallOption) (*Empty, error)
+		DeleteMessage(ctx context.Context, in *DeleteMessageReq, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultAiChatService struct {
@@ -66,4 +73,19 @@ func (m *defaultAiChatService) ListConversation(ctx context.Context, in *ListCon
 func (m *defaultAiChatService) GetConversationMessages(ctx context.Context, in *GetConversationMessagesReq, opts ...grpc.CallOption) (*GetConversationMessagesResp, error) {
 	client := pb.NewAiChatServiceClient(m.cli.Conn())
 	return client.GetConversationMessages(ctx, in, opts...)
+}
+
+func (m *defaultAiChatService) UpdateConversationTitle(ctx context.Context, in *UpdateConversationTitleReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := pb.NewAiChatServiceClient(m.cli.Conn())
+	return client.UpdateConversationTitle(ctx, in, opts...)
+}
+
+func (m *defaultAiChatService) DeleteConversation(ctx context.Context, in *DeleteConversationReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := pb.NewAiChatServiceClient(m.cli.Conn())
+	return client.DeleteConversation(ctx, in, opts...)
+}
+
+func (m *defaultAiChatService) DeleteMessage(ctx context.Context, in *DeleteMessageReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := pb.NewAiChatServiceClient(m.cli.Conn())
+	return client.DeleteMessage(ctx, in, opts...)
 }

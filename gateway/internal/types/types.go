@@ -15,21 +15,21 @@ type AiChatMessage struct {
 }
 
 type AiChatReq struct {
-	KbId           int64           `json:"kbId,optional"`
-	ConversationId string          `json:"conversationId,optional"`
-	Question       string          `json:"question"`
-	AnswerMode     string          `json:"answerMode,optional"`
-	SearchScope    string          `json:"searchScope,optional"`
-	DomainId       int64           `json:"domainId,optional"`
-	DocumentIds    []int64         `json:"documentIds,optional"`
-	History        []AiChatMessage `json:"history,optional"`
+	KbId           int64   `json:"kbId,optional"`
+	ConversationId string  `json:"conversationId,optional"`
+	Question       string  `json:"question"`
+	AnswerMode     string  `json:"answerMode,optional"`
+	SearchScope    string  `json:"searchScope,optional"`
+	DomainId       int64   `json:"domainId,optional"`
+	DocumentIds    []int64 `json:"documentIds,optional"`
 }
 
 type AiChatResp struct {
-	Answer    string       `json:"answer"`
-	TraceId   string       `json:"traceId"`
-	Mode      string       `json:"mode"`
-	Citations []AiCitation `json:"citations"`
+	Answer         string       `json:"answer"`
+	TraceId        string       `json:"traceId"`
+	Mode           string       `json:"mode"`
+	ConversationId string       `json:"conversationId"`
+	Citations      []AiCitation `json:"citations"`
 }
 
 type AiChunkItem struct {
@@ -52,6 +52,30 @@ type AiCitation struct {
 
 type AiCommonResp struct {
 	Message string `json:"message"`
+}
+
+type AiConversationItem struct {
+	ConversationId string `json:"conversationId"`
+	KbId           int64  `json:"kbId"`
+	Title          string `json:"title"`
+	LatestMessage  string `json:"latestMessage"`
+	CreatedAt      string `json:"createdAt"`
+	UpdatedAt      string `json:"updatedAt"`
+}
+
+type AiConversationMessagesReq struct {
+	ConversationId string `path:"conversationId"`
+	Page           int64  `form:"page,optional"`
+	PageSize       int64  `form:"pageSize,optional"`
+}
+
+type AiConversationMessagesResp struct {
+	Total int64           `json:"total"`
+	List  []AiMessageItem `json:"list"`
+}
+
+type AiConversationPathReq struct {
+	ConversationId string `path:"conversationId"`
 }
 
 type AiCreateKbDomainReq struct {
@@ -85,6 +109,11 @@ type AiCreatePublicKbReq struct {
 
 type AiCreatePublicKbResp struct {
 	KbId int64 `json:"kbId"`
+}
+
+type AiDeleteMessageReq struct {
+	ConversationId string `path:"conversationId"`
+	MessageId      int64  `path:"messageId"`
 }
 
 type AiDocumentItem struct {
@@ -151,6 +180,18 @@ type AiKbMemberItem struct {
 type AiKbMemberPathReq struct {
 	KbId   int64 `path:"kbId"`
 	UserId int64 `path:"userId"`
+}
+
+type AiListConversationReq struct {
+	Page     int64  `form:"page,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	KbId     int64  `form:"kbId,optional"`
+	Keyword  string `form:"keyword,optional"`
+}
+
+type AiListConversationResp struct {
+	Total int64                `json:"total"`
+	List  []AiConversationItem `json:"list"`
 }
 
 type AiListDocumentReq struct {
@@ -254,6 +295,16 @@ type AiLlmTraceResp struct {
 	Calls   []AiLlmCallItem `json:"calls"`
 }
 
+type AiMessageItem struct {
+	MessageId      int64        `json:"messageId"`
+	ConversationId string       `json:"conversationId"`
+	Role           string       `json:"role"`
+	Content        string       `json:"content"`
+	Citations      []AiCitation `json:"citations"`
+	TraceId        string       `json:"traceId"`
+	CreatedAt      string       `json:"createdAt"`
+}
+
 type AiPageReq struct {
 	Page     int `form:"page,optional"`
 	PageSize int `form:"pageSize,optional"`
@@ -329,6 +380,11 @@ type AiTokenStatsResp struct {
 type AiTopCountItem struct {
 	Name  string `json:"name"`
 	Count int64  `json:"count"`
+}
+
+type AiUpdateConversationTitleReq struct {
+	ConversationId string `path:"conversationId"`
+	Title          string `json:"title"`
 }
 
 type AiUpdateKbDomainReq struct {

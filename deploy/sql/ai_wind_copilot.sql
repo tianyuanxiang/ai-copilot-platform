@@ -254,6 +254,9 @@ CREATE TABLE "public"."ai_conversation" (
   "user_id" int8 NOT NULL,
   "kb_id" int8,
   "title" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "conversation_summary" text COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::text,
+  "deleted_at" timestamptz(6),
+  "deleted_by" int8,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now()
 )
@@ -262,6 +265,9 @@ COMMENT ON COLUMN "public"."ai_conversation"."id" IS '主键ID，自增';
 COMMENT ON COLUMN "public"."ai_conversation"."user_id" IS '会话所属用户ID';
 COMMENT ON COLUMN "public"."ai_conversation"."kb_id" IS '关联知识库ID，可空（不在知识库上下文中的对话）';
 COMMENT ON COLUMN "public"."ai_conversation"."title" IS '会话标题';
+COMMENT ON COLUMN "public"."ai_conversation"."conversation_summary" IS '会话长期上下文滚动摘要';
+COMMENT ON COLUMN "public"."ai_conversation"."deleted_at" IS '软删除时间';
+COMMENT ON COLUMN "public"."ai_conversation"."deleted_by" IS '软删除操作人ID';
 COMMENT ON COLUMN "public"."ai_conversation"."created_at" IS '创建时间';
 COMMENT ON COLUMN "public"."ai_conversation"."updated_at" IS '更新时间';
 COMMENT ON TABLE "public"."ai_conversation" IS '对话会话表，保存一次问答会话';
@@ -676,6 +682,8 @@ CREATE TABLE "public"."ai_message" (
   "content" text COLLATE "pg_catalog"."default" NOT NULL,
   "citations" jsonb NOT NULL DEFAULT '[]'::jsonb,
   "trace_id" varchar(128) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "deleted_at" timestamptz(6),
+  "deleted_by" int8,
   "created_at" timestamptz(6) NOT NULL DEFAULT now()
 )
 ;
@@ -685,6 +693,8 @@ COMMENT ON COLUMN "public"."ai_message"."role" IS '消息角色，user/assistant
 COMMENT ON COLUMN "public"."ai_message"."content" IS '消息内容';
 COMMENT ON COLUMN "public"."ai_message"."citations" IS '引用来源，JSON数组，包含document_id、chunk_id、snippet等';
 COMMENT ON COLUMN "public"."ai_message"."trace_id" IS '链路追踪ID，用于关联LLM调用日志';
+COMMENT ON COLUMN "public"."ai_message"."deleted_at" IS '软删除时间';
+COMMENT ON COLUMN "public"."ai_message"."deleted_by" IS '软删除操作人ID';
 COMMENT ON COLUMN "public"."ai_message"."created_at" IS '创建时间';
 COMMENT ON TABLE "public"."ai_message" IS '对话消息表，保存用户消息和AI回复';
 
@@ -2330,6 +2340,11 @@ CREATE INDEX "idx_ai_conversation_user" ON "public"."ai_conversation" USING btre
   "user_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
   "created_at" "pg_catalog"."timestamptz_ops" DESC NULLS FIRST
 );
+CREATE INDEX "idx_ai_conversation_user_deleted_updated" ON "public"."ai_conversation" USING btree (
+  "user_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
+  "deleted_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST,
+  "updated_at" "pg_catalog"."timestamptz_ops" DESC NULLS FIRST
+);
 
 -- ----------------------------
 -- Primary Key structure for table ai_conversation
@@ -2496,6 +2511,11 @@ ALTER TABLE "public"."ai_maintenance_ticket_draft" ADD CONSTRAINT "ai_maintenanc
 -- ----------------------------
 CREATE INDEX "idx_ai_message_conversation" ON "public"."ai_message" USING btree (
   "conversation_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
+  "created_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_ai_message_conversation_deleted_created" ON "public"."ai_message" USING btree (
+  "conversation_id" "pg_catalog"."int8_ops" ASC NULLS LAST,
+  "deleted_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST,
   "created_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
 );
 

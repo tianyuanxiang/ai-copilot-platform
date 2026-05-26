@@ -7,7 +7,6 @@ type AiChatReq {
 	searchScope string `json:"searchScope,optional"`
 	domainId int64 `json:"domainId,optional"`
 	documentIds []int64 `json:"documentIds,optional"`
-	history []AiChatMessage `json:"history,optional"`
 }
 
 // 非流式 RAG 问答响应，包含答案、traceId 和引用来源。
@@ -15,12 +14,14 @@ type AiChatResp {
 	answer string `json:"answer"`
 	traceId string `json:"traceId"`
 	mode string `json:"mode"`
+	conversationId string `json:"conversationId"`
 	citations []AiCitation `json:"citations"`
 }
 
 @server (
 	group: ai_chat
 	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 发起普通 RAG 问答，后端聚合完整答案后返回。

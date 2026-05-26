@@ -1,0 +1,77 @@
+type AiConversationItem {
+	conversationId string `json:"conversationId"`
+	kbId int64 `json:"kbId"`
+	title string `json:"title"`
+	latestMessage string `json:"latestMessage"`
+	createdAt string `json:"createdAt"`
+	updatedAt string `json:"updatedAt"`
+}
+
+type AiListConversationReq {
+	page int64 `form:"page,optional"`
+	pageSize int64 `form:"pageSize,optional"`
+	kbId int64 `form:"kbId,optional"`
+	keyword string `form:"keyword,optional"`
+}
+
+type AiListConversationResp {
+	total int64 `json:"total"`
+	list []AiConversationItem `json:"list"`
+}
+
+type AiConversationPathReq {
+	conversationId string `path:"conversationId"`
+}
+
+type AiConversationMessagesReq {
+	conversationId string `path:"conversationId"`
+	page int64 `form:"page,optional"`
+	pageSize int64 `form:"pageSize,optional"`
+}
+
+type AiMessageItem {
+	messageId int64 `json:"messageId"`
+	conversationId string `json:"conversationId"`
+	role string `json:"role"`
+	content string `json:"content"`
+	citations []AiCitation `json:"citations"`
+	traceId string `json:"traceId"`
+	createdAt string `json:"createdAt"`
+}
+
+type AiConversationMessagesResp {
+	total int64 `json:"total"`
+	list []AiMessageItem `json:"list"`
+}
+
+type AiUpdateConversationTitleReq {
+	conversationId string `path:"conversationId"`
+	title string `json:"title"`
+}
+
+type AiDeleteMessageReq {
+	conversationId string `path:"conversationId"`
+	messageId int64 `path:"messageId"`
+}
+
+@server (
+	group: ai_conversation
+	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
+)
+service gateway {
+	@handler aiListConversation
+	get /conversations (AiListConversationReq) returns (AiListConversationResp)
+
+	@handler aiGetConversationMessages
+	get /conversations/:conversationId/messages (AiConversationMessagesReq) returns (AiConversationMessagesResp)
+
+	@handler aiUpdateConversationTitle
+	put /conversations/:conversationId/title (AiUpdateConversationTitleReq) returns (AiCommonResp)
+
+	@handler aiDeleteConversation
+	delete /conversations/:conversationId (AiConversationPathReq) returns (AiCommonResp)
+
+	@handler aiDeleteMessage
+	delete /conversations/:conversationId/messages/:messageId (AiDeleteMessageReq) returns (AiCommonResp)
+}
