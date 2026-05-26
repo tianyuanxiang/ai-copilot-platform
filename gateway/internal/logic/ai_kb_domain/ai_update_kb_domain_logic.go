@@ -5,9 +5,13 @@ package ai_kb_domain
 
 import (
 	"context"
+	"strings"
 
+	aiknowledgeclient "ai-copilot-platform/ai-rpc/client/aiknowledgeservice"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +31,34 @@ func NewAiUpdateKbDomainLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *AiUpdateKbDomainLogic) AiUpdateKbDomain(req *types.AiUpdateKbDomainReq) (resp *types.AiCommonResp, err error) {
-	// todo: add your logic here and delete this line
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
+	if req.DomainId <= 0 {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "domainId 不能为空")
+	}
 
-	return
+	name := strings.TrimSpace(req.Name)
+	code := strings.TrimSpace(req.Code)
+	description := req.Description
+
+	if _, err := l.svcCtx.AiKnowledgeClient.UpdateDomain(l.ctx, &aiknowledgeclient.UpdateDomainReq{
+		DomainId:       req.DomainId,
+		Name:           name,
+		HasName:        name != "",
+		Code:           code,
+		HasCode:        code != "",
+		Description:    description,
+		HasDescription: description != "",
+		Sort:           int64(req.Sort),
+		HasSort:        req.Sort != 0,
+		Status:         int64(req.Status),
+		HasStatus:      req.Status != 0,
+		OperatorId:     userID,
+	}); err != nil {
+		return nil, err
+	}
+
+	return &types.AiCommonResp{Message: "ok"}, nil
 }

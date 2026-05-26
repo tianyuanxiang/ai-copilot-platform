@@ -39,7 +39,14 @@ func (l *DeleteDocumentLogic) DeleteDocument(in *pb.DeleteDocumentReq) (*pb.Empt
 		}
 		return nil, err
 	}
-	if !canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.UserId) {
+
+	isCanMaintain, err := canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.UserId)
+	if err != nil {
+		l.Logger.Errorf("CanMaintainKnowledgeBase findByKbIDUserID err: %v", err)
+		return nil, err
+	}
+	
+	if !isCanMaintain {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "没有维护该知识库的权限")
 	}
 

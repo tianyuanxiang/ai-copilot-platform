@@ -27,7 +27,7 @@ func NewQueryAlarmsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Query
 }
 
 func (l *QueryAlarmsLogic) QueryAlarms(in *pb.WindAlarmQueryReq) (*pb.WindAlarmQueryResp, error) {
-	database := l.svcCtx.WindMetadataModel.FarmDatabase(l.ctx, in.FarmCode)
+	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
 	whereParts := model.TimeWhere(in.StartTime, in.EndTime)
 	whereParts = append(whereParts, model.DeviceWhere(in.TowerCode, in.DeviceCode)...)
 	if strings.TrimSpace(in.AlarmCode) != "" {
@@ -36,7 +36,7 @@ func (l *QueryAlarmsLogic) QueryAlarms(in *pb.WindAlarmQueryReq) (*pb.WindAlarmQ
 	if in.AlarmLevel > 0 {
 		whereParts = append(whereParts, fmt.Sprintf("alarm_level=%d", in.AlarmLevel))
 	}
-	if n := l.svcCtx.WindMetadataModel.AlarmDeviceType(in.DeviceTypeCode); n > 0 {
+	if n := l.svcCtx.WindDeviceTypeModel.AlarmDeviceType(in.DeviceTypeCode); n > 0 {
 		whereParts = append(whereParts, fmt.Sprintf("device_type=%d", n))
 	}
 	whereParts = append(whereParts, fmt.Sprintf("status=%d", in.Status))

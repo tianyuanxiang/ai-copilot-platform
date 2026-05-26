@@ -6,8 +6,11 @@ package ai_kb_public
 import (
 	"context"
 
+	aiknowledgeclient "ai-copilot-platform/ai-rpc/client/aiknowledgeservice"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +30,27 @@ func NewAiGetPublicKbLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AiG
 }
 
 func (l *AiGetPublicKbLogic) AiGetPublicKb(req *types.AiPublicKbPathReq) (resp *types.AiPublicKbItem, err error) {
-	// todo: add your logic here and delete this line
+	// 1. 提取用户ID，校验登录状态
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
 
-	return
+	// 2. 校验必填参数
+	if req.KbId <= 0 {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "kbId 不能为空")
+	}
+
+	// 3. 调用RPC查询知识库详情
+	item, err := l.svcCtx.AiKnowledgeClient.GetKnowledgeBase(l.ctx, &aiknowledgeclient.GetKnowledgeBaseReq{
+		KbId:   req.KbId,
+		UserId: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. 映射RPC响应到网关类型并返回
+	result := publicKbItemFromRPC(item)
+	return &result, nil
 }

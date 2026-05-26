@@ -30,9 +30,7 @@ type AiWindDeviceItem {
 	towerCode string `json:"towerCode"`
 	structureCode string `json:"structureCode"`
 	structureName string `json:"structureName"`
-	tdStable string `json:"tdStable"`
 	status int `json:"status"`
-	aiEnabled bool `json:"aiEnabled"`
 }
 
 type AiWindDataPoint {

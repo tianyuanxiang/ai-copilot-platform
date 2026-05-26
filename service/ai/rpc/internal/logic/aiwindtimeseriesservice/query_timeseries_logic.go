@@ -25,9 +25,10 @@ func NewQueryTimeseriesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Q
 }
 
 func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*pb.WindTimeseriesQueryResp, error) {
-	database := l.svcCtx.WindMetadataModel.FarmDatabase(l.ctx, in.FarmCode)
-	stable := l.svcCtx.WindMetadataModel.StableForDeviceType(l.ctx, in.DeviceTypeCode)
-	fields := l.svcCtx.WindMetadataModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
+	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
+	stable := l.svcCtx.WindDeviceTypeModel.StableForDeviceType(l.ctx, in.DeviceTypeCode)
+	fields := l.svcCtx.WindDeviceMetaModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
+
 	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(in.TowerCode, in.DeviceCode)...)
 	where := model.JoinWhere(whereParts)
 
@@ -35,10 +36,12 @@ func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*
 	if err != nil {
 		return nil, err
 	}
+
 	rows, _, err := l.svcCtx.TdengineModel.QueryRows(l.ctx, database, stable, fields, where, in.Page, in.PageSize)
 	if err != nil {
 		return nil, err
 	}
+	
 	points := make([]*pb.WindDataPoint, 0, len(rows))
 	for _, row := range rows {
 		points = append(points, &pb.WindDataPoint{Ts: row["ts"], Values: row})

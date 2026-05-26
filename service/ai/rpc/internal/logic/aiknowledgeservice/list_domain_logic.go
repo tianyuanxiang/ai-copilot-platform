@@ -25,7 +25,26 @@ func NewListDomainLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListDo
 
 // 查询公共知识库领域列表。
 func (l *ListDomainLogic) ListDomain(in *pb.ListDomainReq) (*pb.ListDomainResp, error) {
-	// todo: add your logic here and delete this line
+	page := in.Page
+	if page <= 0 {
+		page = 1
+	}
+	pageSize := in.PageSize
+	if pageSize <= 0 {
+		pageSize = 10
+	}
 
-	return &pb.ListDomainResp{}, nil
+	domains, total, err := l.svcCtx.AiKbDomainModel.List(l.ctx, page, pageSize, in.Keyword, in.Status, in.HasStatus)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*pb.DomainItem, 0, len(domains))
+	for i := range domains {
+		items = append(items, domainToPB(&domains[i]))
+	}
+	return &pb.ListDomainResp{
+		Total: total,
+		List:  items,
+	}, nil
 }

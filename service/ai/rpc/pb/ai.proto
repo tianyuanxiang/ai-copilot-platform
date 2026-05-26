@@ -631,9 +631,7 @@ message WindDeviceItem {
   string tower_code = 6;
   string structure_code = 7;
   string structure_name = 8;
-  string td_stable = 9;
-  int64 status = 10;
-  bool ai_enabled = 11;
+  int64 status = 9;
 }
 
 message ListWindDeviceReq {

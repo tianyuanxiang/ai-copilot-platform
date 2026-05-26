@@ -44,7 +44,7 @@ func TestTDengineWhereHelpers(t *testing.T) {
 }
 
 func TestWindMetadataFieldsUseWhitelist(t *testing.T) {
-	metadata := NewWindMetadataModel(nil)
+	metadata := NewWindDeviceTypeModel(nil, nil)
 	fields := metadata.FieldsForDeviceType(context.Background(), "INSX", "x")
 	if len(fields) != 1 || fields[0] != "x" {
 		t.Fatalf("expected whitelisted field x, got %#v", fields)

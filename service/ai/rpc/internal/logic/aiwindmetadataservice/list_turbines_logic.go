@@ -1,6 +1,7 @@
 package aiwindmetadataservicelogic
 
 import (
+	"ai-copilot-platform/ai-rpc/internal/model"
 	"context"
 	"strings"
 
@@ -25,14 +26,7 @@ func NewListTurbinesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 }
 
 func (l *ListTurbinesLogic) ListTurbines(in *pb.ListWindTurbineReq) (*pb.ListWindTurbineResp, error) {
-	var rows []struct {
-		TowerId   int64  `gorm:"column:tower_id"`
-		TowerCode string `gorm:"column:tower_code"`
-		FarmCode  string `gorm:"column:farm_code"`
-		FarmName  string `gorm:"column:farm_name"`
-		RiskLevel string `gorm:"column:risk_level"`
-		AiEnabled bool   `gorm:"column:ai_enabled"`
-	}
+	var rows []model.WindTower
 	query := l.svcCtx.Orm.Table("wind_turbine").Where("is_delete = 0")
 	if farmCode := strings.TrimSpace(in.FarmCode); farmCode != "" {
 		query = query.Where("farm_code = ?", strings.ToUpper(farmCode))

@@ -24,7 +24,7 @@ func NewListFarmsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListFar
 }
 
 func (l *ListFarmsLogic) ListFarms(in *pb.ListWindFarmReq) (*pb.ListWindFarmResp, error) {
-	rows, err := l.svcCtx.WindMetadataModel.ListFarms(l.ctx, in.Keyword)
+	rows, err := l.svcCtx.WindFarmModel.ListFarms(l.ctx, in.Keyword)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (l *ListFarmsLogic) ListFarms(in *pb.ListWindFarmReq) (*pb.ListWindFarmResp
 			FarmName:   row.FarmName,
 			Province:   row.Province,
 			Location:   row.Location,
-			TdDatabase: row.TDDatabase,
+			TdDatabase: row.TdDatabase,
 			AiEnabled:  row.AiEnabled,
 		})
 	}

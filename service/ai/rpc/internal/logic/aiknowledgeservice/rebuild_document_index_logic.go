@@ -42,7 +42,13 @@ func (l *RebuildDocumentIndexLogic) RebuildDocumentIndex(in *pb.RebuildDocumentI
 		}
 		return nil, err
 	}
-	if !canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.UserId) {
+
+	isCanMaintain, err := canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.UserId)
+	if err != nil {
+		l.Logger.Errorf("CanMaintainKnowledgeBase findByKbIDUserID err: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过成员表查询成员权限错误")
+	}
+	if !isCanMaintain {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "没有维护该知识库的权限")
 	}
 
@@ -56,7 +62,7 @@ func (l *RebuildDocumentIndexLogic) RebuildDocumentIndex(in *pb.RebuildDocumentI
 	if doc.Status == documentStatusParsing || doc.Status == documentStatusIndexing {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "文档正在处理，不能重建")
 	}
-
+	
 	chunks, err := l.svcCtx.AiDocumentChunkModel.ListByDocumentID(l.ctx, doc.Id)
 	if err != nil {
 		return nil, err

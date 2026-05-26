@@ -1,4 +1,5 @@
 // 公共知识库信息，按领域组织并通过成员角色控制维护权限。
+
 type AiPublicKbItem {
 	kbId int64 `json:"kbId"`
 	domainId int64 `json:"domainId"`

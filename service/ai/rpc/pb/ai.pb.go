@@ -5067,9 +5067,7 @@ type WindDeviceItem struct {
 	TowerCode      string                 `protobuf:"bytes,6,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
 	StructureCode  string                 `protobuf:"bytes,7,opt,name=structure_code,json=structureCode,proto3" json:"structure_code,omitempty"`
 	StructureName  string                 `protobuf:"bytes,8,opt,name=structure_name,json=structureName,proto3" json:"structure_name,omitempty"`
-	TdStable       string                 `protobuf:"bytes,9,opt,name=td_stable,json=tdStable,proto3" json:"td_stable,omitempty"`
-	Status         int64                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`
-	AiEnabled      bool                   `protobuf:"varint,11,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	Status         int64                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -5160,25 +5158,11 @@ func (x *WindDeviceItem) GetStructureName() string {
 	return ""
 }
 
-func (x *WindDeviceItem) GetTdStable() string {
-	if x != nil {
-		return x.TdStable
-	}
-	return ""
-}
-
 func (x *WindDeviceItem) GetStatus() int64 {
 	if x != nil {
 		return x.Status
 	}
 	return 0
-}
-
-func (x *WindDeviceItem) GetAiEnabled() bool {
-	if x != nil {
-		return x.AiEnabled
-	}
-	return false
 }
 
 type ListWindDeviceReq struct {
@@ -7145,7 +7129,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x13ListWindTurbineResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12'\n" +
 	"\x04list\x18\x02 \x03(\v2\x13.ai.WindTurbineItemR\x04list\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xfe\x02\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xc2\x02\n" +
 	"\x0eWindDeviceItem\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\x03R\bdeviceId\x12\x1f\n" +
 	"\vdevice_code\x18\x02 \x01(\tR\n" +
@@ -7156,12 +7140,8 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\n" +
 	"tower_code\x18\x06 \x01(\tR\ttowerCode\x12%\n" +
 	"\x0estructure_code\x18\a \x01(\tR\rstructureCode\x12%\n" +
-	"\x0estructure_name\x18\b \x01(\tR\rstructureName\x12\x1b\n" +
-	"\ttd_stable\x18\t \x01(\tR\btdStable\x12\x16\n" +
-	"\x06status\x18\n" +
-	" \x01(\x03R\x06status\x12\x1d\n" +
-	"\n" +
-	"ai_enabled\x18\v \x01(\bR\taiEnabled\"\x93\x01\n" +
+	"\x0estructure_name\x18\b \x01(\tR\rstructureName\x12\x16\n" +
+	"\x06status\x18\t \x01(\x03R\x06status\"\x93\x01\n" +
 	"\x11ListWindDeviceReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +

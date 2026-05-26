@@ -11,6 +11,7 @@ import (
 
 	"ai-copilot-platform/ai-rpc/internal/config"
 	"ai-copilot-platform/ai-rpc/internal/model"
+	permclient "go-zero-rpc/sys-rpc/client/permissionservice"
 	"go-zero-rpc/sys-rpc/pkg/orm"
 	pkgsqlx "go-zero-rpc/sys-rpc/pkg/sqlx"
 
@@ -20,6 +21,7 @@ import (
 	_ "github.com/taosdata/driver-go/v3/taosWS"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
 )
 
@@ -35,10 +37,20 @@ type ServiceContext struct {
 	AiDocumentParentChunkModel model.AiDocumentParentChunkModel
 	AiDocumentChunkModel       model.AiDocumentChunkModel
 	AiKnowledgeBaseModel       model.AiKnowledgeBaseModel
+	AiKbDomainModel            model.AiKbDomainModel
 	AiKbMemberModel            model.AiKbMemberModel
 	AiToolCallLogModel         model.AiToolCallLogModel
-	WindMetadataModel          model.WindMetadataModel
-	TdengineModel              model.TdengineModel
+
+	PermRpc permclient.PermissionService
+	// WindMetadataModel          model.WindMetadataModel
+	WindFarmModel          model.WindFarmModel
+	WindTowerModel         model.WindTowerModel
+	WindDeviceModel        model.WindDeviceModel
+	WindDeviceTypeModel    model.WindDeviceTypeModel
+	WindStructureTypeModel model.WindStructureTypeModel
+	WindCameraRecordModel  model.WindCameraRecordModel
+	WindDeviceMetaModel    model.WindDeviceMetaModel
+	TdengineModel          model.TdengineModel
 
 	EngineClient     *http.Client
 	EngineCallClient *engine.Client
@@ -99,6 +111,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		engineTimeout = 30 * time.Second
 	}
 
+	sysCli := zrpc.MustNewClient(c.SysRpc)
+	permSvc := permclient.NewPermissionService(sysCli)
+
 	return &ServiceContext{
 		Config:                     c,
 		Orm:                        db,
@@ -108,13 +123,23 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AiDocumentParentChunkModel: model.NewAiDocumentParentChunkModel(conn, db),
 		AiDocumentChunkModel:       model.NewAiDocumentChunkModel(db),
 		AiKnowledgeBaseModel:       model.NewAiKnowledgeBaseModel(conn, db),
+		AiKbDomainModel:            model.NewAiKbDomainModel(conn, db),
 		AiKbMemberModel:            model.NewAiKbMemberModel(conn, db),
 		AiToolCallLogModel:         model.NewAiToolCallLogModel(conn),
-		WindMetadataModel:          model.NewWindMetadataModel(db),
-		TdengineModel:              model.NewTdengineModel(td),
+		// WindMetadataModel:          model.NewWindMetadataModel(db),
+		WindFarmModel:          model.NewWindFarmModel(conn, db),
+		WindTowerModel:         model.NewWindTowerModel(conn, db),
+		WindDeviceModel:        model.NewWindDeviceModel(conn, db),
+		WindDeviceTypeModel:    model.NewWindDeviceTypeModel(conn, db),
+		WindDeviceMetaModel:    model.NewWindDeviceMetaModel(conn, db),
+		WindCameraRecordModel:  model.NewWindCameraRecordModel(conn),
+		WindStructureTypeModel: model.NewWindStructureTypeModel(conn),
+		TdengineModel:          model.NewTdengineModel(td),
 
 		EngineClient:     &http.Client{Timeout: engineTimeout},
 		EngineCallClient: engine.NewClient(c.Engine.BaseURL, &http.Client{Timeout: engineTimeout}),
+
+		PermRpc: permSvc,
 	}
 }
 

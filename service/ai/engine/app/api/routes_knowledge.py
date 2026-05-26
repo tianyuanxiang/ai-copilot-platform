@@ -7,8 +7,6 @@ from app.schemas.knowledge import (
     ParseResponse,
     RerankRequest,
     RerankResponse,
-    RetrieveRequest,
-    RetrieveResponse,
 )
 from app.services import rag
 
@@ -28,16 +26,11 @@ async def parse(payload: ParseRequest) -> ParseResponse:
 @router.post("/embed", response_model=EmbedResponse)
 async def embed(payload: EmbedRequest) -> EmbedResponse:
     try:
-        return await rag.embed_texts(payload.texts)
+        return await rag.embed_texts(payload.texts, input_type=payload.input_type)
     except rag.EmbeddingInputError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except rag.EmbeddingProviderError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@router.post("/retrieve", response_model=RetrieveResponse)
-async def retrieve(payload: RetrieveRequest) -> RetrieveResponse:
-    return await rag.retrieve(payload.user_id, payload.kb_id, payload.query, payload.top_k)
 
 
 @router.post("/rerank", response_model=RerankResponse)

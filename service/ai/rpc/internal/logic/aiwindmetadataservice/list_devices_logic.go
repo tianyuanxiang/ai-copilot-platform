@@ -34,15 +34,15 @@ func (l *ListDevicesLogic) ListDevices(in *pb.ListWindDeviceReq) (*pb.ListWindDe
 		TowerCode      string `gorm:"column:tower_code"`
 		StructureCode  string `gorm:"column:structure_code"`
 		StructureName  string `gorm:"column:structure_name"`
-		TDStable       string `gorm:"column:td_stable"`
 		Status         int64  `gorm:"column:status"`
-		AiEnabled      bool   `gorm:"column:ai_enabled"`
 	}
+
 	query := l.svcCtx.Orm.Table("wind_device wd").
-		Select("wd.device_id, wd.device_code, wd.device_type_code, wd.device_type_name, wd.tower_id, wt.tower_code, wd.structure_code, wd.structure_name, coalesce(nullif(wd.td_stable,''), wdt.td_stable) as td_stable, wd.status, wd.ai_enabled").
-		Joins("left join wind_turbine wt on wt.tower_id = wd.tower_id").
+		Select("wd.device_id, wd.device_code, wd.device_type_code, wd.device_type_name, wd.tower_id, wt.tower_code, wd.structure_code, wd.structure_name, wd.status").
+		Joins("left join wind_tower wt on wt.tower_id = wd.tower_id").
 		Joins("left join wind_device_type wdt on wdt.device_type_id = wd.device_type_id").
 		Where("wd.is_delete = 0")
+
 	if farmCode := strings.TrimSpace(in.FarmCode); farmCode != "" {
 		query = query.Where("wt.farm_code = ?", strings.ToUpper(farmCode))
 	}
@@ -70,9 +70,7 @@ func (l *ListDevicesLogic) ListDevices(in *pb.ListWindDeviceReq) (*pb.ListWindDe
 			TowerCode:      row.TowerCode,
 			StructureCode:  row.StructureCode,
 			StructureName:  row.StructureName,
-			TdStable:       row.TDStable,
 			Status:         row.Status,
-			AiEnabled:      row.AiEnabled,
 		})
 	}
 	return &pb.ListWindDeviceResp{Total: int64(len(items)), List: items, Message: "wind device metadata scaffold ready"}, nil

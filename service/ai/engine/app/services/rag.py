@@ -9,6 +9,16 @@ from xml.etree import ElementTree
 
 import httpx
 
+try:
+    from docx import Document
+except ImportError:  # pragma: no cover
+    Document = None
+
+try:
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+except ImportError:  # pragma: no cover
+    RecursiveCharacterTextSplitter = None
+
 from app.core.config import Settings, get_settings
 from app.schemas.knowledge import (
     ChildChunk,
@@ -16,20 +26,21 @@ from app.schemas.knowledge import (
     ParentChunk,
     ParseResponse,
     RerankResponse,
-    RetrieveResponse,
     RetrievedChunk,
 )
 
 DASHSCOPE_EMBEDDINGS_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
+DASHSCOPE_RERANK_URL = "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank"
+
 MAX_EMBEDDING_TOKENS = 8192
 PARENT_TARGET_CHARS = 1000
 PARENT_MAX_CHARS = 1200
 CHILD_TARGET_CHARS = 350
 CHILD_MAX_CHARS = 420
 CHILD_OVERLAP_CHARS = 50
-
 WORD_NAMESPACE = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 TEXT_FORMAT_MARKS = "\ufeff\u200b\u200c\u200d"
+SUPPORTED_EMBEDDING_INPUT_TYPES = {"document", "query"}
 
 
 class ParseInputError(ValueError):
@@ -43,21 +54,23 @@ class EmbeddingInputError(ValueError):
 class EmbeddingProviderError(RuntimeError):
     pass
 
-# content 存的是文件内容的文本
+
 async def parse_document(file_name: str, content: str, file_type: str = "") -> ParseResponse:
     document_type = _detect_document_type(file_name, file_type)
-    # Go 把 DOCX 文件做 base64 编码后传过来
     if document_type == "docx":
         text = _extract_docx_text(_decode_docx_content(content))
-        parser = "docx-xml"
-    elif document_type in {"md", "markdown", "txt"}:
+        parser = "docx-structured"
+    elif document_type in {"md", "markdown"}:
+        text = _normalize_markdown_text(content)
+        parser = "markdown-structure"
+    elif document_type == "txt":
         text = _normalize_text(content)
-        parser = "markdown-structure" if document_type in {"md", "markdown"} else "plain-text"
+        parser = "plain-text"
     else:
         text = _normalize_text(content)
         parser = "plain-text"
 
-    parents = chunk_document(text)
+    parents = chunk_document(text, document_type)
     return ParseResponse(
         text=text,
         metadata={
@@ -66,31 +79,32 @@ async def parse_document(file_name: str, content: str, file_type: str = "") -> P
             "parser": parser,
             "parent_count": len(parents),
             "child_count": sum(len(parent.children) for parent in parents),
+            "splitter": "langchain-recursive" if RecursiveCharacterTextSplitter else "fallback-recursive",
         },
         parents=parents,
     )
 
 
-def chunk_document(text: str) -> list[ParentChunk]:
+def chunk_document(text: str, document_type: str = "txt") -> list[ParentChunk]:
     normalized = _normalize_text(text)
     if not normalized:
         return []
+    if document_type in {"md", "markdown"}:
+        parent_texts = _split_markdown_parent_texts(normalized)
+    else:
+        parent_texts = _split_text(normalized, PARENT_MAX_CHARS, 0)
+    return _build_parent_chunks(parent_texts)
 
-    blocks = _split_structural_blocks(normalized)
-    parent_texts = _merge_blocks(blocks, PARENT_TARGET_CHARS, PARENT_MAX_CHARS)
 
-    # 准备装所有父块的列表
+def _build_parent_chunks(parent_texts: list[str]) -> list[ParentChunk]:
     parents: list[ParentChunk] = []
     for parent_index, parent_text in enumerate(parent_texts):
-        # 1. 把父块文本再切成子块(200-400字)
         child_texts = _split_child_chunks(parent_text)
         parents.append(
             ParentChunk(
                 parent_index=parent_index,
                 content=parent_text,
                 token_count=_estimate_chunk_tokens(parent_text),
-                # 列表推导式
-                # [要生成的元素 for 临时变量 in 可遍历对象]
                 children=[
                     ChildChunk(
                         chunk_index=child_index,
@@ -104,15 +118,124 @@ def chunk_document(text: str) -> list[ParentChunk]:
     return parents
 
 
+def _split_markdown_parent_texts(text: str) -> list[str]:
+    sections = _markdown_to_retrieval_sections(text)
+    parent_texts: list[str] = []
+    for section in sections:
+        parent_texts.extend(_split_text(section, PARENT_MAX_CHARS, 0))
+    return [item for item in parent_texts if item.strip()]
+
+
+def _markdown_to_retrieval_sections(text: str) -> list[str]:
+    """Convert Markdown into readable retrieval sections before chunking."""
+
+    sections: list[str] = []
+    heading_stack: list[str] = []
+    current: list[str] = []
+    in_code_block = False
+
+    def flush() -> None:
+        body = _normalize_text("\n".join(item for item in current if item.strip()))
+        if body:
+            prefix = " > ".join(heading_stack)
+            if prefix and not body.startswith(prefix):
+                body = f"{prefix}\n\n{body}"
+            sections.append(_normalize_text(body))
+        current.clear()
+
+    for raw_line in _normalize_text(text).split("\n"):
+        stripped = raw_line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_code_block = not in_code_block
+            continue
+        if not in_code_block and _is_markdown_table_separator(stripped):
+            continue
+        if not in_code_block and (stripped.upper() == "[TOC]" or re.fullmatch(r"-{3,}", stripped)):
+            continue
+
+        heading = None if in_code_block else re.match(r"^(#{1,6})\s+(.+)$", stripped)
+        if heading:
+            flush()
+            level = len(heading.group(1))
+            title = _clean_inline_markdown(heading.group(2))
+            heading_stack[:] = heading_stack[: level - 1]
+            heading_stack.append(title)
+            current.append(title)
+            continue
+
+        current.append(stripped if in_code_block else _clean_markdown_line(raw_line))
+
+    flush()
+    return sections or [_normalize_markdown_text(text)]
+
+
+def _split_child_chunks(parent_text: str) -> list[str]:
+    return _split_text(parent_text, CHILD_MAX_CHARS, CHILD_OVERLAP_CHARS)
+
+
+def _split_text(text: str, chunk_size: int, overlap: int) -> list[str]:
+    clean_text = _normalize_text(text)
+    if not clean_text:
+        return []
+    if RecursiveCharacterTextSplitter is not None:
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=overlap,
+            separators=["\n\n", "\n", "。", "！", "？", "；", ";", ".", "!", "?", "，", ",", " ", ""],
+            keep_separator="end",
+        )
+        return [_trim_fragment(item) for item in splitter.split_text(clean_text) if _trim_fragment(item)]
+    return _fallback_split(clean_text, chunk_size, overlap)
+
+
+def _fallback_split(text: str, chunk_size: int, overlap: int) -> list[str]:
+    if len(text) <= chunk_size:
+        return [text]
+    sentences = re.split(r"(?<=[。！？；;.!?])\s+", text)
+    chunks: list[str] = []
+    current = ""
+    for sentence in sentences:
+        if not sentence:
+            continue
+        candidate = f"{current} {sentence}".strip() if current else sentence
+        if len(candidate) > chunk_size and current:
+            chunks.append(current)
+            prefix = current[-overlap:].strip() if overlap > 0 else ""
+            current = f"{prefix} {sentence}".strip() if prefix else sentence
+        elif len(sentence) > chunk_size:
+            chunks.extend(_window_split(sentence, chunk_size, overlap))
+            current = ""
+        else:
+            current = candidate
+    if current:
+        chunks.append(current)
+    return [_trim_fragment(chunk) for chunk in chunks if _trim_fragment(chunk)]
+
+
+def _window_split(text: str, size: int, overlap: int) -> list[str]:
+    chunks: list[str] = []
+    start = 0
+    while start < len(text):
+        end = min(len(text), start + size)
+        chunks.append(text[start:end])
+        if end == len(text):
+            break
+        start = max(end - overlap, start + 1)
+    return chunks
+
+
+def _trim_fragment(text: str) -> str:
+    text = _normalize_text(text)
+    text = re.sub(r"^[，,。；;：:\s]+", "", text)
+    return text.strip()
+
+
 def _detect_document_type(file_name: str, file_type: str) -> str:
     clean_type = file_type.strip().lower().lstrip(".")
     if clean_type:
         return clean_type
-
     suffix = Path(file_name).suffix.lower().lstrip(".")
-    if suffix:
-        return suffix
-    return "txt"
+    return suffix or "txt"
 
 
 def _normalize_text(text: str) -> str:
@@ -124,22 +247,72 @@ def _normalize_text(text: str) -> str:
     return normalized.strip()
 
 
+def _normalize_markdown_text(text: str) -> str:
+    return _normalize_text("\n".join(_markdown_to_retrieval_sections(text)))
+
+
+def _clean_markdown_line(line: str) -> str:
+    stripped = line.strip()
+    if not stripped:
+        return ""
+    stripped = re.sub(r"^\s{0,3}>\s?", "", stripped)
+    stripped = re.sub(r"^\s*[-*+]\s+", "", stripped)
+    stripped = re.sub(r"^\s*\d+[.)]\s+", "", stripped)
+    if "|" in stripped:
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        stripped = "；".join(cell for cell in cells if cell)
+    return _clean_inline_markdown(stripped)
+
+
+def _clean_inline_markdown(text: str) -> str:
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"(\*\*|__)(.*?)\1", r"\2", text)
+    text = re.sub(r"(\*|_)(.*?)\1", r"\2", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    return text.strip()
+
+
+def _is_markdown_table_separator(line: str) -> bool:
+    if "|" not in line:
+        return False
+    cells = [cell.strip() for cell in line.strip("|").split("|")]
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", cell or "") for cell in cells)
+
+
 def _decode_docx_content(content: str) -> bytes:
     raw = content.strip()
     if raw.startswith("data:"):
         _, _, raw = raw.partition(",")
-
     try:
-        data = base64.b64decode(raw, validate=True) # # base64 解码回二进制
+        data = base64.b64decode(raw, validate=True)
     except ValueError as exc:
         raise ParseInputError("docx content must be base64 encoded") from exc
-
     if not zipfile.is_zipfile(BytesIO(data)):
         raise ParseInputError("docx content is not a valid .docx zip package")
     return data
 
 
 def _extract_docx_text(data: bytes) -> str:
+    if Document is not None:
+        try:
+            document = Document(BytesIO(data))
+            parts: list[str] = []
+            parts.extend(paragraph.text.strip() for paragraph in document.paragraphs if paragraph.text.strip())
+            for table in document.tables:
+                rows: list[str] = []
+                for row in table.rows:
+                    cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                    if cells:
+                        rows.append(" | ".join(cells))
+                if rows:
+                    parts.append("\n".join(rows))
+            return _normalize_text("\n\n".join(parts))
+        except Exception:
+            return _extract_docx_text_with_xml(data)
+    return _extract_docx_text_with_xml(data)
+
+
+def _extract_docx_text_with_xml(data: bytes) -> str:
     try:
         with zipfile.ZipFile(BytesIO(data)) as package:
             document_xml = package.read("word/document.xml")
@@ -163,7 +336,6 @@ def _extract_docx_text(data: bytes) -> str:
             table = _docx_table_text(child)
             if table:
                 parts.append(table)
-
     return _normalize_text("\n\n".join(parts))
 
 
@@ -184,192 +356,12 @@ def _docx_table_text(table: ElementTree.Element) -> str:
     for row in table.findall(f".//{WORD_NAMESPACE}tr"):
         cells: list[str] = []
         for cell in row.findall(f"{WORD_NAMESPACE}tc"):
-            paragraphs = [
-                _docx_paragraph_text(paragraph)
-                for paragraph in cell.findall(f"{WORD_NAMESPACE}p")
-            ]
+            paragraphs = [_docx_paragraph_text(paragraph) for paragraph in cell.findall(f"{WORD_NAMESPACE}p")]
             cell_text = " ".join(item for item in paragraphs if item).strip()
             cells.append(cell_text)
         if any(cells):
             rows.append(" | ".join(cells))
     return "\n".join(rows).strip()
-
-
-def _split_structural_blocks(text: str) -> list[str]:
-    blocks: list[str] = []      # 切好的小块，最终输出
-    paragraph: list[str] = []   # 当前正在攒的普通段落
-    code_block: list[str] = []  # 当前正在攒的代码块
-    in_code_block = False       # 是否在代码块里
-
-    def flush_paragraph() -> None:
-        if paragraph:
-            blocks.append("\n".join(paragraph).strip())
-            paragraph.clear()
-
-    for line in text.split("\n"):
-        stripped = line.strip() # 去掉一行前后的空格。
-        # 判断当前行是不是代码块的开始或结束。
-        is_fence = stripped.startswith("```") or stripped.startswith("~~~")
-
-        if is_fence:
-            if in_code_block:
-                code_block.append(line)
-                blocks.append("\n".join(code_block).strip())
-                code_block.clear()
-                in_code_block = False
-            else:
-                flush_paragraph()
-                code_block.append(line)
-                in_code_block = True
-            continue
-
-        if in_code_block:
-            code_block.append(line)
-            continue
-        # 处理标题行
-        # 1. 先把前面的普通段落收尾
-        # 2. 把标题单独作为一个 block
-        # 3. 继续处理下一行
-        if _is_markdown_heading(stripped):
-            flush_paragraph()
-            blocks.append(stripped)
-            continue
-
-        # 处理空行
-        if not stripped:
-            flush_paragraph()
-            continue
-
-        # 处理普通文本暂时放进 paragraph。后面遇到空行、标题、代码块时，才会通过 flush_paragraph() 放进 blocks
-        paragraph.append(line.rstrip())
-
-    if in_code_block and code_block:
-        blocks.append("\n".join(code_block).strip())
-    flush_paragraph()
-
-    expanded: list[str] = []
-
-    for block in blocks:
-        expanded.extend(_split_oversized_block(block, PARENT_MAX_CHARS))  # 如果某个 block 超过 PARENT_MAX_CHARS，就继续把它切小。
-    return [block for block in expanded if block]
-
-
-# 一般只要以 # 开头，就认为是标题：
-def _is_markdown_heading(line: str) -> bool:
-    return bool(re.match(r"^#{1,6}\s+\S+", line))
-
-
-def _split_oversized_block(block: str, max_chars: int) -> list[str]:
-    if len(block) <= max_chars:
-        return [block]
-
-    if block.startswith("```") or block.startswith("~~~"):
-        return _split_by_window(block, max_chars, 0)
-
-    sentences = re.split(r"(?<=[。！？.!?])\s+", block)
-    chunks: list[str] = []
-    current = ""
-    for sentence in sentences:
-        if not sentence:
-            continue
-        if len(sentence) > max_chars:
-            if current:
-                chunks.append(current.strip())
-                current = ""
-            chunks.extend(_split_by_window(sentence, max_chars, 0))
-            continue
-        candidate = f"{current} {sentence}".strip() if current else sentence
-        if len(candidate) > max_chars and current:
-            chunks.append(current.strip())
-            current = sentence
-        else:
-            current = candidate
-    if current:
-        chunks.append(current.strip())
-    return chunks
-
-
-def _merge_blocks(blocks: list[str], target_chars: int, max_chars: int) -> list[str]:
-    merged: list[str] = []
-    current: list[str] = []
-
-    for block in blocks:
-        candidate = _join_blocks([*current, block])
-        if current and len(candidate) > max_chars: # 当前父块已经够大了，再塞 block 就超长
-            merged.append(_join_blocks(current))   # 所以先把 current 合并后放进 merged
-            current = [block]                      # 然后用当前 block 开启新的 current
-            continue
-        # 如果当前父块已经达到目标长度了，并且现在遇到一个新的 Markdown 标题，那就把前面的内容收尾，从这个标题开始新建父块。
-        if current and len(_join_blocks(current)) >= target_chars and _is_markdown_heading(block):
-            merged.append(_join_blocks(current))
-            current = [block]
-            continue
-        current.append(block)
-
-    if current:
-        merged.append(_join_blocks(current)) # 默认情况：把 block 放进当前父块
-    return merged
-
-
-# 接收一个父块 parent_text，再把这个父块切成多个更小的子块，并且给相邻子块加一点重叠内容。
-
-def _split_child_chunks(parent_text: str) -> list[str]:
-    blocks = _split_structural_blocks(parent_text)
-    child_blocks: list[str] = []
-    for block in blocks:
-        # extend 把列表里的元素逐个放进去
-        child_blocks.extend(_split_oversized_block(block, CHILD_MAX_CHARS)) # 如果某个结构块太长，就继续切小，保证单个 block 不超过 CHILD_MAX_CHARS。
-    blocks = child_blocks
-
-    child_texts = _merge_blocks(blocks, CHILD_TARGET_CHARS, CHILD_MAX_CHARS)
-    if len(child_texts) <= 1:
-        return child_texts
-
-    # 从第二个子块开始，把前一个子块的尾巴复制一点到当前子块前面。
-    overlapped: list[str] = []
-    for index, child_text in enumerate(child_texts):
-        if index == 0:
-            overlapped.append(child_text)
-            continue
-
-        prefix = _tail_text(child_texts[index - 1], CHILD_OVERLAP_CHARS)
-        if prefix and not child_text.startswith(prefix):
-            overlapped.append(f"{prefix}\n\n{child_text}")
-        else:
-            overlapped.append(child_text)
-    return overlapped
-
-
-# 把多个 block 用两个换行符拼成一个大字符串。
-
-# 遍历 blocks
-# 去掉每个 block 前后的空格
-# 过滤掉空字符串
-
-def _join_blocks(blocks: list[str]) -> str:
-    return "\n\n".join(block.strip() for block in blocks if block.strip()).strip()
-
-
-def _tail_text(text: str, size: int) -> str:
-    compact = re.sub(r"\s+", " ", text).strip()
-    if len(compact) <= size:
-        return compact
-    return compact[-size:].strip()
-
-
-def _split_by_window(text: str, size: int, overlap: int) -> list[str]:
-    if size <= overlap:
-        raise ValueError("size must be greater than overlap")
-
-    chunks: list[str] = []
-    start = 0
-    while start < len(text):
-        end = min(len(text), start + size)
-        chunks.append(text[start:end].strip())
-        if end == len(text):
-            break
-        start = end - overlap
-    return [chunk for chunk in chunks if chunk]
 
 
 def _estimate_chunk_tokens(text: str) -> int:
@@ -378,14 +370,16 @@ def _estimate_chunk_tokens(text: str) -> int:
 
 async def embed_texts(
     texts: list[str],
+    input_type: str = "document",
     settings: Settings | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> EmbedResponse:
     settings = settings or get_settings()
+    input_type = _normalize_embedding_input_type(input_type)
     normalized = _validate_embedding_texts(texts)
 
     if settings.embedding_provider == "dashscope":
-        return await _embed_dashscope(normalized, settings, transport)
+        return await _embed_dashscope(normalized, input_type, settings, transport)
 
     token_counts = [_estimate_tokens(text) for text in normalized]
     return EmbedResponse(
@@ -398,10 +392,16 @@ async def embed_texts(
     )
 
 
+def _normalize_embedding_input_type(input_type: str) -> str:
+    clean = (input_type or "document").strip().lower()
+    if clean not in SUPPORTED_EMBEDDING_INPUT_TYPES:
+        raise EmbeddingInputError("input_type must be document or query")
+    return clean
+
+
 def _validate_embedding_texts(texts: list[str]) -> list[str]:
     if not texts:
         raise EmbeddingInputError("texts must contain at least one item")
-
     normalized: list[str] = []
     for index, text in enumerate(texts):
         clean_text = text.strip()
@@ -425,6 +425,7 @@ def _mock_vector(text: str, dimension: int) -> list[float]:
 
 async def _embed_dashscope(
     texts: list[str],
+    input_type: str,
     settings: Settings,
     transport: httpx.AsyncBaseTransport | None,
 ) -> EmbedResponse:
@@ -477,7 +478,7 @@ async def _embed_dashscope(
         total_tokens=total_tokens,
         model=settings.embedding_model,
         dimension=settings.embedding_dimension,
-        mode="dashscope-embedding",
+        mode="dashscope-openai-compatible-embedding",
     )
 
 
@@ -485,7 +486,6 @@ def _extract_dashscope_vectors(body: dict[str, Any], expected_dimension: int) ->
     data = body.get("data")
     if not isinstance(data, list):
         raise EmbeddingProviderError("dashscope embedding response missing data list")
-
     vectors: list[list[float]] = []
     for item in data:
         if not isinstance(item, dict):
@@ -518,26 +518,80 @@ def _allocate_usage_tokens(total_tokens: int, item_count: int) -> list[int]:
     return [base + (1 if index < remainder else 0) for index in range(item_count)]
 
 
-async def retrieve(user_id: str, kb_id: str, query: str, top_k: int) -> RetrieveResponse:
-    settings = get_settings()
-    mode = "hybrid-degraded"
-    message = "pgvector and Elasticsearch are not connected yet; returning mock chunks"
-    if settings.elasticsearch_url:
-        message = f"Elasticsearch BM25 channel reserved at {settings.elasticsearch_url}"
-
-    chunks = [
-        RetrievedChunk(
-            chunk_id="chunk-demo-1",
-            document_id="doc-demo-1",
-            title="ASGI Engine Skeleton",
-            content=f"Mock retrieval result for query: {query}",
-            score=0.5,
-            source="mock",
-        )
-    ][:top_k]
-    return RetrieveResponse(chunks=chunks, mode=mode, message=message)
-
-
 async def rerank(query: str, chunks: list[RetrievedChunk], top_k: int) -> RerankResponse:
-    ranked = sorted(chunks, key=lambda item: item.score, reverse=True)[:top_k]
-    return RerankResponse(chunks=ranked, mode="mock-rerank")
+    settings = get_settings()
+    if not chunks:
+        return RerankResponse(chunks=[], mode="empty")
+    top_k = max(1, min(top_k or settings.rerank_top_n, len(chunks)))
+    if settings.rerank_provider == "dashscope" and settings.rerank_api_key:
+        return await _rerank_dashscope(query, chunks, top_k, settings)
+    return RerankResponse(chunks=_mock_rerank(query, chunks, top_k), mode="mock-rerank")
+
+
+def _mock_rerank(query: str, chunks: list[RetrievedChunk], top_k: int) -> list[RetrievedChunk]:
+    terms = _query_terms(query)
+
+    def score(item: RetrievedChunk) -> float:
+        content = item.content.lower()
+        overlap = sum(1 for term in terms if term and term.lower() in content)
+        return item.score + overlap
+
+    return sorted(chunks, key=score, reverse=True)[:top_k]
+
+
+async def _rerank_dashscope(query: str, chunks: list[RetrievedChunk], top_k: int, settings: Settings) -> RerankResponse:
+    payload = {
+        "model": settings.rerank_model,
+        "input": {
+            "query": query,
+            "documents": [chunk.content for chunk in chunks],
+        },
+        "parameters": {
+            "top_n": top_k,
+            "return_documents": True,
+        },
+    }
+    async with httpx.AsyncClient(timeout=settings.rerank_timeout_seconds) as client:
+        response = await client.post(
+            DASHSCOPE_RERANK_URL,
+            headers={"Authorization": f"Bearer {settings.rerank_api_key}"},
+            json=payload,
+        )
+    if response.status_code < 200 or response.status_code >= 300:
+        raise EmbeddingProviderError(f"dashscope rerank returned {response.status_code}: {response.text[:4096]}")
+
+    results = _extract_dashscope_rerank_results(response.json())
+    ranked: list[RetrievedChunk] = []
+    for item in results:
+        index = item["index"]
+        if index < 0 or index >= len(chunks):
+            continue
+        chunk = chunks[index].model_copy()
+        chunk.score = item["score"]
+        ranked.append(chunk)
+    return RerankResponse(chunks=ranked[:top_k], mode="dashscope-rerank")
+
+
+def _extract_dashscope_rerank_results(body: dict[str, Any]) -> list[dict[str, Any]]:
+    output = body.get("output")
+    if isinstance(output, dict):
+        candidates = output.get("results") or output.get("documents") or []
+    else:
+        candidates = body.get("results") if isinstance(body.get("results"), list) else []
+
+    results: list[dict[str, Any]] = []
+    for item in candidates:
+        if not isinstance(item, dict):
+            continue
+        index = item.get("index")
+        score = item.get("relevance_score", item.get("score", 0))
+        try:
+            results.append({"index": int(index), "score": float(score)})
+        except (TypeError, ValueError):
+            continue
+    return sorted(results, key=lambda item: item["score"], reverse=True)
+
+
+def _query_terms(query: str) -> list[str]:
+    terms = re.findall(r"[\w\u4e00-\u9fff]+", query)
+    return [term for term in terms if len(term) > 1]

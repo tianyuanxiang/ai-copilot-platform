@@ -46,6 +46,8 @@ async def test_dashscope_embed_batches_requests_and_reads_usage():
         seen_batches.append(body["input"])
         assert body["model"] == "text-embedding-v4"
         assert body["dimensions"] == 1024
+        assert body["encoding_format"] == "float"
+        assert "text_type" not in body
 
         offset = sum(len(batch) for batch in seen_batches[:-1])
         data = [
@@ -78,10 +80,15 @@ async def test_dashscope_embed_batches_requests_and_reads_usage():
     )
     transport = httpx.MockTransport(handler)
 
-    result = await rag.embed_texts([f"text {index}" for index in range(11)], settings=settings, transport=transport)
+    result = await rag.embed_texts(
+        [f"text {index}" for index in range(11)],
+        input_type="query",
+        settings=settings,
+        transport=transport,
+    )
 
     assert [len(batch) for batch in seen_batches] == [10, 1]
-    assert result.mode == "dashscope-embedding"
+    assert result.mode == "dashscope-openai-compatible-embedding"
     assert result.model == "text-embedding-v4"
     assert result.dimension == 1024
     assert len(result.vectors) == 11

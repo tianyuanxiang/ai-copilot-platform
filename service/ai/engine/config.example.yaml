@@ -20,5 +20,12 @@ embedding:
   model: text-embedding-v4
   api_key: ""               # optional; falls back to DASHSCOPE_API_KEY
   dimension: 1024           # keep aligned with pgvector vector(1024)
-  batch_size: 10            # Bailian text-embedding-v4 supports up to 10 inputs per call
+  batch_size: 10            # Bailian OpenAI-compatible embedding requests are batched here
+  timeout_seconds: 30
+
+rerank:
+  provider: mock            # mock | dashscope
+  model: qwen3-rerank
+  api_key: ""               # optional; falls back to DASHSCOPE_API_KEY
+  top_n: 5
   timeout_seconds: 30

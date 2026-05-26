@@ -30,6 +30,11 @@ class Settings(BaseModel):
         embedding_dimension: Embedding vector dimension.
         embedding_batch_size: Maximum texts per embedding request.
         embedding_timeout_seconds: Embedding request timeout.
+        rerank_provider: Rerank provider, "mock" or "dashscope".
+        rerank_model: Rerank model name.
+        rerank_api_key: API key for the rerank provider.
+        rerank_top_n: Default rerank top_n.
+        rerank_timeout_seconds: Rerank request timeout.
     """
 
     # 表示这个 Settings 对象创建之后不允许修改。
@@ -50,6 +55,11 @@ class Settings(BaseModel):
     embedding_dimension: int = 1024
     embedding_batch_size: int = 10
     embedding_timeout_seconds: int = 30
+    rerank_provider: Literal["mock", "dashscope"] = "mock"
+    rerank_model: str = "qwen3-rerank"
+    rerank_api_key: str = ""
+    rerank_top_n: int = 5
+    rerank_timeout_seconds: int = 30
 
 
 # Mapping from flat Settings field names to (yaml_section, yaml_key) pairs.
@@ -71,6 +81,11 @@ _FIELD_MAP: dict[str, tuple[str, str]] = {
     "embedding_dimension": ("embedding", "dimension"),
     "embedding_batch_size": ("embedding", "batch_size"),
     "embedding_timeout_seconds": ("embedding", "timeout_seconds"),
+    "rerank_provider": ("rerank", "provider"),
+    "rerank_model": ("rerank", "model"),
+    "rerank_api_key": ("rerank", "api_key"),
+    "rerank_top_n": ("rerank", "top_n"),
+    "rerank_timeout_seconds": ("rerank", "timeout_seconds"),
 }
 
 
@@ -128,6 +143,8 @@ def load_settings(config_path: Path | None = None) -> Settings:
     flat = _flatten_yaml(raw)
     if not flat.get("embedding_api_key"):
         flat["embedding_api_key"] = os.getenv("DASHSCOPE_API_KEY", "")
+    if not flat.get("rerank_api_key"):
+        flat["rerank_api_key"] = os.getenv("DASHSCOPE_API_KEY", "")
     # 用 flat 这个字典里的数据，创建并校验一个 Settings 对象。
     return Settings.model_validate(flat)
 

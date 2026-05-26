@@ -51,9 +51,7 @@ func (l *AiWindListDevicesLogic) AiWindListDevices(req *types.AiWindListDeviceRe
 			TowerCode:      item.TowerCode,
 			StructureCode:  item.StructureCode,
 			StructureName:  item.StructureName,
-			TdStable:       item.TdStable,
 			Status:         int(item.Status),
-			AiEnabled:      item.AiEnabled,
 		})
 	}
 	return &types.AiWindListDeviceResp{Total: result.Total, List: list, Message: result.Message}, nil

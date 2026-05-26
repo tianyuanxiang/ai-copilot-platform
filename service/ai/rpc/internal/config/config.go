@@ -7,6 +7,8 @@ import (
 type Config struct {
 	zrpc.RpcServerConf
 
+	SysRpc zrpc.RpcClientConf
+
 	DB struct {
 		DataSource string
 	}

@@ -25,9 +25,9 @@ func NewCompareTrendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comp
 }
 
 func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTrendCompareResp, error) {
-	database := l.svcCtx.WindMetadataModel.FarmDatabase(l.ctx, in.FarmCode)
-	stable := l.svcCtx.WindMetadataModel.StableForDeviceType(l.ctx, in.DeviceTypeCode)
-	fields := l.svcCtx.WindMetadataModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
+	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
+	stable := l.svcCtx.WindDeviceTypeModel.StableForDeviceType(l.ctx, in.DeviceTypeCode)
+	fields := l.svcCtx.WindDeviceMetaModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
 	evidence := map[string]any{
 		"source":     "tdengine",
 		"scaffold":   true,

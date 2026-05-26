@@ -10,7 +10,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
+	"ai-copilot-platform/ai-rpc/internal/engine"
 	"ai-copilot-platform/ai-rpc/internal/model"
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
@@ -22,7 +24,8 @@ import (
 const (
 	hybridDefaultTopK = 5
 	hybridMaxTopK     = 20
-	hybridRecallLimit = 20
+	quickRecallLimit  = 20
+	deepMinRecall     = 40
 	rrfK              = 60.0
 )
 
@@ -30,6 +33,23 @@ type SearchKnowledgeLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
+}
+
+type searchStrategy struct {
+	Mode      string
+	Recall    int
+	UseRerank bool
+}
+
+type retrievedCandidate struct {
+	ChunkId       int64
+	DocumentId    int64
+	ParentChunkId int64
+	Title         string
+	Content       string
+	Score         float64
+	Source        string
+	Rank          int
 }
 
 func NewSearchKnowledgeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchKnowledgeLogic {
@@ -47,10 +67,11 @@ func (l *SearchKnowledgeLogic) SearchKnowledge(in *pb.SearchKnowledgeReq) (*pb.S
 		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
 	}
 	if query == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "query 不能为空")
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "query cannot be empty")
 	}
 
 	topK := normalizeTopK(in.TopK)
+	strategy := resolveSearchStrategy(in.AnswerMode, topK)
 	accessibleKbIDs, err := l.resolveAccessibleKbIDs(in)
 	if err != nil {
 		return nil, err
@@ -58,39 +79,46 @@ func (l *SearchKnowledgeLogic) SearchKnowledge(in *pb.SearchKnowledgeReq) (*pb.S
 	if len(accessibleKbIDs) == 0 {
 		return &pb.SearchKnowledgeResp{
 			Chunks:  []*pb.ChunkItem{},
-			Mode:    "hybrid",
+			Mode:    strategy.Mode,
 			Message: "no accessible knowledge bases",
 		}, nil
 	}
 
-	embedded, err := l.svcCtx.EngineCallClient.EngineEmbed(l.ctx, []string{query})
+	embedded, err := l.svcCtx.EngineCallClient.EngineEmbed(l.ctx, []string{query}, "query")
 	if err != nil {
 		return nil, err
 	}
 	if len(embedded.Vectors) != 1 || len(embedded.Vectors[0]) == 0 {
 		return nil, fmt.Errorf("engine embed returned invalid query vector")
 	}
-	queryVector := model.PgVector(embedded.Vectors[0])
 
-	vectorResults, err := l.searchPgvector(queryVector, accessibleKbIDs, in.DocumentIds, hybridRecallLimit)
+	vectorResults, err := l.searchPgvector(model.PgVector(embedded.Vectors[0]), accessibleKbIDs, in.DocumentIds, strategy.Recall)
+	if err != nil {
+		return nil, err
+	}
+	bm25Results, err := l.searchElasticsearch(query, accessibleKbIDs, in.DocumentIds, strategy.Recall)
 	if err != nil {
 		return nil, err
 	}
 
-	bm25Results, err := l.searchElasticsearch(query, accessibleKbIDs, in.DocumentIds, hybridRecallLimit)
-	if err != nil {
-		return nil, err
+	candidates := fuseByRRF(vectorResults, bm25Results, strategy.Recall)
+	if strategy.UseRerank && len(candidates) > 0 {
+		candidates, strategy.Mode, err = l.rerankCandidates(query, candidates, topK)
+		if err != nil {
+			return nil, err
+		}
+	} else if len(candidates) > topK {
+		candidates = candidates[:topK]
 	}
 
-	candidates := fuseByRRF(vectorResults, bm25Results, topK)
 	chunks := make([]*pb.ChunkItem, 0, len(candidates))
 	for _, item := range candidates {
 		chunks = append(chunks, &pb.ChunkItem{
 			DocumentId: item.DocumentId,
 			ChunkId:    item.ChunkId,
 			Title:      item.Title,
-			Snippet:    makeSnippet(item.Content, 160),
-			Content:    item.Content,
+			Snippet:    makeQueryAwareSnippet(query, item.Content, 180),
+			Content:    cleanDisplayText(item.Content),
 			Score:      item.Score,
 			Source:     item.Source,
 		})
@@ -102,7 +130,7 @@ func (l *SearchKnowledgeLogic) SearchKnowledge(in *pb.SearchKnowledgeReq) (*pb.S
 	}
 	return &pb.SearchKnowledgeResp{
 		Chunks:  chunks,
-		Mode:    "hybrid",
+		Mode:    strategy.Mode,
 		Message: message,
 	}, nil
 }
@@ -117,22 +145,58 @@ func normalizeTopK(value int64) int {
 	return int(value)
 }
 
+func resolveSearchStrategy(answerMode string, topK int) searchStrategy {
+	if strings.EqualFold(strings.TrimSpace(answerMode), "deep") {
+		recall := topK * 4
+		if recall < deepMinRecall {
+			recall = deepMinRecall
+		}
+		return searchStrategy{
+			Mode:      "hybrid-deep-rerank",
+			Recall:    recall,
+			UseRerank: true,
+		}
+	}
+	return searchStrategy{
+		Mode:      "hybrid-quick",
+		Recall:    quickRecallLimit,
+		UseRerank: false,
+	}
+}
+
 func (l *SearchKnowledgeLogic) resolveAccessibleKbIDs(in *pb.SearchKnowledgeReq) ([]int64, error) {
 	if in.HasKbId || in.KbId > 0 {
 		kb, err := l.svcCtx.AiKnowledgeBaseModel.FindByID(l.ctx, in.KbId)
 		if err != nil {
 			if err == model.ErrNotFound {
-				return nil, xerr.NewCodeErrorMsg(xerr.ErrNotFound, "知识库不存在")
+				return nil, xerr.NewCodeErrorMsg(xerr.ErrNotFound, "knowledge base not found")
 			}
 			return nil, err
 		}
 		if !l.canReadKnowledgeBase(kb, in.UserId) {
-			return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "没有读取该知识库的权限")
+			return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "no permission to read knowledge base")
 		}
 		return []int64{in.KbId}, nil
 	}
 
-	return l.svcCtx.AiKnowledgeBaseModel.FindAccessibleKnowledgeBaseIDs(l.ctx, in.UserId)
+	return l.svcCtx.AiKnowledgeBaseModel.FindAccessibleKnowledgeBaseIDsByScope(
+		l.ctx,
+		in.UserId,
+		normalizeSearchScope(in.SearchScope),
+		in.DomainId,
+		in.HasDomainId && in.DomainId > 0,
+	)
+}
+
+func normalizeSearchScope(scope string) string {
+	switch strings.ToLower(strings.TrimSpace(scope)) {
+	case "personal":
+		return "personal"
+	case "public":
+		return "public"
+	default:
+		return "all"
+	}
 }
 
 func (l *SearchKnowledgeLogic) canReadKnowledgeBase(kb *model.AiKnowledgeBase, userID int64) bool {
@@ -150,17 +214,6 @@ func (l *SearchKnowledgeLogic) canReadKnowledgeBase(kb *model.AiKnowledgeBase, u
 		return false
 	}
 	return member.Role == "viewer" || member.Role == "editor" || member.Role == "manager"
-}
-
-type retrievedCandidate struct {
-	ChunkId       int64
-	DocumentId    int64
-	ParentChunkId int64
-	Title         string
-	Content       string
-	Score         float64
-	Source        string
-	Rank          int
 }
 
 func (l *SearchKnowledgeLogic) searchPgvector(queryVector model.PgVector, kbIDs []int64, documentIDs []int64, limit int) ([]retrievedCandidate, error) {
@@ -191,14 +244,14 @@ func (l *SearchKnowledgeLogic) searchElasticsearch(query string, kbIDs []int64, 
 		return []retrievedCandidate{}, nil
 	}
 	if limit <= 0 {
-		limit = hybridRecallLimit
+		limit = quickRecallLimit
 	}
 
 	filters := []map[string]any{
-		{"terms": map[string]any{"kb_id": int64SliceToStringSlice(kbIDs)}},
+		{"terms": map[string]any{"kb_id": kbIDs}},
 	}
 	if len(documentIDs) > 0 {
-		filters = append(filters, map[string]any{"terms": map[string]any{"document_id": int64SliceToStringSlice(documentIDs)}})
+		filters = append(filters, map[string]any{"terms": map[string]any{"document_id": documentIDs}})
 	}
 
 	payload := map[string]any{
@@ -269,7 +322,53 @@ func (l *SearchKnowledgeLogic) searchElasticsearch(query string, kbIDs []int64, 
 	return results, nil
 }
 
-func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandidate, topK int) []retrievedCandidate {
+func (l *SearchKnowledgeLogic) rerankCandidates(query string, candidates []retrievedCandidate, topK int) ([]retrievedCandidate, string, error) {
+	rerankChunks := make([]engine.RerankChunk, 0, len(candidates))
+	candidateByChunkID := make(map[string]retrievedCandidate, len(candidates))
+	for _, item := range candidates {
+		chunkID := strconv.FormatInt(item.ChunkId, 10)
+		candidateByChunkID[chunkID] = item
+		rerankChunks = append(rerankChunks, engine.RerankChunk{
+			ChunkID:    chunkID,
+			DocumentID: strconv.FormatInt(item.DocumentId, 10),
+			Title:      item.Title,
+			Content:    item.Content,
+			Score:      item.Score,
+			Source:     item.Source,
+		})
+	}
+
+	resp, err := l.svcCtx.EngineCallClient.EngineRerank(l.ctx, query, rerankChunks, int64(topK))
+	if err != nil {
+		return nil, "", err
+	}
+
+	reranked := make([]retrievedCandidate, 0, len(resp.Chunks))
+	for rank, item := range resp.Chunks {
+		candidate, ok := candidateByChunkID[item.ChunkID]
+		if !ok {
+			continue
+		}
+		candidate.Score = item.Score
+		candidate.Source = mergeSource(candidate.Source, "rerank")
+		candidate.Rank = rank + 1
+		reranked = append(reranked, candidate)
+	}
+
+	mode := "hybrid-deep-rerank"
+	if strings.Contains(strings.ToLower(resp.Mode), "mock") {
+		mode = "hybrid-deep-rerank-mock"
+	}
+	if len(reranked) == 0 {
+		return candidates[:minInt(len(candidates), topK)], mode, nil
+	}
+	if len(reranked) > topK {
+		reranked = reranked[:topK]
+	}
+	return reranked, mode, nil
+}
+
+func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandidate, limit int) []retrievedCandidate {
 	merged := make(map[int64]retrievedCandidate)
 	add := func(item retrievedCandidate) {
 		if item.ChunkId <= 0 || item.Rank <= 0 {
@@ -283,9 +382,7 @@ func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandid
 			return
 		}
 		existing.Score += score
-		if existing.Source != item.Source {
-			existing.Source = "hybrid"
-		}
+		existing.Source = mergeSource(existing.Source, item.Source)
 		if existing.Title == "" {
 			existing.Title = item.Title
 		}
@@ -312,27 +409,155 @@ func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandid
 		}
 		return items[i].ChunkId < items[j].ChunkId
 	})
-	if topK > 0 && len(items) > topK {
-		return items[:topK]
+	if limit > 0 && len(items) > limit {
+		return items[:limit]
 	}
 	return items
 }
 
-func makeSnippet(content string, maxRunes int) string {
-	text := strings.TrimSpace(content)
+func makeQueryAwareSnippet(query string, content string, maxRunes int) string {
+	text := cleanDisplayText(content)
+	if text == "" {
+		return ""
+	}
+
+	bestIndex := -1
+	lowerText := strings.ToLower(text)
+	for _, term := range queryTerms(query) {
+		if index := strings.Index(lowerText, strings.ToLower(term)); index >= 0 && (bestIndex == -1 || index < bestIndex) {
+			bestIndex = index
+		}
+	}
+
 	runes := []rune(text)
 	if maxRunes <= 0 || len(runes) <= maxRunes {
 		return text
 	}
-	return string(runes[:maxRunes])
+	if bestIndex < 0 {
+		return firstSentenceSnippet(text, maxRunes)
+	}
+
+	prefixRunes := utf8.RuneCountInString(text[:bestIndex])
+	start := prefixRunes - maxRunes/3
+	if start < 0 {
+		start = 0
+	}
+	end := start + maxRunes
+	if end > len(runes) {
+		end = len(runes)
+		start = maxInt(0, end-maxRunes)
+	}
+
+	snippet := strings.TrimSpace(string(runes[start:end]))
+	if start > 0 {
+		snippet = "..." + snippet
+	}
+	if end < len(runes) {
+		snippet += "..."
+	}
+	return snippet
 }
 
-func int64SliceToStringSlice(items []int64) []string {
-	result := make([]string, 0, len(items))
-	for _, item := range items {
-		result = append(result, strconv.FormatInt(item, 10))
+func firstSentenceSnippet(text string, maxRunes int) string {
+	sentences := strings.FieldsFunc(text, func(r rune) bool {
+		return r == 0x3002 || r == 0xff01 || r == 0xff1f || r == '\n'
+	})
+	if len(sentences) > 0 && strings.TrimSpace(sentences[0]) != "" {
+		text = strings.TrimSpace(sentences[0])
 	}
-	return result
+	runes := []rune(text)
+	if len(runes) <= maxRunes {
+		return text
+	}
+	return strings.TrimSpace(string(runes[:maxRunes])) + "..."
+}
+
+func cleanDisplayText(content string) string {
+	text := strings.TrimSpace(content)
+	text = strings.ReplaceAll(text, "```", "")
+	text = strings.ReplaceAll(text, "~~~", "")
+
+	lines := make([]string, 0)
+	for _, line := range strings.Split(text, "\n") {
+		clean := strings.TrimSpace(line)
+		if clean == "" || isMarkdownTableSeparator(clean) {
+			continue
+		}
+		lines = append(lines, clean)
+	}
+	return strings.TrimSpace(strings.Join(strings.Fields(strings.Join(lines, "\n")), " "))
+}
+
+func queryTerms(query string) []string {
+	raw := strings.FieldsFunc(query, func(r rune) bool {
+		return r == ' ' ||
+			r == '\t' ||
+			r == '\n' ||
+			r == ',' ||
+			r == '?' ||
+			r == ':' ||
+			r == 0xff0c ||
+			r == 0xff1f ||
+			r == 0x3002 ||
+			r == 0xff1a
+	})
+
+	seen := make(map[string]struct{})
+	terms := make([]string, 0)
+	add := func(term string) {
+		term = strings.TrimSpace(term)
+		if utf8.RuneCountInString(term) <= 1 {
+			return
+		}
+		if _, ok := seen[term]; ok {
+			return
+		}
+		seen[term] = struct{}{}
+		terms = append(terms, term)
+	}
+
+	for _, term := range raw {
+		add(term)
+		runes := []rune(term)
+		if len(runes) > 4 {
+			for size := 4; size >= 2; size-- {
+				for i := 0; i+size <= len(runes); i++ {
+					add(string(runes[i : i+size]))
+				}
+			}
+		}
+	}
+	return terms
+}
+
+func isMarkdownTableSeparator(line string) bool {
+	if !strings.Contains(line, "|") {
+		return false
+	}
+	cells := strings.Split(strings.Trim(line, "|"), "|")
+	for _, cell := range cells {
+		clean := strings.TrimSpace(cell)
+		if clean == "" {
+			continue
+		}
+		clean = strings.Trim(clean, ":")
+		for _, r := range clean {
+			if r != '-' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func mergeSource(left string, right string) string {
+	if left == "" {
+		return right
+	}
+	if right == "" || left == right || strings.Contains(left, right) {
+		return left
+	}
+	return left + "+" + right
 }
 
 func anyToString(value any) string {
@@ -365,4 +590,18 @@ func anyToInt64(value any) int64 {
 	default:
 		return 0
 	}
+}
+
+func minInt(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

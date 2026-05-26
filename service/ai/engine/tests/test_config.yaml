@@ -1,0 +1,31 @@
+app:
+  name: ai-copilot-engine-test
+  env: dev
+
+llm:
+  mock: true
+  provider: mock
+  api_key: ""
+
+postgres:
+  dsn: ""
+
+elasticsearch:
+  url: ""
+  kb_chunks_index: kb_chunks_index
+  security_logs_index: security_logs_index
+
+embedding:
+  provider: mock
+  model: text-embedding-v4
+  api_key: ""
+  dimension: 1024
+  batch_size: 10
+  timeout_seconds: 30
+
+rerank:
+  provider: mock
+  model: qwen3-rerank
+  api_key: ""
+  top_n: 5
+  timeout_seconds: 30

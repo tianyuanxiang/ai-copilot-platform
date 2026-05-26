@@ -66,6 +66,7 @@ class ParseResponse(BaseModel):
 
 class EmbedRequest(BaseModel):
     texts: list[str]
+    input_type: str = "document"
 
 
 class EmbedResponse(BaseModel):
@@ -77,13 +78,6 @@ class EmbedResponse(BaseModel):
     mode: str
 
 
-class RetrieveRequest(BaseModel):
-    user_id: str
-    kb_id: str
-    query: str
-    top_k: int = 8
-
-
 class RetrievedChunk(BaseModel):
     chunk_id: str
     document_id: str
@@ -91,12 +85,6 @@ class RetrievedChunk(BaseModel):
     content: str
     score: float
     source: str
-
-
-class RetrieveResponse(BaseModel):
-    chunks: list[RetrievedChunk]
-    mode: str
-    message: str
 
 
 class RerankRequest(BaseModel):

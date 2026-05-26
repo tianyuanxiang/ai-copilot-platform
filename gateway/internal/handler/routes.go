@@ -77,116 +77,128 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/domains",
-				Handler: ai_kb_domain.AiListKbDomainHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/kb/domains",
-				Handler: ai_kb_domain.AiCreateKbDomainHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/kb/domains/:domainId",
-				Handler: ai_kb_domain.AiUpdateKbDomainHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodDelete,
-				Path:    "/kb/domains/:domainId",
-				Handler: ai_kb_domain.AiDeleteKbDomainHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/domains",
+					Handler: ai_kb_domain.AiListKbDomainHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/domains",
+					Handler: ai_kb_domain.AiCreateKbDomainHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/kb/domains/:domainId",
+					Handler: ai_kb_domain.AiUpdateKbDomainHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/kb/domains/:domainId",
+					Handler: ai_kb_domain.AiDeleteKbDomainHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/ai"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/public/:kbId/members",
-				Handler: ai_kb_member.AiListKbMemberHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/kb/public/:kbId/members",
-				Handler: ai_kb_member.AiAddKbMemberHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/kb/public/:kbId/members/:userId",
-				Handler: ai_kb_member.AiUpdateKbMemberHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodDelete,
-				Path:    "/kb/public/:kbId/members/:userId",
-				Handler: ai_kb_member.AiRemoveKbMemberHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/public/:kbId/members",
+					Handler: ai_kb_member.AiListKbMemberHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/public/:kbId/members",
+					Handler: ai_kb_member.AiAddKbMemberHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/kb/public/:kbId/members/:userId",
+					Handler: ai_kb_member.AiUpdateKbMemberHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/kb/public/:kbId/members/:userId",
+					Handler: ai_kb_member.AiRemoveKbMemberHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/ai"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/kb/personal",
-				Handler: ai_kb_personal.AiCreatePersonalKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/personal",
-				Handler: ai_kb_personal.AiListPersonalKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/personal/:kbId",
-				Handler: ai_kb_personal.AiGetPersonalKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/kb/personal/:kbId",
-				Handler: ai_kb_personal.AiUpdatePersonalKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodDelete,
-				Path:    "/kb/personal/:kbId",
-				Handler: ai_kb_personal.AiDeletePersonalKbHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/personal",
+					Handler: ai_kb_personal.AiCreatePersonalKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/personal",
+					Handler: ai_kb_personal.AiListPersonalKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/personal/:kbId",
+					Handler: ai_kb_personal.AiGetPersonalKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/kb/personal/:kbId",
+					Handler: ai_kb_personal.AiUpdatePersonalKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/kb/personal/:kbId",
+					Handler: ai_kb_personal.AiDeletePersonalKbHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/ai"),
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/kb/public",
-				Handler: ai_kb_public.AiCreatePublicKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/public",
-				Handler: ai_kb_public.AiListPublicKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/kb/public/:kbId",
-				Handler: ai_kb_public.AiGetPublicKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/kb/public/:kbId",
-				Handler: ai_kb_public.AiUpdatePublicKbHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodDelete,
-				Path:    "/kb/public/:kbId",
-				Handler: ai_kb_public.AiDeletePublicKbHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/public",
+					Handler: ai_kb_public.AiCreatePublicKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/public",
+					Handler: ai_kb_public.AiListPublicKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/public/:kbId",
+					Handler: ai_kb_public.AiGetPublicKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/kb/public/:kbId",
+					Handler: ai_kb_public.AiUpdatePublicKbHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/kb/public/:kbId",
+					Handler: ai_kb_public.AiDeletePublicKbHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/ai"),
 	)
 

@@ -26,18 +26,18 @@ type flatChunk struct {
 	Content    string
 }
 
-func canMaintainKnowledgeBase(ctx context.Context, svcCtx *svc.ServiceContext, kb *model.AiKnowledgeBase, userID int64) bool {
+func canMaintainKnowledgeBase(ctx context.Context, svcCtx *svc.ServiceContext, kb *model.AiKnowledgeBase, userID int64) (bool, error) {
 	switch strings.ToLower(kb.KbType) {
 	case "personal":
-		return kb.OwnerUserId.Valid && kb.OwnerUserId.Int64 == userID
+		return kb.OwnerUserId.Valid && kb.OwnerUserId.Int64 == userID, nil
 	case "public":
 		member, err := svcCtx.AiKbMemberModel.FindByKbIDUserID(ctx, kb.Id, userID)
 		if err != nil {
-			return false
+			return false, err
 		}
-		return member.Role == "editor" || member.Role == "manager"
+		return member.Role == "editor" || member.Role == "manager", nil
 	default:
-		return false
+		return false, nil
 	}
 }
 
@@ -73,6 +73,42 @@ func documentToPB(doc *model.AiDocument) *pb.DocumentItem {
 		UploadedBy:   doc.UploadedBy,
 		CreatedAt:    formatDocumentTime(doc.CreatedAt),
 		UpdatedAt:    formatDocumentTime(doc.UpdatedAt),
+	}
+}
+
+func domainToPB(d *model.AiKbDomain) *pb.DomainItem {
+	if d == nil {
+		return &pb.DomainItem{}
+	}
+	return &pb.DomainItem{
+		DomainId:    d.Id,
+		Name:        d.Name,
+		Code:        d.Code,
+		Description: d.Description,
+		Sort:        d.Sort,
+		Status:      d.Status,
+		CreatedAt:   formatDocumentTime(d.CreatedAt),
+		UpdatedAt:   formatDocumentTime(d.UpdatedAt),
+	}
+}
+
+func knowledgeBaseToPB(kb *model.AiKnowledgeBase, docCount int64, domainName string) *pb.KnowledgeBaseItem {
+	if kb == nil {
+		return &pb.KnowledgeBaseItem{}
+	}
+	return &pb.KnowledgeBaseItem{
+		KbId:          kb.Id,
+		KbType:        kb.KbType,
+		OwnerUserId:   model.NullInt64Value(kb.OwnerUserId),
+		DomainId:      model.NullInt64Value(kb.DomainId),
+		DomainName:    domainName,
+		Name:          kb.Name,
+		Description:   kb.Description,
+		Visibility:    kb.Visibility,
+		Status:        kb.Status,
+		DocumentCount: docCount,
+		CreatedAt:     formatDocumentTime(kb.CreatedAt),
+		UpdatedAt:     formatDocumentTime(kb.UpdatedAt),
 	}
 }
 

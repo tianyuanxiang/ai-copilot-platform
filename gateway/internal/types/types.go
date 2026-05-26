@@ -428,9 +428,7 @@ type AiWindDeviceItem struct {
 	TowerCode      string `json:"towerCode"`
 	StructureCode  string `json:"structureCode"`
 	StructureName  string `json:"structureName"`
-	TdStable       string `json:"tdStable"`
 	Status         int    `json:"status"`
-	AiEnabled      bool   `json:"aiEnabled"`
 }
 
 type AiWindFarmItem struct {

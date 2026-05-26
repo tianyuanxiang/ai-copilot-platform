@@ -37,7 +37,8 @@ kb_chunks_index 必须写入 kb_type、owner_user_id、domain_id、visibility �
     assert body["metadata"]["parent_count"] >= 1
     assert body["metadata"]["child_count"] >= 1
     assert "PostgreSQL" in body["text"]
-    assert any("```yaml" in parent["content"] for parent in body["parents"])
+    assert all("```" not in parent["content"] for parent in body["parents"])
+    assert any("postgres:" in parent["content"] for parent in body["parents"])
     assert all(parent["children"] for parent in body["parents"])
 
 
@@ -53,7 +54,7 @@ def test_parse_docx_extracts_paragraphs_and_tables():
     assert response.status_code == 200
     body = response.json()
     assert body["metadata"]["file_type"] == "docx"
-    assert body["metadata"]["parser"] == "docx-xml"
+    assert body["metadata"]["parser"] == "docx-structured"
     assert "知识库说明" in body["text"]
     assert "字段 | 含义" in body["text"]
     assert body["parents"][0]["children"]

@@ -24,6 +24,20 @@ type EmbedResponse struct {
 	Mode        string      `json:"mode"`
 }
 
+type RerankChunk struct {
+	ChunkID    string  `json:"chunk_id"`
+	DocumentID string  `json:"document_id"`
+	Title      string  `json:"title"`
+	Content    string  `json:"content"`
+	Score      float64 `json:"score"`
+	Source     string  `json:"source"`
+}
+
+type RerankResponse struct {
+	Chunks []RerankChunk `json:"chunks"`
+	Mode   string        `json:"mode"`
+}
+
 type ChildChunk struct {
 	ChunkIndex int64  `json:"chunk_index"`
 	Content    string `json:"content"`
@@ -58,14 +72,21 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) Embed(ctx context.Context, texts []string) (*EmbedResponse, error) {
-	return c.EngineEmbed(ctx, texts)
+	return c.EngineEmbed(ctx, texts, "document")
 }
 
-func (c *Client) EngineEmbed(ctx context.Context, texts []string) (*EmbedResponse, error) {
+func (c *Client) EngineEmbed(ctx context.Context, texts []string, inputType ...string) (*EmbedResponse, error) {
 	if c == nil || c.baseURL == "" {
 		return nil, fmt.Errorf("engine base url is empty")
 	}
-	body, err := json.Marshal(map[string][]string{"texts": texts})
+	embedType := "document"
+	if len(inputType) > 0 && strings.TrimSpace(inputType[0]) != "" {
+		embedType = strings.TrimSpace(inputType[0])
+	}
+	body, err := json.Marshal(map[string]any{
+		"texts":      texts,
+		"input_type": embedType,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +116,46 @@ func (c *Client) EngineEmbed(ctx context.Context, texts []string) (*EmbedRespons
 		return nil, err
 	}
 	return &embedded, nil
+}
+
+func (c *Client) EngineRerank(ctx context.Context, query string, chunks []RerankChunk, topK int64) (*RerankResponse, error) {
+	if c == nil || c.baseURL == "" {
+		return nil, fmt.Errorf("engine base url is empty")
+	}
+	body, err := json.Marshal(map[string]any{
+		"query":  query,
+		"chunks": chunks,
+		"top_k":  topK,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/v1/rerank", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("engine rerank returned HTTP %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var reranked RerankResponse
+	if err := json.Unmarshal(respBody, &reranked); err != nil {
+		return nil, err
+	}
+	return &reranked, nil
 }
 
 func (c *Client) EngineParse(ctx context.Context, fileName string, fileType string, content string) (*ParseResponse, error) {
