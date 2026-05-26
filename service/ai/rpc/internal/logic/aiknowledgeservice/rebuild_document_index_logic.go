@@ -62,7 +62,7 @@ func (l *RebuildDocumentIndexLogic) RebuildDocumentIndex(in *pb.RebuildDocumentI
 	if doc.Status == documentStatusParsing || doc.Status == documentStatusIndexing {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "文档正在处理，不能重建")
 	}
-	
+
 	chunks, err := l.svcCtx.AiDocumentChunkModel.ListByDocumentID(l.ctx, doc.Id)
 	if err != nil {
 		return nil, err
@@ -128,11 +128,13 @@ func (l *RebuildDocumentIndexLogic) runRebuildDocumentIndexJob(doc model.AiDocum
 		return nil
 	})
 	if err != nil {
+		l.Logger.Errorf("UpdateEmbeddingTrans err: %v", err)
 		ingestLogic.markDocumentFailed(doc.Id, err)
 		return
 	}
 
 	if err := deleteDocumentFromElasticsearch(ctx, l.svcCtx, doc.Id); err != nil {
+		l.Logger.Errorf("deleteDocumentFromElasticsearch err: %v", err)
 		ingestLogic.markDocumentFailed(doc.Id, err)
 		return
 	}
@@ -152,6 +154,7 @@ func (l *RebuildDocumentIndexLogic) runRebuildDocumentIndexJob(doc model.AiDocum
 		FileType:   doc.FileType,
 		Knowledge:  kb,
 	}, indexItems); err != nil {
+		l.Logger.Errorf("RewriteElasticsearch err: %v", err)
 		ingestLogic.markDocumentFailed(doc.Id, err)
 		return
 	}

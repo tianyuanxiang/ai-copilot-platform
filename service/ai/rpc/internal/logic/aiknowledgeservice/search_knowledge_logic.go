@@ -92,7 +92,7 @@ func (l *SearchKnowledgeLogic) SearchKnowledge(in *pb.SearchKnowledgeReq) (*pb.S
 		return nil, fmt.Errorf("engine embed returned invalid query vector")
 	}
 
-	vectorResults, err := l.searchPgvector(model.PgVector(embedded.Vectors[0]), accessibleKbIDs, in.DocumentIds, strategy.Recall)
+	vectorResults, err := l.searchPgvector(embedded.Vectors[0], accessibleKbIDs, in.DocumentIds, strategy.Recall)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,8 @@
 import base64
+import logging
 import math
 import re
+import time
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -29,9 +31,6 @@ from app.schemas.knowledge import (
     RetrievedChunk,
 )
 
-DASHSCOPE_EMBEDDINGS_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
-DASHSCOPE_RERANK_URL = "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank"
-
 MAX_EMBEDDING_TOKENS = 8192
 PARENT_TARGET_CHARS = 1000
 PARENT_MAX_CHARS = 1200
@@ -41,6 +40,8 @@ CHILD_OVERLAP_CHARS = 50
 WORD_NAMESPACE = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 TEXT_FORMAT_MARKS = "\ufeff\u200b\u200c\u200d"
 SUPPORTED_EMBEDDING_INPUT_TYPES = {"document", "query"}
+
+logger = logging.getLogger("app.rag")
 
 
 class ParseInputError(ValueError):
@@ -56,7 +57,14 @@ class EmbeddingProviderError(RuntimeError):
 
 
 async def parse_document(file_name: str, content: str, file_type: str = "") -> ParseResponse:
+    started_at = time.perf_counter()
     document_type = _detect_document_type(file_name, file_type)
+    logger.info(
+        "parse.start file_name=%s file_type=%s content_chars=%s",
+        file_name,
+        document_type,
+        len(content),
+    )
     if document_type == "docx":
         text = _extract_docx_text(_decode_docx_content(content))
         parser = "docx-structured"
@@ -71,6 +79,16 @@ async def parse_document(file_name: str, content: str, file_type: str = "") -> P
         parser = "plain-text"
 
     parents = chunk_document(text, document_type)
+    child_count = sum(len(parent.children) for parent in parents)
+    logger.info(
+        "parse.end file_name=%s parser=%s parent_count=%s child_count=%s text_chars=%s duration_ms=%.2f",
+        file_name,
+        parser,
+        len(parents),
+        child_count,
+        len(text),
+        (time.perf_counter() - started_at) * 1000,
+    )
     return ParseResponse(
         text=text,
         metadata={
@@ -78,7 +96,7 @@ async def parse_document(file_name: str, content: str, file_type: str = "") -> P
             "file_type": document_type,
             "parser": parser,
             "parent_count": len(parents),
-            "child_count": sum(len(parent.children) for parent in parents),
+            "child_count": child_count,
             "splitter": "langchain-recursive" if RecursiveCharacterTextSplitter else "fallback-recursive",
         },
         parents=parents,
@@ -374,15 +392,34 @@ async def embed_texts(
     settings: Settings | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> EmbedResponse:
+    started_at = time.perf_counter()
     settings = settings or get_settings()
     input_type = _normalize_embedding_input_type(input_type)
     normalized = _validate_embedding_texts(texts)
+    logger.info(
+        "embed开始：provider=%s model=%s input_type=%s text_count=%s total_chars=%s dimension=%s",
+        settings.embedding_provider,
+        settings.embedding_model,
+        input_type,
+        len(normalized),
+        sum(len(text) for text in normalized),
+        settings.embedding_dimension,
+    )
 
     if settings.embedding_provider == "dashscope":
-        return await _embed_dashscope(normalized, input_type, settings, transport)
+        resp = await _embed_dashscope(normalized, input_type, settings, transport)
+        logger.info(
+            "embed结束：mode=%s vector_count=%s total_tokens=%s duration_ms=%.2f",
+            resp.mode,
+            len(resp.vectors),
+            resp.total_tokens,
+            (time.perf_counter() - started_at) * 1000,
+        )
+        return resp
 
     token_counts = [_estimate_tokens(text) for text in normalized]
-    return EmbedResponse(
+    # 自定义编码
+    resp = EmbedResponse(
         vectors=[_mock_vector(text, settings.embedding_dimension) for text in normalized],
         token_counts=token_counts,
         total_tokens=sum(token_counts),
@@ -390,6 +427,14 @@ async def embed_texts(
         dimension=settings.embedding_dimension,
         mode="mock-embedding",
     )
+    logger.info(
+        "embed.end mode=%s vector_count=%s total_tokens=%s duration_ms=%.2f",
+        resp.mode,
+        len(resp.vectors),
+        resp.total_tokens,
+        (time.perf_counter() - started_at) * 1000,
+    )
+    return resp
 
 
 def _normalize_embedding_input_type(input_type: str) -> str:
@@ -430,6 +475,7 @@ async def _embed_dashscope(
     transport: httpx.AsyncBaseTransport | None,
 ) -> EmbedResponse:
     if not settings.embedding_api_key:
+        logger.error("embed.provider_error provider=dashscope reason=empty_api_key")
         raise EmbeddingProviderError("embedding api key is empty; set embedding.api_key or DASHSCOPE_API_KEY")
 
     batch_size = max(1, min(settings.embedding_batch_size, 10))
@@ -440,6 +486,7 @@ async def _embed_dashscope(
     async with httpx.AsyncClient(timeout=settings.embedding_timeout_seconds, transport=transport) as client:
         for start in range(0, len(texts), batch_size):
             batch = texts[start : start + batch_size]
+            batch_no = start // batch_size + 1
             payload = {
                 "model": settings.embedding_model,
                 "input": batch,
@@ -447,11 +494,17 @@ async def _embed_dashscope(
                 "encoding_format": "float",
             }
             response = await client.post(
-                DASHSCOPE_EMBEDDINGS_URL,
+                settings.dashscope_embeddings_url,
                 headers={"Authorization": f"Bearer {settings.embedding_api_key}"},
                 json=payload,
             )
             if response.status_code < 200 or response.status_code >= 300:
+                logger.error(
+                    "embed.batch_error provider=dashscope batch_no=%s status=%s response=%s",
+                    batch_no,
+                    response.status_code,
+                    response.text[:512],
+                )
                 raise EmbeddingProviderError(
                     f"dashscope embedding returned {response.status_code}: {response.text[:4096]}"
                 )
@@ -471,6 +524,13 @@ async def _embed_dashscope(
                 batch_token_counts = [_estimate_tokens(text) for text in batch]
             token_counts.extend(batch_token_counts)
             total_tokens += sum(batch_token_counts)
+            logger.info(
+                "embed.batch_ok provider=dashscope batch_no=%s batch_size=%s vectors=%s tokens=%s",
+                batch_no,
+                len(batch),
+                len(batch_vectors),
+                sum(batch_token_counts),
+            )
 
     return EmbedResponse(
         vectors=vectors,
@@ -519,13 +579,31 @@ def _allocate_usage_tokens(total_tokens: int, item_count: int) -> list[int]:
 
 
 async def rerank(query: str, chunks: list[RetrievedChunk], top_k: int) -> RerankResponse:
+    started_at = time.perf_counter()
     settings = get_settings()
+    logger.info(
+        "rerank.start provider=%s model=%s candidate_count=%s top_k=%s query_chars=%s",
+        settings.rerank_provider,
+        settings.rerank_model,
+        len(chunks),
+        top_k,
+        len(query),
+    )
     if not chunks:
+        logger.info("rerank.end mode=empty duration_ms=%.2f", (time.perf_counter() - started_at) * 1000)
         return RerankResponse(chunks=[], mode="empty")
     top_k = max(1, min(top_k or settings.rerank_top_n, len(chunks)))
     if settings.rerank_provider == "dashscope" and settings.rerank_api_key:
-        return await _rerank_dashscope(query, chunks, top_k, settings)
-    return RerankResponse(chunks=_mock_rerank(query, chunks, top_k), mode="mock-rerank")
+        resp = await _rerank_dashscope(query, chunks, top_k, settings)
+    else:
+        resp = RerankResponse(chunks=_mock_rerank(query, chunks, top_k), mode="mock-rerank")
+    logger.info(
+        "rerank.end mode=%s result_count=%s duration_ms=%.2f",
+        resp.mode,
+        len(resp.chunks),
+        (time.perf_counter() - started_at) * 1000,
+    )
+    return resp
 
 
 def _mock_rerank(query: str, chunks: list[RetrievedChunk], top_k: int) -> list[RetrievedChunk]:
@@ -553,11 +631,16 @@ async def _rerank_dashscope(query: str, chunks: list[RetrievedChunk], top_k: int
     }
     async with httpx.AsyncClient(timeout=settings.rerank_timeout_seconds) as client:
         response = await client.post(
-            DASHSCOPE_RERANK_URL,
+            settings.dashscope_rerank_url,
             headers={"Authorization": f"Bearer {settings.rerank_api_key}"},
             json=payload,
         )
     if response.status_code < 200 or response.status_code >= 300:
+        logger.error(
+            "rerank.provider_error provider=dashscope status=%s response=%s",
+            response.status_code,
+            response.text[:512],
+        )
         raise EmbeddingProviderError(f"dashscope rerank returned {response.status_code}: {response.text[:4096]}")
 
     results = _extract_dashscope_rerank_results(response.json())

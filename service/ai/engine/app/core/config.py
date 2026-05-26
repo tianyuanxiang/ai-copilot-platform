@@ -8,34 +8,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class Settings(BaseModel):
-    """Application configuration loaded from YAML.
-
-    Attribute names are kept flat to preserve the existing caller interface.
-    The nested YAML structure is flattened by _flatten_yaml() before
-    being passed to model_validate().
-
-    Attributes:
-        app_name: Application display name.
-        app_env: Runtime environment, one of dev/staging/prod.
-        mock_llm: Whether to use mock LLM responses instead of real API calls.
-        llm_provider: LLM provider identifier (e.g. "mock", "openai").
-        llm_api_key: API key for the LLM provider.
-        postgres_dsn: PostgreSQL connection string.
-        elasticsearch_url: Elasticsearch cluster URL.
-        kb_chunks_index: Elasticsearch index name for knowledge base chunks.
-        security_logs_index: Elasticsearch index name for security audit logs.
-        embedding_provider: Embedding provider, "mock" or "dashscope".
-        embedding_model: Embedding model name.
-        embedding_api_key: API key for the embedding provider.
-        embedding_dimension: Embedding vector dimension.
-        embedding_batch_size: Maximum texts per embedding request.
-        embedding_timeout_seconds: Embedding request timeout.
-        rerank_provider: Rerank provider, "mock" or "dashscope".
-        rerank_model: Rerank model name.
-        rerank_api_key: API key for the rerank provider.
-        rerank_top_n: Default rerank top_n.
-        rerank_timeout_seconds: Rerank request timeout.
-    """
 
     # 表示这个 Settings 对象创建之后不允许修改。
     model_config = ConfigDict(frozen=True)
@@ -51,12 +23,14 @@ class Settings(BaseModel):
     security_logs_index: str = "security_logs_index"
     embedding_provider: Literal["mock", "dashscope"] = "mock"
     embedding_model: str = "text-embedding-v4"
+    dashscope_embeddings_url: str = ""
     embedding_api_key: str = ""
     embedding_dimension: int = 1024
     embedding_batch_size: int = 10
     embedding_timeout_seconds: int = 30
     rerank_provider: Literal["mock", "dashscope"] = "mock"
     rerank_model: str = "qwen3-rerank"
+    dashscope_rerank_url: str = ""
     rerank_api_key: str = ""
     rerank_top_n: int = 5
     rerank_timeout_seconds: int = 30
@@ -77,12 +51,14 @@ _FIELD_MAP: dict[str, tuple[str, str]] = {
     "security_logs_index": ("elasticsearch", "security_logs_index"),
     "embedding_provider": ("embedding", "provider"),
     "embedding_model": ("embedding", "model"),
+    "dashscope_embeddings_url": ("embedding", "dashscope_embeddings_url"),
     "embedding_api_key": ("embedding", "api_key"),
     "embedding_dimension": ("embedding", "dimension"),
     "embedding_batch_size": ("embedding", "batch_size"),
     "embedding_timeout_seconds": ("embedding", "timeout_seconds"),
     "rerank_provider": ("rerank", "provider"),
     "rerank_model": ("rerank", "model"),
+    "dashscope_rerank_url": ("rerank", "dashscope_rerank_url"),
     "rerank_api_key": ("rerank", "api_key"),
     "rerank_top_n": ("rerank", "top_n"),
     "rerank_timeout_seconds": ("rerank", "timeout_seconds"),
