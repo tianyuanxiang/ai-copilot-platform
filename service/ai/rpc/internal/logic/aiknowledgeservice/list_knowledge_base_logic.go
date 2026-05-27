@@ -47,6 +47,7 @@ func (l *ListKnowledgeBaseLogic) ListKnowledgeBase(in *pb.ListKnowledgeBaseReq) 
 		scope = in.KbType
 	}
 	accessibleIDs, err := l.svcCtx.AiKnowledgeBaseModel.FindAccessibleKnowledgeBaseIDsByScope(l.ctx, in.UserId, scope, in.DomainId, hasDomainId)
+
 	if err != nil {
 		return nil, err
 	}
@@ -56,17 +57,17 @@ func (l *ListKnowledgeBaseLogic) ListKnowledgeBase(in *pb.ListKnowledgeBaseReq) 
 
 	// 按条件过滤并分页
 	kbs, total, err := l.svcCtx.AiKnowledgeBaseModel.ListByCondition(l.ctx, model.KbListQuery{
-		KbType:       in.KbType,
-		HasKbType:    in.HasKbType,
-		DomainId:     in.DomainId,
-		HasDomainId:  in.HasDomainId,
-		Keyword:      in.Keyword,
-		Visibility:   in.Visibility,
+		KbType:        in.KbType,
+		HasKbType:     in.HasKbType,
+		DomainId:      in.DomainId,
+		HasDomainId:   in.HasDomainId,
+		Keyword:       in.Keyword,
+		Visibility:    in.Visibility,
 		HasVisibility: in.HasVisibility,
-		Status:       in.Status,
-		HasStatus:    in.HasStatus,
-		Page:         page,
-		PageSize:     pageSize,
+		Status:        in.Status,
+		HasStatus:     in.HasStatus,
+		Page:          page,
+		PageSize:      pageSize,
 	})
 	if err != nil {
 		return nil, err

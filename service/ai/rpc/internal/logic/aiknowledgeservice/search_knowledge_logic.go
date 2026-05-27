@@ -71,7 +71,10 @@ func (l *SearchKnowledgeLogic) SearchKnowledge(in *pb.SearchKnowledgeReq) (*pb.S
 	}
 
 	topK := normalizeTopK(in.TopK)
+
 	strategy := resolveSearchStrategy(in.AnswerMode, topK)
+
+	// 获取可操作的知识库id
 	accessibleKbIDs, err := l.resolveAccessibleKbIDs(in)
 	if err != nil {
 		return nil, err
@@ -178,14 +181,20 @@ func (l *SearchKnowledgeLogic) resolveAccessibleKbIDs(in *pb.SearchKnowledgeReq)
 		}
 		return []int64{in.KbId}, nil
 	}
-
-	return l.svcCtx.AiKnowledgeBaseModel.FindAccessibleKnowledgeBaseIDsByScope(
+	// 查出当前用户有权限访问的所有知识库 ID 列表。
+	KbIds, err := l.svcCtx.AiKnowledgeBaseModel.FindAccessibleKnowledgeBaseIDsByScope(
 		l.ctx,
 		in.UserId,
 		normalizeSearchScope(in.SearchScope),
 		in.DomainId,
 		in.HasDomainId && in.DomainId > 0,
 	)
+	if err != nil {
+		l.Logger.Error("")
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "knowledge base not found")
+	}
+
+	return KbIds, nil
 }
 
 func normalizeSearchScope(scope string) string {
@@ -368,6 +377,7 @@ func (l *SearchKnowledgeLogic) rerankCandidates(query string, candidates []retri
 	return reranked, mode, nil
 }
 
+// RRF 倒数排名融合
 func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandidate, limit int) []retrievedCandidate {
 	merged := make(map[int64]retrievedCandidate)
 	add := func(item retrievedCandidate) {
@@ -383,6 +393,7 @@ func fuseByRRF(vectorResults []retrievedCandidate, bm25Results []retrievedCandid
 		}
 		existing.Score += score
 		existing.Source = mergeSource(existing.Source, item.Source)
+		// Title 和 Content 的兜底
 		if existing.Title == "" {
 			existing.Title = item.Title
 		}

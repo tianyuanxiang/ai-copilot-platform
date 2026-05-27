@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"ai-copilot-platform/ai-rpc/internal/engine"
@@ -28,12 +29,52 @@ const (
 	maxTitleRunes        = 80
 	maxSummaryRunes      = 1800
 	insufficientEvidence = "当前知识库没有足够依据回答该问题。"
+
+	answerModeRag  = "rag"
+	answerModeChat = "chat"
+	answerModeAuto = "auto"
+	answerModeDeep = "deep"
+
+	answerPolicyRag    = "rag"
+	answerPolicyChat   = "chat"
+	answerPolicyAuto   = "auto"
+	retrievalModeQuick = "quick"
+	retrievalModeDeep  = "deep"
+	minRerankScore     = 0.35
 )
 
 type RagChatLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
+}
+
+type chatModeDecision struct {
+	AnswerPolicy     string
+	RetrievalMode    string
+	SearchAnswerMode string
+}
+
+type ragChatRun struct {
+	Question          string
+	TraceID           string
+	ConversationID    int64
+	Conversation      *model.AiConversation
+	RecentMessages    []model.AiMessage
+	EffectiveKbID     int64
+	HasEffectiveKbID  bool
+	AnswerPolicy      string
+	RetrievalMode     string
+	SearchMode        string
+	ResponseMode      string
+	CandidateChunks   []*pb.ChunkItem
+	EffectiveChunks   []*pb.ChunkItem
+	Citations         []*pb.Citation
+	CitationsJSON     string
+	Prompt            string
+	ShouldUseRag      bool
+	ShouldCallLLM     bool
+	TopCandidateScore float64
 }
 
 func NewRagChatLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RagChatLogic {
@@ -45,112 +86,50 @@ func NewRagChatLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RagChatLo
 }
 
 func (l *RagChatLogic) RagChat(in *pb.RagChatReq) (*pb.RagChatResp, error) {
-	question := strings.TrimSpace(in.Question)
-	if in.UserId <= 0 {
-		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
-	}
-	if question == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "question 不能为空")
-	}
-
-	traceID := ragTraceID()
-	conversation, err := l.resolveConversation(in, question)
+	run, err := l.prepareRagChat(in)
 	if err != nil {
 		return nil, err
 	}
-	conversationID := conversation.Id
-	effectiveKbID, hasEffectiveKbID := effectiveConversationKb(in, conversation)
-
-	recentMessages, err := l.svcCtx.AiMessageModel.ListRecentByConversation(l.ctx, conversationID, in.UserId, recentMessageLimit)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := l.svcCtx.AiMessageModel.Insert(l.ctx, &model.AiMessage{
-		ConversationId: conversationID,
-		Role:           "user",
-		Content:        question,
-		Citations:      "[]",
-		TraceId:        traceID,
-	}); err != nil {
-		return nil, err
-	}
-
-	searchResp, err := aiknowledgeservicelogic.NewSearchKnowledgeLogic(l.ctx, l.svcCtx).SearchKnowledge(&pb.SearchKnowledgeReq{
-		UserId:      in.UserId,
-		KbId:        effectiveKbID,
-		HasKbId:     hasEffectiveKbID,
-		Query:       question,
-		TopK:        defaultRagTopK,
-		AnswerMode:  in.AnswerMode,
-		SearchScope: in.SearchScope,
-		DomainId:    in.DomainId,
-		HasDomainId: in.HasDomainId && in.DomainId > 0,
-		DocumentIds: in.DocumentIds,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	mode := strings.TrimSpace(searchResp.Mode)
-	if mode == "" {
-		mode = "rag"
-	}
-	citations := citationsFromChunks(searchResp.Chunks)
-
-	citationsJSON := marshalCitations(citations)
-
-	// 构建prompt
-	prompt := buildRagPrompt(question, conversation.ConversationSummary, recentMessages, searchResp.Chunks)
 
 	answer := insufficientEvidence
 	status := "success"
 	errorMsg := ""
 	startedAt := time.Now()
-	if len(searchResp.Chunks) > 0 {
+	if run.ShouldCallLLM {
 		chatResp, callErr := l.svcCtx.EngineCallClient.EngineChatStreamAggregate(l.ctx, engine.ChatStreamRequest{
 			UserID:         strconv.FormatInt(in.UserId, 10),
-			KbID:           optionalInt64String(effectiveKbID, hasEffectiveKbID),
-			ConversationID: strconv.FormatInt(conversationID, 10),
-			Question:       prompt,
-			History:        chatHistoryToEngine(recentMessages),
+			KbID:           optionalInt64String(run.EffectiveKbID, run.HasEffectiveKbID),
+			ConversationID: strconv.FormatInt(run.ConversationID, 10),
+			Question:       run.Prompt,
+			History:        chatHistoryToEngine(run.RecentMessages),
 		})
 		if callErr != nil {
 			status = "failed"
 			errorMsg = callErr.Error()
-			l.writeLlmCallLog(traceID, in.UserId, "chat-stream", prompt, "", startedAt, status, errorMsg)
-			return nil, callErr
+			l.Logger.Errorf("LLM chat call err: %v", callErr)
+			l.writeLlmCallLog(run.TraceID, in.UserId, "chat-stream", run.Prompt, "", startedAt, status, errorMsg)
+			return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "调用LLM失败")
 		}
 		answer = strings.TrimSpace(chatResp.Answer)
 		if answer == "" {
-			answer = insufficientEvidence
+			if run.ShouldUseRag {
+				answer = insufficientEvidence
+			} else {
+				answer = "暂时无法生成回答，请稍后重试。"
+			}
 		}
 	}
 
-	if _, err := l.svcCtx.AiMessageModel.Insert(l.ctx, &model.AiMessage{
-		ConversationId: conversationID,
-		Role:           "assistant",
-		Content:        answer,
-		Citations:      citationsJSON,
-		TraceId:        traceID,
-	}); err != nil {
-		return nil, err
-	}
-	l.writeLlmCallLog(traceID, in.UserId, "chat-stream", prompt, answer, startedAt, status, errorMsg)
-
-	if err := l.svcCtx.AiConversationModel.TouchUpdatedAt(l.ctx, conversationID); err != nil {
-		l.Errorf("touch ai_conversation updated_at failed: %v", err)
-	}
-	if err := l.refreshConversationSummary(conversationID, in.UserId); err != nil {
-		l.Errorf("refresh conversation summary failed: %v", err)
+	if err := l.finishRagChat(in.UserId, run, answer, startedAt, status, errorMsg); err != nil {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "对话完成后更新对话后的信息失败")
 	}
 
 	return &pb.RagChatResp{
 		Answer:         answer,
-		Citations:      citations,
-		TraceId:        traceID,
-		Mode:           mode,
-		ConversationId: strconv.FormatInt(conversationID, 10),
+		Citations:      run.Citations,
+		TraceId:        run.TraceID,
+		Mode:           run.ResponseMode,
+		ConversationId: strconv.FormatInt(run.ConversationID, 10),
 	}, nil
 }
 
@@ -205,6 +184,183 @@ func effectiveConversationKb(in *pb.RagChatReq, conversation *model.AiConversati
 		return conversation.KbId.Int64, true
 	}
 	return 0, false
+}
+
+func (l *RagChatLogic) prepareRagChat(in *pb.RagChatReq) (*ragChatRun, error) {
+	question := strings.TrimSpace(in.Question)
+	if in.UserId <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
+	if question == "" {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "question 不能为空")
+	}
+
+	decision := resolveChatMode(in.AnswerMode)
+	traceID := ragTraceID()
+	conversation, err := l.resolveConversation(in, question)
+	if err != nil {
+		return nil, err
+	}
+	conversationID := conversation.Id
+	effectiveKbID, hasEffectiveKbID := effectiveConversationKb(in, conversation)
+
+	// 拿到历史消息
+	recentMessages, err := l.svcCtx.AiMessageModel.ListRecentByConversation(l.ctx, conversationID, in.UserId, recentMessageLimit)
+	if err != nil {
+		return nil, err
+	}
+
+	// 插入用户问题
+	if _, err := l.svcCtx.AiMessageModel.Insert(l.ctx, &model.AiMessage{
+		ConversationId: conversationID,
+		Role:           "user",
+		Content:        question,
+		Citations:      "[]",
+		TraceId:        traceID,
+	}); err != nil {
+		return nil, err
+	}
+
+	searchMode := ""
+	candidateChunks := []*pb.ChunkItem{}
+	if decision.AnswerPolicy != answerPolicyChat {
+		searchResp, err := aiknowledgeservicelogic.NewSearchKnowledgeLogic(l.ctx, l.svcCtx).SearchKnowledge(&pb.SearchKnowledgeReq{
+			UserId:      in.UserId,
+			KbId:        effectiveKbID,
+			HasKbId:     hasEffectiveKbID,
+			Query:       question,
+			TopK:        defaultRagTopK,
+			AnswerMode:  decision.SearchAnswerMode,
+			SearchScope: in.SearchScope,
+			DomainId:    in.DomainId,
+			HasDomainId: in.HasDomainId && in.DomainId > 0,
+			DocumentIds: in.DocumentIds,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if searchResp != nil {
+			searchMode = strings.TrimSpace(searchResp.Mode)
+			candidateChunks = searchResp.Chunks
+		}
+	}
+
+	effectiveChunks := selectEffectiveChunks(question, candidateChunks)
+
+	shouldUseRag := decision.AnswerPolicy != answerPolicyChat && len(effectiveChunks) > 0
+	shouldCallLLM := shouldUseRag || decision.AnswerPolicy == answerPolicyChat || decision.AnswerPolicy == answerPolicyAuto
+	citations := []*pb.Citation(nil)
+	if shouldUseRag {
+		citations = citationsFromChunks(effectiveChunks)
+	}
+
+	prompt := buildChatPrompt(question, conversation.ConversationSummary, recentMessages)
+	if shouldUseRag || decision.AnswerPolicy == answerPolicyRag {
+		prompt = buildRagPrompt(question, conversation.ConversationSummary, recentMessages, effectiveChunks)
+	}
+
+	run := &ragChatRun{
+		Question:          question,
+		TraceID:           traceID,
+		ConversationID:    conversationID,
+		Conversation:      conversation,
+		RecentMessages:    recentMessages,
+		EffectiveKbID:     effectiveKbID,
+		HasEffectiveKbID:  hasEffectiveKbID,
+		AnswerPolicy:      decision.AnswerPolicy,
+		RetrievalMode:     decision.RetrievalMode,
+		SearchMode:        searchMode,
+		ResponseMode:      responseMode(searchMode, decision, shouldUseRag),
+		CandidateChunks:   candidateChunks,
+		EffectiveChunks:   effectiveChunks,
+		Citations:         citations,
+		CitationsJSON:     marshalCitations(citations),
+		Prompt:            prompt,
+		ShouldUseRag:      shouldUseRag,
+		ShouldCallLLM:     shouldCallLLM,
+		TopCandidateScore: topChunkScore(candidateChunks),
+	}
+	l.Logger.Infof(
+		"rag_chat.mode trace_id=%s answerMode=%s answerPolicy=%s retrievalMode=%s candidate_chunks=%d effective_chunks=%d top_score=%.4f response_mode=%s should_call_llm=%t should_use_rag=%t",
+		traceID,
+		strings.TrimSpace(in.AnswerMode),
+		run.AnswerPolicy,
+		run.RetrievalMode,
+		len(run.CandidateChunks),
+		len(run.EffectiveChunks),
+		run.TopCandidateScore,
+		run.ResponseMode,
+		run.ShouldCallLLM,
+		run.ShouldUseRag,
+	)
+	return run, nil
+}
+
+func (l *RagChatLogic) finishRagChat(userID int64, run *ragChatRun, answer string, startedAt time.Time, status string, errorMsg string) error {
+	if _, err := l.svcCtx.AiMessageModel.Insert(l.ctx, &model.AiMessage{
+		ConversationId: run.ConversationID,
+		Role:           "assistant",
+		Content:        answer,
+		Citations:      run.CitationsJSON,
+		TraceId:        run.TraceID,
+	}); err != nil {
+		l.Logger.Errorf("对话完成后插入AI助手返回的数据失败: %v", err)
+		return err
+	}
+	l.writeLlmCallLog(run.TraceID, userID, "chat-stream", run.Prompt, answer, startedAt, status, errorMsg)
+
+	if err := l.svcCtx.AiConversationModel.TouchUpdatedAt(l.ctx, run.ConversationID); err != nil {
+		l.Logger.Errorf("touch ai_conversation updated_at failed: %v", err)
+	}
+	if err := l.refreshConversationSummary(run.ConversationID, userID); err != nil {
+		l.Errorf("refresh conversation summary failed: %v", err)
+	}
+	return nil
+}
+
+func resolveChatMode(mode string) chatModeDecision {
+	switch strings.ToLower(strings.TrimSpace(mode)) {
+	case answerModeChat:
+		return chatModeDecision{
+			AnswerPolicy:     answerPolicyChat,
+			RetrievalMode:    retrievalModeQuick, // 不检索知识库
+			SearchAnswerMode: "",
+		}
+	case answerModeAuto:
+		return chatModeDecision{
+			AnswerPolicy:     answerPolicyAuto,
+			RetrievalMode:    retrievalModeQuick, // quick 检索
+			SearchAnswerMode: retrievalModeQuick, // 如果存在有效 chunks 走 RAG，无有效 chunks 走普通聊天
+		}
+	case answerModeDeep:
+		return chatModeDecision{
+			AnswerPolicy:     answerPolicyRag,
+			RetrievalMode:    retrievalModeDeep, // deep 检索 必走rerank
+			SearchAnswerMode: answerModeDeep,
+		}
+	default:
+		return chatModeDecision{
+			AnswerPolicy:     answerPolicyRag,
+			RetrievalMode:    retrievalModeQuick,
+			SearchAnswerMode: retrievalModeQuick,
+		}
+	}
+}
+
+func responseMode(searchMode string, decision chatModeDecision, usedRag bool) string {
+	if decision.AnswerPolicy == answerPolicyChat {
+		return answerModeChat
+	}
+	if decision.AnswerPolicy == answerPolicyAuto && !usedRag {
+		return answerModeChat
+	}
+	if strings.TrimSpace(searchMode) != "" {
+		return searchMode
+	}
+	if decision.RetrievalMode == retrievalModeDeep {
+		return answerModeDeep
+	}
+	return answerModeRag
 }
 
 func (l *RagChatLogic) refreshConversationSummary(conversationID int64, userID int64) error {
@@ -317,6 +473,42 @@ func buildRagPrompt(question string, summary string, recentMessages []model.AiMe
 	return truncateRunes(builder.String(), maxPromptRunes)
 }
 
+func buildChatPrompt(question string, summary string, recentMessages []model.AiMessage) string {
+	var builder strings.Builder
+	builder.WriteString("系统约束：\n")
+	builder.WriteString("- 你是企业 AI 助手，请直接、准确、结构化地回答用户问题。\n")
+	builder.WriteString("- 不要编造不存在的事实、数据、系统权限或来源。\n")
+	builder.WriteString("- 如果问题需要业务文档依据但当前没有提供，请明确说明需要补充资料。\n\n")
+
+	if strings.TrimSpace(summary) != "" {
+		builder.WriteString("长期对话摘要：\n")
+		builder.WriteString(truncateRunes(strings.TrimSpace(summary), maxSummaryRunes))
+		builder.WriteString("\n\n")
+	}
+
+	if len(recentMessages) > 0 {
+		builder.WriteString("近期对话：\n")
+		for _, item := range recentMessages {
+			role := strings.TrimSpace(item.Role)
+			content := strings.TrimSpace(item.Content)
+			if role == "" || content == "" {
+				continue
+			}
+			builder.WriteString("- ")
+			builder.WriteString(role)
+			builder.WriteString(": ")
+			builder.WriteString(truncateRunes(content, 260))
+			builder.WriteString("\n")
+		}
+		builder.WriteString("\n")
+	}
+
+	builder.WriteString("当前用户问题：\n")
+	builder.WriteString(question)
+	builder.WriteString("\n")
+	return truncateRunes(builder.String(), maxPromptRunes)
+}
+
 func buildSummaryPrompt(messages []model.AiMessage) string {
 	var builder strings.Builder
 	builder.WriteString("请为以下已归档的对话生成企业知识问答场景下的长期上下文摘要。\n")
@@ -367,6 +559,77 @@ func citationsFromChunks(chunks []*pb.ChunkItem) []*pb.Citation {
 		})
 	}
 	return citations
+}
+
+func selectEffectiveChunks(question string, chunks []*pb.ChunkItem) []*pb.ChunkItem {
+	if len(chunks) == 0 {
+		return []*pb.ChunkItem{}
+	}
+	terms := evidenceTerms(question)
+	selected := make([]*pb.ChunkItem, 0, len(chunks))
+	for _, chunk := range chunks {
+		if chunk == nil {
+			continue
+		}
+		if chunk.Score >= minRerankScore {
+			selected = append(selected, chunk)
+			continue
+		}
+		if len(terms) == 0 {
+			continue
+		}
+		corpus := strings.ToLower(chunk.Title + "\n" + chunk.Snippet + "\n" + chunk.Content)
+		for _, term := range terms {
+			if strings.Contains(corpus, term) {
+				selected = append(selected, chunk)
+				break
+			}
+		}
+	}
+	return selected
+}
+
+func evidenceTerms(question string) []string {
+	seen := make(map[string]struct{})
+	terms := make([]string, 0)
+	add := func(term string) {
+		term = strings.ToLower(strings.TrimSpace(term))
+		if utf8.RuneCountInString(term) <= 1 {
+			return
+		}
+		if _, ok := seen[term]; ok {
+			return
+		}
+		seen[term] = struct{}{}
+		terms = append(terms, term)
+	}
+
+	tokens := strings.FieldsFunc(question, func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+	})
+	for _, token := range tokens {
+		add(token)
+		runes := []rune(strings.TrimSpace(token))
+		if len(runes) <= 2 {
+			continue
+		}
+		for size := minInt(4, len(runes)); size >= 2; size-- {
+			for i := 0; i+size <= len(runes); i++ {
+				add(string(runes[i : i+size]))
+			}
+		}
+	}
+	return terms
+}
+
+func topChunkScore(chunks []*pb.ChunkItem) float64 {
+	top := 0.0
+	for _, chunk := range chunks {
+		if chunk != nil && chunk.Score > top {
+			top = chunk.Score
+		}
+	}
+	return top
 }
 
 func marshalCitations(citations []*pb.Citation) string {
@@ -450,6 +713,13 @@ func estimateWhitespaceTokens(value string) int64 {
 		return 1
 	}
 	return int64(count)
+}
+
+func minInt(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func ragTraceID() string {

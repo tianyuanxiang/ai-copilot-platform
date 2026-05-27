@@ -1,3 +1,5 @@
+import logging
+
 from fastapi.testclient import TestClient
 
 from app.core.config import get_settings
@@ -6,7 +8,8 @@ from app.schemas.chat import ChatStreamRequest
 from app.services import llm
 
 
-def test_chat_stream_returns_sse_tokens():
+def test_chat_stream_returns_sse_tokens(caplog):
+    caplog.set_level(logging.INFO, logger="app.services.llm")
     client = TestClient(app)
     with client.stream("POST", "/v1/chat/stream", json={"question": "hello"}) as response:
         assert response.status_code == 200
@@ -17,6 +20,9 @@ def test_chat_stream_returns_sse_tokens():
     assert '"content": "ASGI "' in body
     assert '"content": "streaming "' in body
     assert '"content": "ready. "' in body
+    messages = "\n".join(record.getMessage() for record in caplog.records)
+    assert "chat.stream.start" in messages
+    assert "chat.stream.done" in messages
 
 
 def test_chat_stream_returns_error_when_deepseek_key_is_empty(tmp_path, monkeypatch):
@@ -72,7 +78,8 @@ rerank:
     assert "[DONE]" in body
 
 
-async def test_stream_chat_parses_deepseek_sse(tmp_path, monkeypatch):
+async def test_stream_chat_parses_deepseek_sse(tmp_path, monkeypatch, caplog):
+    caplog.set_level(logging.INFO, logger="app.services.llm")
     config_path = tmp_path / "config.yaml"
     config_path.write_text(
         """
@@ -122,8 +129,8 @@ rerank:
 
         async def aiter_lines(self):
             yield ""
-            yield 'data: {"choices":[{"delta":{"content":"你"}}]}'
-            yield 'data: {"choices":[{"delta":{"content":"好"}}]}'
+            yield 'data: {"choices":[{"delta":{"content":"Ni"}}]}'
+            yield 'data: {"choices":[{"delta":{"content":"Hao"}}]}'
             yield "data: [DONE]"
 
     class FakeAsyncClient:
@@ -159,7 +166,11 @@ rerank:
         get_settings.cache_clear()
 
     assert [(event.type, event.content, event.trace_id) for event in events] == [
-        ("token", "你", "trace-1"),
-        ("token", "好", "trace-1"),
+        ("token", "Ni", "trace-1"),
+        ("token", "Hao", "trace-1"),
         ("done", "", "trace-1"),
     ]
+    messages = "\n".join(record.getMessage() for record in caplog.records)
+    assert "llm.request trace_id=trace-1" in messages
+    assert "api_key=present" in messages
+    assert "test-key" not in messages

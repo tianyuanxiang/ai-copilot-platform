@@ -71,6 +71,12 @@ type ChatStreamRequest struct {
 	History        []ChatMessage `json:"history"`
 }
 
+type ChatStreamEvent struct {
+	Type    string `json:"type"`
+	Content string `json:"content"`
+	TraceID string `json:"trace_id"`
+}
+
 type ChatAggregateResponse struct {
 	Answer  string `json:"answer"`
 	TraceID string `json:"trace_id"`
@@ -218,6 +224,23 @@ func (c *Client) EngineParse(ctx context.Context, fileName string, fileType stri
 }
 
 func (c *Client) EngineChatStreamAggregate(ctx context.Context, payload ChatStreamRequest) (*ChatAggregateResponse, error) {
+	var providerErr error
+	resp, err := c.EngineChatStream(ctx, payload, func(event ChatStreamEvent) error {
+		if event.Type == "error" && strings.TrimSpace(event.Content) != "" {
+			providerErr = fmt.Errorf("%s", event.Content)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if providerErr != nil {
+		return nil, providerErr
+	}
+	return resp, nil
+}
+
+func (c *Client) EngineChatStream(ctx context.Context, payload ChatStreamRequest, onEvent func(ChatStreamEvent) error) (*ChatAggregateResponse, error) {
 	if c == nil || c.baseURL == "" {
 		return nil, fmt.Errorf("engine base url is empty")
 	}
@@ -263,19 +286,21 @@ func (c *Client) EngineChatStreamAggregate(ctx context.Context, payload ChatStre
 			continue
 		}
 
-		var event struct {
-			Type    string `json:"type"`
-			Content string `json:"content"`
-			TraceID string `json:"trace_id"`
-		}
+		var event ChatStreamEvent
 		if err := json.Unmarshal([]byte(data), &event); err != nil {
 			return nil, err
 		}
+		fmt.Println("event:", event)
 		if event.TraceID != "" {
 			traceID = event.TraceID
 		}
 		if event.Type == "token" {
 			answer.WriteString(event.Content)
+		}
+		if onEvent != nil {
+			if err := onEvent(event); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
