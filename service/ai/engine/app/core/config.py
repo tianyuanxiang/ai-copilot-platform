@@ -16,21 +16,24 @@ class Settings(BaseModel):
     app_env: Literal["dev", "staging", "prod"] = "dev"
     mock_llm: bool = True
     llm_provider: str = "mock"
+    llm_model: str = "deepseek-v4-pro"
+    deepseek_chat_url: str = "https://api.deepseek.com/chat/completions"
     llm_api_key: str = ""
+    llm_timeout_seconds: int = 60
     postgres_dsn: str = ""
     elasticsearch_url: str = ""
     kb_chunks_index: str = "kb_chunks_index"
     security_logs_index: str = "security_logs_index"
     embedding_provider: Literal["mock", "dashscope"] = "mock"
     embedding_model: str = "text-embedding-v4"
-    dashscope_embeddings_url: str = ""
+    dashscope_embeddings_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
     embedding_api_key: str = ""
     embedding_dimension: int = 1024
     embedding_batch_size: int = 10
     embedding_timeout_seconds: int = 30
     rerank_provider: Literal["mock", "dashscope"] = "mock"
     rerank_model: str = "qwen3-rerank"
-    dashscope_rerank_url: str = ""
+    dashscope_rerank_url: str = "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank"
     rerank_api_key: str = ""
     rerank_top_n: int = 5
     rerank_timeout_seconds: int = 30
@@ -44,7 +47,10 @@ _FIELD_MAP: dict[str, tuple[str, str]] = {
     "app_env": ("app", "env"),
     "mock_llm": ("llm", "mock"),
     "llm_provider": ("llm", "provider"),
+    "llm_model": ("llm", "model"),
+    "deepseek_chat_url": ("llm", "deepseek_chat_url"),
     "llm_api_key": ("llm", "api_key"),
+    "llm_timeout_seconds": ("llm", "timeout_seconds"),
     "postgres_dsn": ("postgres", "dsn"),
     "elasticsearch_url": ("elasticsearch", "url"),
     "kb_chunks_index": ("elasticsearch", "kb_chunks_index"),

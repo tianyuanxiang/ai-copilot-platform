@@ -25,7 +25,7 @@ const (
 	recentMessageLimit   = 8
 	maxPromptRunes       = 6000
 	maxPromptChunkRunes  = 800
-	maxTitleRunes        = 40
+	maxTitleRunes        = 80
 	maxSummaryRunes      = 1800
 	insufficientEvidence = "当前知识库没有足够依据回答该问题。"
 )
@@ -97,7 +97,10 @@ func (l *RagChatLogic) RagChat(in *pb.RagChatReq) (*pb.RagChatResp, error) {
 		mode = "rag"
 	}
 	citations := citationsFromChunks(searchResp.Chunks)
+
 	citationsJSON := marshalCitations(citations)
+
+	// 构建prompt
 	prompt := buildRagPrompt(question, conversation.ConversationSummary, recentMessages, searchResp.Chunks)
 
 	answer := insufficientEvidence
@@ -151,7 +154,7 @@ func (l *RagChatLogic) RagChat(in *pb.RagChatReq) (*pb.RagChatResp, error) {
 	}, nil
 }
 
-func (l *RagChatLogic) resolveConversation(in *pb.RagChatReq, question string) (*model.AiConversationContext, error) {
+func (l *RagChatLogic) resolveConversation(in *pb.RagChatReq, question string) (*model.AiConversation, error) {
 	rawConversationID := strings.TrimSpace(in.ConversationId)
 	if rawConversationID != "" {
 		conversationID, err := strconv.ParseInt(rawConversationID, 10, 64)
@@ -163,6 +166,7 @@ func (l *RagChatLogic) resolveConversation(in *pb.RagChatReq, question string) (
 			if err == model.ErrNotFound {
 				return nil, xerr.NewCodeErrorMsg(xerr.ErrNotFound, "会话不存在")
 			}
+			l.Logger.Errorf("find conversation id failed: %v", err)
 			return nil, err
 		}
 		return conversation, nil
@@ -178,24 +182,27 @@ func (l *RagChatLogic) resolveConversation(in *pb.RagChatReq, question string) (
 		Title: truncateRunes(question, maxTitleRunes),
 	})
 	if err != nil {
+		l.Logger.Errorf("insert conversation id failed: %v", err)
 		return nil, err
 	}
-	return &model.AiConversationContext{
-		Id:                  conversationID,
-		UserId:              in.UserId,
-		KbId:                in.KbId,
-		HasKbId:             hasKbID,
+	return &model.AiConversation{
+		Id:     conversationID,
+		UserId: in.UserId,
+		KbId: sql.NullInt64{
+			Int64: in.KbId,
+			Valid: hasKbID,
+		},
 		Title:               truncateRunes(question, maxTitleRunes),
 		ConversationSummary: "",
 	}, nil
 }
 
-func effectiveConversationKb(in *pb.RagChatReq, conversation *model.AiConversationContext) (int64, bool) {
+func effectiveConversationKb(in *pb.RagChatReq, conversation *model.AiConversation) (int64, bool) {
 	if (in.HasKbId || in.KbId > 0) && in.KbId > 0 {
 		return in.KbId, true
 	}
-	if conversation != nil && conversation.HasKbId && conversation.KbId > 0 {
-		return conversation.KbId, true
+	if conversation != nil && conversation.KbId.Valid && conversation.KbId.Int64 > 0 {
+		return conversation.KbId.Int64, true
 	}
 	return 0, false
 }
@@ -219,6 +226,7 @@ func (l *RagChatLogic) refreshConversationSummary(conversationID int64, userID i
 		Question:       prompt,
 	})
 	if err != nil {
+		l.Logger.Errorf("engine chat_stream_aggregate err: %v", err)
 		l.writeLlmCallLog(traceID, userID, "chat-summary", prompt, "", startedAt, "failed", err.Error())
 		return err
 	}
@@ -369,6 +377,7 @@ func marshalCitations(citations []*pb.Citation) string {
 		Snippet    string  `json:"snippet"`
 		Score      float64 `json:"score"`
 	}
+
 	items := make([]citationJSON, 0, len(citations))
 	for _, item := range citations {
 		items = append(items, citationJSON{

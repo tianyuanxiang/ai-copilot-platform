@@ -20,11 +20,14 @@ async def chat_stream(payload: ChatStreamRequest, request: Request) -> Streaming
     trace_id = str(uuid.uuid4())
 
     async def event_generator():
+        disconnected = False
         async for event in stream_chat(payload, trace_id=trace_id):
             if await request.is_disconnected():
+                disconnected = True
                 break
             yield _sse(event)
-        yield "data: [DONE]\n\n"
+        if not disconnected:
+            yield "data: [DONE]\n\n"
 
     return StreamingResponse(
         event_generator(),

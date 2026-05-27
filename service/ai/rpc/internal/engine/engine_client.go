@@ -118,7 +118,7 @@ func (c *Client) EngineEmbed(ctx context.Context, texts []string, inputType ...s
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("执行Embedding 请求 %v 出现错误, err: %v", req, err)
 	}
 	defer resp.Body.Close()
 

@@ -2,10 +2,10 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"gorm.io/gorm"
 )
 
 var _ AiMessageModel = (*customAiMessageModel)(nil)
@@ -24,6 +24,7 @@ type (
 
 	customAiMessageModel struct {
 		*defaultAiMessageModel
+		db *gorm.DB
 	}
 
 	MessageListItem struct {
@@ -38,45 +39,35 @@ type (
 )
 
 // NewAiMessageModel returns a model for the database table.
-func NewAiMessageModel(conn sqlx.SqlConn) AiMessageModel {
+func NewAiMessageModel(conn sqlx.SqlConn, db *gorm.DB) AiMessageModel {
 	return &customAiMessageModel{
 		defaultAiMessageModel: newAiMessageModel(conn),
+		db:                    db,
 	}
 }
 
 func (m *customAiMessageModel) withSession(session sqlx.Session) AiMessageModel {
-	return NewAiMessageModel(sqlx.NewSqlConnFromSession(session))
+	return NewAiMessageModel(sqlx.NewSqlConnFromSession(session), m.db)
 }
 
 func (m *customAiMessageModel) ListByConversation(ctx context.Context, conversationID int64, userID int64, page int64, pageSize int64) ([]MessageListItem, int64, error) {
 	page, pageSize = normalizePage(page, pageSize)
-	countQuery := fmt.Sprintf(`
-select count(1)
-from %s m
-join "public"."ai_conversation" c on c.id = m.conversation_id
-where m.conversation_id = $1 and c.user_id = $2 and c.deleted_at is null and m.deleted_at is null`, m.table)
+	db := m.db.WithContext(ctx).Table("ai_message as m").
+		Joins("join ai_conversation c on c.id = m.conversation_id").
+		Where("m.conversation_id = ? and c.user_id = ? and c.deleted_at is null and m.deleted_at is null", conversationID, userID)
+
 	var total int64
-	if err := m.conn.QueryRowCtx(ctx, &total, countQuery, conversationID, userID); err != nil {
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	listQuery := fmt.Sprintf(`
-select
-  m.id as message_id,
-  m.conversation_id,
-  m.role,
-  m.content,
-  m.citations::text as citations,
-  m.trace_id,
-  m.created_at
-from %s m
-join "public"."ai_conversation" c on c.id = m.conversation_id
-where m.conversation_id = $1 and c.user_id = $2 and c.deleted_at is null and m.deleted_at is null
-order by m.created_at asc, m.id asc
-limit $3 offset $4`, m.table)
-
 	var list []MessageListItem
-	if err := m.conn.QueryRowsCtx(ctx, &list, listQuery, conversationID, userID, pageSize, (page-1)*pageSize); err != nil {
+	err := db.Select("m.id as message_id,m.conversation_id,m.role,m.content,m.citations::text as citations,m.trace_id,m.created_at").
+		Order("m.created_at asc, m.id asc").
+		Limit(int(pageSize)).
+		Offset(int((page - 1) * pageSize)).
+		Scan(&list).Error
+	if err != nil {
 		return nil, 0, err
 	}
 	return list, total, nil
@@ -86,16 +77,15 @@ func (m *customAiMessageModel) ListRecentByConversation(ctx context.Context, con
 	if limit <= 0 {
 		limit = 8
 	}
-	query := fmt.Sprintf(`
-select %s
-from %s m
-join "public"."ai_conversation" c on c.id = m.conversation_id
-where m.conversation_id = $1 and c.user_id = $2 and c.deleted_at is null and m.deleted_at is null
-order by m.created_at desc, m.id desc
-limit $3`, prefixedAiMessageRows("m"), m.table)
-
 	var desc []AiMessage
-	if err := m.conn.QueryRowsCtx(ctx, &desc, query, conversationID, userID, limit); err != nil {
+	err := m.db.WithContext(ctx).Table("ai_message as m").
+		Select(aiMessageSelectColumns("m")).
+		Joins("join ai_conversation c on c.id = m.conversation_id").
+		Where("m.conversation_id = ? and c.user_id = ? and c.deleted_at is null and m.deleted_at is null", conversationID, userID).
+		Order("m.created_at desc, m.id desc").
+		Limit(int(limit)).
+		Scan(&desc).Error
+	if err != nil {
 		return nil, err
 	}
 	for i, j := 0, len(desc)-1; i < j; i, j = i+1, j-1 {
@@ -105,40 +95,31 @@ limit $3`, prefixedAiMessageRows("m"), m.table)
 }
 
 func (m *customAiMessageModel) ListActiveByConversation(ctx context.Context, conversationID int64, userID int64) ([]AiMessage, error) {
-	query := fmt.Sprintf(`
-select %s
-from %s m
-join "public"."ai_conversation" c on c.id = m.conversation_id
-where m.conversation_id = $1 and c.user_id = $2 and c.deleted_at is null and m.deleted_at is null
-order by m.created_at asc, m.id asc`, prefixedAiMessageRows("m"), m.table)
-
 	var list []AiMessage
-	if err := m.conn.QueryRowsCtx(ctx, &list, query, conversationID, userID); err != nil {
+	err := m.db.WithContext(ctx).Table("ai_message as m").
+		Select(aiMessageSelectColumns("m")).
+		Joins("join ai_conversation c on c.id = m.conversation_id").
+		Where("m.conversation_id = ? and c.user_id = ? and c.deleted_at is null and m.deleted_at is null", conversationID, userID).
+		Order("m.created_at asc, m.id asc").
+		Scan(&list).Error
+	if err != nil {
 		return nil, err
 	}
 	return list, nil
 }
 
 func (m *customAiMessageModel) SoftDeleteByIDUserID(ctx context.Context, conversationID int64, messageID int64, userID int64, deletedBy int64) error {
-	query := fmt.Sprintf(`
-update %s m
-set deleted_at = now(), deleted_by = $1
-where m.id = $2
-  and m.conversation_id = $3
-  and m.deleted_at is null
-  and exists (
-    select 1
-    from "public"."ai_conversation" c
-    where c.id = m.conversation_id and c.user_id = $4 and c.deleted_at is null
-  )`, m.table)
-	ret, err := m.conn.ExecCtx(ctx, query, deletedBy, messageID, conversationID, userID)
-	if err != nil {
-		return err
-	}
-	return notFoundIfNoRows(ret)
+	result := m.db.WithContext(ctx).Table("ai_message as m").
+		Where("m.id = ? and m.conversation_id = ? and m.deleted_at is null", messageID, conversationID).
+		Where("exists (select 1 from ai_conversation c where c.id = m.conversation_id and c.user_id = ? and c.deleted_at is null)", userID).
+		Updates(map[string]interface{}{
+			"deleted_at": time.Now(),
+			"deleted_by": deletedBy,
+		})
+	return gormNotFoundIfNoRows(result)
 }
 
-func prefixedAiMessageRows(alias string) string {
+func aiMessageSelectColumns(alias string) string {
 	return alias + ".id," +
 		alias + ".conversation_id," +
 		alias + ".role," +

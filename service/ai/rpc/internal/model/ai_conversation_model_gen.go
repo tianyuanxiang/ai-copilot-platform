@@ -37,12 +37,15 @@ type (
 	}
 
 	AiConversation struct {
-		Id        int64         `db:"id"`         // 主键ID，自增
-		UserId    int64         `db:"user_id"`    // 会话所属用户ID
-		KbId      sql.NullInt64 `db:"kb_id"`      // 关联知识库ID，可空（不在知识库上下文中的对话）
-		Title     string        `db:"title"`      // 会话标题
-		CreatedAt time.Time     `db:"created_at"` // 创建时间
-		UpdatedAt time.Time     `db:"updated_at"` // 更新时间
+		Id                  int64         `db:"id"`                   // 主键ID，自增
+		UserId              int64         `db:"user_id"`              // 会话所属用户ID
+		KbId                sql.NullInt64 `db:"kb_id"`                // 关联知识库ID，可空（不在知识库上下文中的对话）
+		Title               string        `db:"title"`                // 会话标题
+		CreatedAt           time.Time     `db:"created_at"`           // 创建时间
+		UpdatedAt           time.Time     `db:"updated_at"`           // 更新时间
+		ConversationSummary string        `db:"conversation_summary"` // 会话长期上下文滚动摘要
+		DeletedAt           sql.NullTime  `db:"deleted_at"`           // 软删除时间
+		DeletedBy           sql.NullInt64 `db:"deleted_by"`           // 软删除操作人ID
 	}
 )
 
@@ -74,14 +77,14 @@ func (m *defaultAiConversationModel) FindOne(ctx context.Context, id int64) (*Ai
 }
 
 func (m *defaultAiConversationModel) Insert(ctx context.Context, data *AiConversation) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values ($1, $2, $3)", m.table, aiConversationRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.KbId, data.Title)
+	query := fmt.Sprintf("insert into %s (%s) values ($1, $2, $3, $4, $5, $6)", m.table, aiConversationRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.KbId, data.Title, data.ConversationSummary, data.DeletedAt, data.DeletedBy)
 	return ret, err
 }
 
 func (m *defaultAiConversationModel) Update(ctx context.Context, data *AiConversation) error {
 	query := fmt.Sprintf("update %s set %s where id = $1", m.table, aiConversationRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Id, data.UserId, data.KbId, data.Title)
+	_, err := m.conn.ExecCtx(ctx, query, data.Id, data.UserId, data.KbId, data.Title, data.ConversationSummary, data.DeletedAt, data.DeletedBy)
 	return err
 }
 

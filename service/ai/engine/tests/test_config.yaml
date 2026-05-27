@@ -5,7 +5,10 @@ app:
 llm:
   mock: true
   provider: mock
+  model: deepseek-v4-pro
+  deepseek_chat_url: "https://api.deepseek.com/chat/completions"
   api_key: ""
+  timeout_seconds: 60
 
 postgres:
   dsn: ""

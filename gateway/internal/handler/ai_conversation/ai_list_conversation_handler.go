@@ -4,11 +4,13 @@
 package ai_conversation
 
 import (
+	"go-zero-rpc/common/response"
 	"net/http"
 
 	"ai-copilot-platform/gateway/internal/logic/ai_conversation"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -16,7 +18,7 @@ func AiListConversationHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AiListConversationReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.FailWithMsg(w, r, err.Error())
 			return
 		}
 
@@ -25,7 +27,7 @@ func AiListConversationHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			response.OkWithData(w, r, resp)
 		}
 	}
 }

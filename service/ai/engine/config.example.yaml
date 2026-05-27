@@ -3,9 +3,12 @@ app:
   env: dev              # dev | staging | prod
 
 llm:
-  mock: true
-  provider: mock        # mock | openai | other
-  api_key: ""           # LLM API key, required in non-dev environments
+  mock: false
+  provider: deepseek    # mock | deepseek
+  model: deepseek-v4-pro
+  deepseek_chat_url: "https://api.deepseek.com/chat/completions"
+  api_key: ""           # Fill in production.
+  timeout_seconds: 60
 
 postgres:
   dsn: "postgresql://user:password@host:5432/dbname"
