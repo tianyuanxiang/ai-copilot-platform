@@ -24,6 +24,21 @@ func NewListToolCallLogLogic(ctx context.Context, svcCtx *svc.ServiceContext) *L
 }
 
 func (l *ListToolCallLogLogic) ListToolCallLog(in *pb.WindListToolCallLogReq) (*pb.WindListToolCallLogResp, error) {
-	// 一期先返回空列表，表结构和查询入口已预留；后续在工具执行处写入 ai_tool_call_log 后补分页查询。
-	return &pb.WindListToolCallLogResp{Total: 0, List: []*pb.ToolCall{}}, nil
+	total, rows, err := l.svcCtx.AiToolCallLogModel.ListByFilter(l.ctx, in.UserId, in.TraceId, in.ToolName, in.Status, in.Page, in.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	list := make([]*pb.ToolCall, 0, len(rows))
+	for _, row := range rows {
+		list = append(list, &pb.ToolCall{
+			ToolCallId:    row.Id,
+			ToolName:      row.ToolName,
+			Status:        row.Status,
+			ArgumentsJson: row.Arguments,
+			ResultJson:    row.Result,
+			Message:       row.ErrorMsg,
+			CreatedAt:     row.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return &pb.WindListToolCallLogResp{Total: total, List: list}, nil
 }

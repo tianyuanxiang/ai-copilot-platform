@@ -5,7 +5,7 @@ var farmDatabaseFallback = map[string]string{
 	"YS": "yushu",
 }
 
-var deviceTypeStableFallback = map[string]string{
+var DeviceTypeStableFallback = map[string]string{
 	"STM":  "strain",
 	"ACC":  "accel",
 	"ACCX": "accel",
@@ -49,19 +49,3 @@ var alarmDeviceTypeFallback = map[string]int64{
 	"GNSS": 9,
 	"IPC":  10,
 }
-
-type (
-	WindDeviceView struct {
-		DeviceId       int64  `gorm:"column:device_id"`
-		DeviceCode     string `gorm:"column:device_code"`
-		DeviceTypeCode string `gorm:"column:device_type_code"`
-		DeviceTypeName string `gorm:"column:device_type_name"`
-		TowerId        int64  `gorm:"column:tower_id"`
-		TowerCode      string `gorm:"column:tower_code"`
-		StructureCode  string `gorm:"column:structure_code"`
-		StructureName  string `gorm:"column:structure_name"`
-		TDStable       string `gorm:"column:td_stable"`
-		Status         int64  `gorm:"column:status"`
-		AiEnabled      bool   `gorm:"column:ai_enabled"`
-	}
-)

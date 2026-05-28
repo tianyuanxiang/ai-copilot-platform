@@ -9,6 +9,8 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,6 +30,10 @@ func NewAiWindGenerateHealthReportLogic(ctx context.Context, svcCtx *svc.Service
 }
 
 func (l *AiWindGenerateHealthReportLogic) AiWindGenerateHealthReport(req *types.AiWindHealthReportReq) (resp *types.AiWindScaffoldResp, err error) {
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
 	result, err := l.svcCtx.AiWindReportClient.GenerateHealthReport(l.ctx, &pb.WindHealthReportReq{
 		ReportType:   req.ReportType,
 		FarmCode:     req.FarmCode,
@@ -35,7 +41,7 @@ func (l *AiWindGenerateHealthReportLogic) AiWindGenerateHealthReport(req *types.
 		StartTime:    req.StartTime,
 		EndTime:      req.EndTime,
 		EvidenceJson: req.EvidenceJson,
-		UserId:       0,
+		UserId:       userID,
 	})
 	if err != nil {
 		return nil, err

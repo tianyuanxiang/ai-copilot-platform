@@ -47,6 +47,7 @@ type (
 func WindEvidenceJSON(v any) string {
 	data, err := json.Marshal(v)
 	if err != nil {
+		fmt.Printf("json序列化失败 %v", err)
 		return "{}"
 	}
 	return string(data)

@@ -5027,14 +5027,14 @@ func (x *ListWindFarmResp) GetMessage() string {
 
 type WindTurbineItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TurbineId     int64                  `protobuf:"varint,1,opt,name=turbine_id,json=turbineId,proto3" json:"turbine_id,omitempty"`
-	TowerId       int64                  `protobuf:"varint,2,opt,name=tower_id,json=towerId,proto3" json:"tower_id,omitempty"`
-	TowerCode     string                 `protobuf:"bytes,3,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
-	TowerName     string                 `protobuf:"bytes,4,opt,name=tower_name,json=towerName,proto3" json:"tower_name,omitempty"`
-	FarmCode      string                 `protobuf:"bytes,5,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
-	FarmName      string                 `protobuf:"bytes,6,opt,name=farm_name,json=farmName,proto3" json:"farm_name,omitempty"`
-	RiskLevel     string                 `protobuf:"bytes,7,opt,name=risk_level,json=riskLevel,proto3" json:"risk_level,omitempty"`
-	AiEnabled     bool                   `protobuf:"varint,8,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	TowerId       int64                  `protobuf:"varint,1,opt,name=tower_id,json=towerId,proto3" json:"tower_id,omitempty"`
+	TowerCode     string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
+	FarmId        int64                  `protobuf:"varint,3,opt,name=farm_id,json=farmId,proto3" json:"farm_id,omitempty"`
+	FarmCode      string                 `protobuf:"bytes,4,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
+	FarmName      string                 `protobuf:"bytes,5,opt,name=farm_name,json=farmName,proto3" json:"farm_name,omitempty"`
+	RiskLevel     string                 `protobuf:"bytes,6,opt,name=risk_level,json=riskLevel,proto3" json:"risk_level,omitempty"`
+	AiEnabled     bool                   `protobuf:"varint,7,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"`
+	Remark        string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5069,13 +5069,6 @@ func (*WindTurbineItem) Descriptor() ([]byte, []int) {
 	return file_pb_ai_proto_rawDescGZIP(), []int{69}
 }
 
-func (x *WindTurbineItem) GetTurbineId() int64 {
-	if x != nil {
-		return x.TurbineId
-	}
-	return 0
-}
-
 func (x *WindTurbineItem) GetTowerId() int64 {
 	if x != nil {
 		return x.TowerId
@@ -5090,11 +5083,11 @@ func (x *WindTurbineItem) GetTowerCode() string {
 	return ""
 }
 
-func (x *WindTurbineItem) GetTowerName() string {
+func (x *WindTurbineItem) GetFarmId() int64 {
 	if x != nil {
-		return x.TowerName
+		return x.FarmId
 	}
-	return ""
+	return 0
 }
 
 func (x *WindTurbineItem) GetFarmCode() string {
@@ -5123,6 +5116,13 @@ func (x *WindTurbineItem) GetAiEnabled() bool {
 		return x.AiEnabled
 	}
 	return false
+}
+
+func (x *WindTurbineItem) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
 }
 
 type ListWindTurbineReq struct {
@@ -5479,11 +5479,12 @@ type WindTimeseriesQueryReq struct {
 	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
 	DeviceCode     string                 `protobuf:"bytes,3,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
 	DeviceTypeCode string                 `protobuf:"bytes,4,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
-	Field          string                 `protobuf:"bytes,5,opt,name=field,proto3" json:"field,omitempty"`
+	Field          []string               `protobuf:"bytes,5,rep,name=field,proto3" json:"field,omitempty"`
 	StartTime      string                 `protobuf:"bytes,6,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime        string                 `protobuf:"bytes,7,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	Page           int64                  `protobuf:"varint,8,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize       int64                  `protobuf:"varint,9,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	IndexId        int64                  `protobuf:"varint,10,opt,name=index_id,json=indexId,proto3" json:"index_id,omitempty"`
 	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -5547,11 +5548,11 @@ func (x *WindTimeseriesQueryReq) GetDeviceTypeCode() string {
 	return ""
 }
 
-func (x *WindTimeseriesQueryReq) GetField() string {
+func (x *WindTimeseriesQueryReq) GetField() []string {
 	if x != nil {
 		return x.Field
 	}
-	return ""
+	return nil
 }
 
 func (x *WindTimeseriesQueryReq) GetStartTime() string {
@@ -5578,6 +5579,13 @@ func (x *WindTimeseriesQueryReq) GetPage() int64 {
 func (x *WindTimeseriesQueryReq) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
+	}
+	return 0
+}
+
+func (x *WindTimeseriesQueryReq) GetIndexId() int64 {
+	if x != nil {
+		return x.IndexId
 	}
 	return 0
 }
@@ -5738,9 +5746,11 @@ type WindTrendCompareReq struct {
 	FarmCode       string                 `protobuf:"bytes,1,opt,name=farm_code,json=farmCode,proto3" json:"farm_code,omitempty"`
 	TowerCode      string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
 	DeviceTypeCode string                 `protobuf:"bytes,3,opt,name=device_type_code,json=deviceTypeCode,proto3" json:"device_type_code,omitempty"`
-	Field          string                 `protobuf:"bytes,4,opt,name=field,proto3" json:"field,omitempty"`
+	Field          []string               `protobuf:"bytes,4,rep,name=field,proto3" json:"field,omitempty"`
 	StartTime      string                 `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime        string                 `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	IndexId        int64                  `protobuf:"varint,7,opt,name=index_id,json=indexId,proto3" json:"index_id,omitempty"`
+	DeviceCode     string                 `protobuf:"bytes,8,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
 	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -5797,11 +5807,11 @@ func (x *WindTrendCompareReq) GetDeviceTypeCode() string {
 	return ""
 }
 
-func (x *WindTrendCompareReq) GetField() string {
+func (x *WindTrendCompareReq) GetField() []string {
 	if x != nil {
 		return x.Field
 	}
-	return ""
+	return nil
 }
 
 func (x *WindTrendCompareReq) GetStartTime() string {
@@ -5814,6 +5824,20 @@ func (x *WindTrendCompareReq) GetStartTime() string {
 func (x *WindTrendCompareReq) GetEndTime() string {
 	if x != nil {
 		return x.EndTime
+	}
+	return ""
+}
+
+func (x *WindTrendCompareReq) GetIndexId() int64 {
+	if x != nil {
+		return x.IndexId
+	}
+	return 0
+}
+
+func (x *WindTrendCompareReq) GetDeviceCode() string {
+	if x != nil {
+		return x.DeviceCode
 	}
 	return ""
 }
@@ -6207,6 +6231,8 @@ type WindAlarmAnalyzeReq struct {
 	TowerCode     string                 `protobuf:"bytes,2,opt,name=tower_code,json=towerCode,proto3" json:"tower_code,omitempty"`
 	AlarmCode     string                 `protobuf:"bytes,3,opt,name=alarm_code,json=alarmCode,proto3" json:"alarm_code,omitempty"`
 	EvidenceJson  string                 `protobuf:"bytes,4,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"`
+	StartTime     string                 `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       string                 `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	UserId        int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6266,6 +6292,20 @@ func (x *WindAlarmAnalyzeReq) GetAlarmCode() string {
 func (x *WindAlarmAnalyzeReq) GetEvidenceJson() string {
 	if x != nil {
 		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *WindAlarmAnalyzeReq) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
 	}
 	return ""
 }
@@ -7301,21 +7341,19 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x10ListWindFarmResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12$\n" +
 	"\x04list\x18\x02 \x03(\v2\x10.ai.WindFarmItemR\x04list\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\x81\x02\n" +
-	"\x0fWindTurbineItem\x12\x1d\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xf4\x01\n" +
+	"\x0fWindTurbineItem\x12\x19\n" +
+	"\btower_id\x18\x01 \x01(\x03R\atowerId\x12\x1d\n" +
 	"\n" +
-	"turbine_id\x18\x01 \x01(\x03R\tturbineId\x12\x19\n" +
-	"\btower_id\x18\x02 \x01(\x03R\atowerId\x12\x1d\n" +
+	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12\x17\n" +
+	"\afarm_id\x18\x03 \x01(\x03R\x06farmId\x12\x1b\n" +
+	"\tfarm_code\x18\x04 \x01(\tR\bfarmCode\x12\x1b\n" +
+	"\tfarm_name\x18\x05 \x01(\tR\bfarmName\x12\x1d\n" +
 	"\n" +
-	"tower_code\x18\x03 \x01(\tR\ttowerCode\x12\x1d\n" +
+	"risk_level\x18\x06 \x01(\tR\triskLevel\x12\x1d\n" +
 	"\n" +
-	"tower_name\x18\x04 \x01(\tR\ttowerName\x12\x1b\n" +
-	"\tfarm_code\x18\x05 \x01(\tR\bfarmCode\x12\x1b\n" +
-	"\tfarm_name\x18\x06 \x01(\tR\bfarmName\x12\x1d\n" +
-	"\n" +
-	"risk_level\x18\a \x01(\tR\triskLevel\x12\x1d\n" +
-	"\n" +
-	"ai_enabled\x18\b \x01(\bR\taiEnabled\"K\n" +
+	"ai_enabled\x18\a \x01(\bR\taiEnabled\x12\x16\n" +
+	"\x06remark\x18\b \x01(\tR\x06remark\"K\n" +
 	"\x12ListWindTurbineReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x18\n" +
 	"\akeyword\x18\x02 \x01(\tR\akeyword\"n\n" +
@@ -7344,7 +7382,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x12ListWindDeviceResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12&\n" +
 	"\x04list\x18\x02 \x03(\v2\x12.ai.WindDeviceItemR\x04list\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xb9\x02\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xd4\x02\n" +
 	"\x16WindTimeseriesQueryReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +
@@ -7352,12 +7390,14 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\vdevice_code\x18\x03 \x01(\tR\n" +
 	"deviceCode\x12(\n" +
 	"\x10device_type_code\x18\x04 \x01(\tR\x0edeviceTypeCode\x12\x14\n" +
-	"\x05field\x18\x05 \x01(\tR\x05field\x12\x1d\n" +
+	"\x05field\x18\x05 \x03(\tR\x05field\x12\x1d\n" +
 	"\n" +
 	"start_time\x18\x06 \x01(\tR\tstartTime\x12\x19\n" +
 	"\bend_time\x18\a \x01(\tR\aendTime\x12\x12\n" +
 	"\x04page\x18\b \x01(\x03R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\t \x01(\x03R\bpageSize\x12\x17\n" +
+	"\tpage_size\x18\t \x01(\x03R\bpageSize\x12\x19\n" +
+	"\bindex_id\x18\n" +
+	" \x01(\x03R\aindexId\x12\x17\n" +
 	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\x91\x01\n" +
 	"\rWindDataPoint\x12\x0e\n" +
 	"\x02ts\x18\x01 \x01(\tR\x02ts\x125\n" +
@@ -7372,16 +7412,19 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x06fields\x18\x04 \x03(\tR\x06fields\x12)\n" +
 	"\x06points\x18\x05 \x03(\v2\x11.ai.WindDataPointR\x06points\x12#\n" +
 	"\revidence_json\x18\x06 \x01(\tR\fevidenceJson\x12\x18\n" +
-	"\amessage\x18\a \x01(\tR\amessage\"\xe4\x01\n" +
+	"\amessage\x18\a \x01(\tR\amessage\"\xa0\x02\n" +
 	"\x13WindTrendCompareReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +
 	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12(\n" +
 	"\x10device_type_code\x18\x03 \x01(\tR\x0edeviceTypeCode\x12\x14\n" +
-	"\x05field\x18\x04 \x01(\tR\x05field\x12\x1d\n" +
+	"\x05field\x18\x04 \x03(\tR\x05field\x12\x1d\n" +
 	"\n" +
 	"start_time\x18\x05 \x01(\tR\tstartTime\x12\x19\n" +
-	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x17\n" +
+	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x19\n" +
+	"\bindex_id\x18\a \x01(\x03R\aindexId\x12\x1f\n" +
+	"\vdevice_code\x18\b \x01(\tR\n" +
+	"deviceCode\x12\x17\n" +
 	"\auser_id\x18\x14 \x01(\x03R\x06userId\"o\n" +
 	"\x14WindTrendCompareResp\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12#\n" +
@@ -7427,14 +7470,17 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12%\n" +
 	"\x04list\x18\x02 \x03(\v2\x11.ai.WindAlarmItemR\x04list\x12#\n" +
 	"\revidence_json\x18\x03 \x01(\tR\fevidenceJson\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\"\xae\x01\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"\xe8\x01\n" +
 	"\x13WindAlarmAnalyzeReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +
 	"tower_code\x18\x02 \x01(\tR\ttowerCode\x12\x1d\n" +
 	"\n" +
 	"alarm_code\x18\x03 \x01(\tR\talarmCode\x12#\n" +
-	"\revidence_json\x18\x04 \x01(\tR\fevidenceJson\x12\x17\n" +
+	"\revidence_json\x18\x04 \x01(\tR\fevidenceJson\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x05 \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x17\n" +
 	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\xac\x01\n" +
 	"\x10WindScaffoldResp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +

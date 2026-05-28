@@ -82,6 +82,33 @@ type ChatAggregateResponse struct {
 	TraceID string `json:"trace_id"`
 }
 
+type WindDraftRequest struct {
+	UserID       string           `json:"user_id"`
+	TraceID      string           `json:"trace_id,omitempty"`
+	FarmCode     string           `json:"farm_code"`
+	TowerCode    string           `json:"tower_code,omitempty"`
+	Question     string           `json:"question,omitempty"`
+	Evidence     []map[string]any `json:"evidence,omitempty"`
+	EvidenceJSON string           `json:"evidence_json,omitempty"`
+	ReportType   string           `json:"report_type,omitempty"`
+	StartTime    string           `json:"start_time,omitempty"`
+	EndTime      string           `json:"end_time,omitempty"`
+	AlarmCode    string           `json:"alarm_code,omitempty"`
+	Priority     string           `json:"priority,omitempty"`
+}
+
+type WindDraftResponse struct {
+	Title           string           `json:"title"`
+	Status          string           `json:"status"`
+	Summary         string           `json:"summary"`
+	EvidenceCount   int64            `json:"evidence_count"`
+	Message         string           `json:"message"`
+	Metrics         map[string]any   `json:"metrics"`
+	Sections        []map[string]any `json:"sections"`
+	Recommendations []string         `json:"recommendations"`
+	Todo            []string         `json:"todo"`
+}
+
 func NewClient(baseURL string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -311,4 +338,52 @@ func (c *Client) EngineChatStream(ctx context.Context, payload ChatStreamRequest
 		Answer:  answer.String(),
 		TraceID: traceID,
 	}, nil
+}
+
+func (c *Client) WindAlarmSummary(ctx context.Context, payload WindDraftRequest) (*WindDraftResponse, error) {
+	return c.windDraft(ctx, "/v1/wind/summary/alarm", payload)
+}
+
+func (c *Client) WindHealthReportDraft(ctx context.Context, payload WindDraftRequest) (*WindDraftResponse, error) {
+	return c.windDraft(ctx, "/v1/wind/reports/health/draft", payload)
+}
+
+func (c *Client) WindTicketDraft(ctx context.Context, payload WindDraftRequest) (*WindDraftResponse, error) {
+	return c.windDraft(ctx, "/v1/wind/tickets/draft", payload)
+}
+
+func (c *Client) windDraft(ctx context.Context, path string, payload WindDraftRequest) (*WindDraftResponse, error) {
+	if c == nil || c.baseURL == "" {
+		return nil, fmt.Errorf("engine base url is empty")
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("engine wind draft returned HTTP %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var draft WindDraftResponse
+	if err := json.Unmarshal(respBody, &draft); err != nil {
+		return nil, err
+	}
+	return &draft, nil
 }

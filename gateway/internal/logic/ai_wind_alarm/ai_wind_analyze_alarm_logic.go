@@ -9,6 +9,8 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,11 +30,18 @@ func NewAiWindAnalyzeAlarmLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *AiWindAnalyzeAlarmLogic) AiWindAnalyzeAlarm(req *types.AiWindAlarmAnalyzeReq) (resp *types.AiWindScaffoldResp, err error) {
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
 	result, err := l.svcCtx.AiWindAlarmClient.AnalyzeAlarm(l.ctx, &pb.WindAlarmAnalyzeReq{
 		FarmCode:     req.FarmCode,
 		TowerCode:    req.TowerCode,
 		AlarmCode:    req.AlarmCode,
 		EvidenceJson: req.EvidenceJson,
+		UserId:       userID,
+		StartTime:    req.StartTime,
+		EndTime:      req.EndTime,
 	})
 	if err != nil {
 		return nil, err

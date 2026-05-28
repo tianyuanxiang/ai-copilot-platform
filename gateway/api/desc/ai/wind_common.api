@@ -11,14 +11,14 @@ type AiWindFarmItem {
 }
 
 type AiWindTurbineItem {
-	turbineId int64 `json:"turbineId"`
 	towerId int64 `json:"towerId"`
 	towerCode string `json:"towerCode"`
-	towerName string `json:"towerName"`
+	farmId    int64   `json:farmId`
 	farmCode string `json:"farmCode"`
 	farmName string `json:"farmName"`
 	riskLevel string `json:"riskLevel"`
-	aiEnabled bool `json:"aiEnabled"`
+	aiEnabled bool  `json:"aiEnabled"`
+	remark   string `json:"remark"`
 }
 
 type AiWindDeviceItem {

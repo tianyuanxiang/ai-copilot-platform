@@ -36,6 +36,7 @@ require (
 	github.com/grafana/pyroscope-go v1.2.8 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.9 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.7 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
@@ -105,6 +106,7 @@ require (
 
 require (
 	ai-copilot-platform/ai-rpc v1.0.0
+	github.com/taosdata/driver-go/v3 v3.7.3
 	go-zero-rpc/common v1.0.0
 	go-zero-rpc/gateway v1.0.0
 	go-zero-rpc/sys-rpc v1.0.0

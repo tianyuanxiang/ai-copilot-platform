@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -16,7 +17,7 @@ type (
 	WindDeviceMetaModel interface {
 		windDeviceMetaModel
 		withSession(session sqlx.Session) WindDeviceMetaModel
-		FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedField string) []string
+		FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedFields []string) ([]string, error)
 	}
 
 	customWindDeviceMetaModel struct {
@@ -37,15 +38,20 @@ func (m *customWindDeviceMetaModel) withSession(session sqlx.Session) WindDevice
 	return NewWindDeviceMetaModel(sqlx.NewSqlConnFromSession(session), m.db)
 }
 
-func (m *customWindDeviceMetaModel) FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedField string) []string {
+func (m *customWindDeviceMetaModel) FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedFields []string) ([]string, error) {
 	code := strings.ToUpper(strings.TrimSpace(deviceTypeCode))
-	field := strings.TrimSpace(requestedField)
+
 	allowed := make([]string, 0)
 	if m.db != nil && code != "" {
 		var rows []struct {
-			ColumnName string `gorm:"column:column_name"`
+			ColumnName  string `gorm:"column:column_name"`
+			DisplayName string `gorm:"column:display_name"`
 		}
-		err := m.db.WithContext(ctx).Raw(`select column_name from wind_device_meta where device_type_code = ? and ai_enabled = true order by ord asc`, code).Scan(&rows).Error
+		err := m.db.WithContext(ctx).Table("wind_device_meta").
+			Where("device_type_code = ?", code).
+			Where("ai_enabled = ?", true).
+			Order("ord asc").
+			Find(&rows).Error
 		if err == nil && len(rows) > 0 {
 			for _, row := range rows {
 				if IsSafeIdentifier(row.ColumnName) {
@@ -55,16 +61,37 @@ func (m *customWindDeviceMetaModel) FieldsForDeviceType(ctx context.Context, dev
 		}
 	}
 	if len(allowed) == 0 {
-		stable := deviceTypeStableFallback[code]
+		stable := DeviceTypeStableFallback[code]
 		allowed = stableFieldsFallback[stable]
 	}
-	if field == "" {
-		return allowed
+
+	fields := normalizeRequestedFields(requestedFields)
+	if len(fields) == 0 {
+		return allowed, nil
 	}
+	allowedSet := make(map[string]struct{}, len(allowed))
 	for _, item := range allowed {
-		if field == item {
-			return []string{field}
+		allowedSet[item] = struct{}{}
+	}
+	selected := make([]string, 0, len(fields))
+	for _, field := range fields {
+		if _, ok := allowedSet[field]; !ok {
+			return nil, errors.New("field not found")
+		}
+		selected = append(selected, field)
+	}
+	return selected, nil
+}
+
+func normalizeRequestedFields(fields []string) []string {
+	result := make([]string, 0, len(fields))
+	for _, field := range fields {
+		for _, item := range strings.Split(field, ",") {
+			item = strings.TrimSpace(item)
+			if item != "" {
+				result = append(result, item)
+			}
 		}
 	}
-	return nil
+	return result
 }

@@ -1,12 +1,10 @@
 package aiwindmetadataservicelogic
 
 import (
-	"ai-copilot-platform/ai-rpc/internal/model"
-	"context"
-	"strings"
-
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
+	"context"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,29 +24,22 @@ func NewListTurbinesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 }
 
 func (l *ListTurbinesLogic) ListTurbines(in *pb.ListWindTurbineReq) (*pb.ListWindTurbineResp, error) {
-	var rows []model.WindTower
-	query := l.svcCtx.Orm.Table("wind_turbine").Where("is_delete = 0")
-	if farmCode := strings.TrimSpace(in.FarmCode); farmCode != "" {
-		query = query.Where("farm_code = ?", strings.ToUpper(farmCode))
+	towers, err := l.svcCtx.WindTowerModel.ListTurbines(l.ctx, in.FarmCode, in.Keyword)
+	if err != nil {
+		l.Logger.Errorf("ListTurbines err %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "查询风机列表错误")
 	}
-	if keyword := strings.TrimSpace(in.Keyword); keyword != "" {
-		like := "%" + keyword + "%"
-		query = query.Where("tower_code like ? or farm_name like ?", like, like)
-	}
-	if err := query.Order("farm_code asc, tower_code asc").Find(&rows).Error; err != nil {
-		return nil, err
-	}
-	items := make([]*pb.WindTurbineItem, 0, len(rows))
-	for _, row := range rows {
+	items := make([]*pb.WindTurbineItem, 0, len(towers))
+	for _, row := range towers {
 		items = append(items, &pb.WindTurbineItem{
-			TurbineId: row.TowerId,
 			TowerId:   row.TowerId,
-			TowerCode: row.TowerCode,
-			TowerName: row.TowerCode + "号风机",
+			TowerCode: row.TowerCode + "号风机",
+			FarmId:    row.FarmId,
 			FarmCode:  row.FarmCode,
 			FarmName:  row.FarmName,
 			RiskLevel: row.RiskLevel,
 			AiEnabled: row.AiEnabled,
+			Remark:    row.Remark,
 		})
 	}
 	return &pb.ListWindTurbineResp{Total: int64(len(items)), List: items, Message: "wind turbine metadata scaffold ready"}, nil

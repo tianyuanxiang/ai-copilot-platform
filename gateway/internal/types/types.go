@@ -433,6 +433,8 @@ type AiWindAlarmAnalyzeReq struct {
 	FarmCode     string `json:"farmCode"`
 	TowerCode    string `json:"towerCode,optional"`
 	AlarmCode    string `json:"alarmCode,optional"`
+	StartTime    string `json:"startTime,optional"`
+	EndTime      string `json:"endTime,optional"`
 	EvidenceJson string `json:"evidenceJson,optional"`
 }
 
@@ -574,15 +576,16 @@ type AiWindTicketDraftReq struct {
 }
 
 type AiWindTimeseriesQueryReq struct {
-	FarmCode       string `json:"farmCode"`
-	TowerCode      string `json:"towerCode,optional"`
-	DeviceCode     string `json:"deviceCode,optional"`
-	DeviceTypeCode string `json:"deviceTypeCode"`
-	Field          string `json:"field,optional"`
-	StartTime      string `json:"startTime,optional"`
-	EndTime        string `json:"endTime,optional"`
-	Page           int    `json:"page,optional"`
-	PageSize       int    `json:"pageSize,optional"`
+	FarmCode       string   `json:"farmCode"`
+	TowerCode      string   `json:"towerCode,optional"`
+	DeviceCode     string   `json:"deviceCode,optional"`
+	DeviceTypeCode string   `json:"deviceTypeCode"`
+	Field          []string `json:"field,optional"`
+	StartTime      string   `json:"startTime,optional"`
+	EndTime        string   `json:"endTime,optional"`
+	Page           int      `json:"page,optional"`
+	PageSize       int      `json:"pageSize,optional"`
+	IndexId        int64    `json:"indexId,optional"`
 }
 
 type AiWindTimeseriesQueryResp struct {
@@ -606,12 +609,14 @@ type AiWindToolCallItem struct {
 }
 
 type AiWindTrendCompareReq struct {
-	FarmCode       string `json:"farmCode"`
-	TowerCode      string `json:"towerCode,optional"`
-	DeviceTypeCode string `json:"deviceTypeCode"`
-	Field          string `json:"field,optional"`
-	StartTime      string `json:"startTime,optional"`
-	EndTime        string `json:"endTime,optional"`
+	FarmCode       string   `json:"farmCode"`
+	TowerCode      string   `json:"towerCode,optional"`
+	DeviceTypeCode string   `json:"deviceTypeCode"`
+	DeviceCode     string   `json:"deviceCode,optional"`
+	Field          []string `json:"field,optional"`
+	StartTime      string   `json:"startTime,optional"`
+	EndTime        string   `json:"endTime,optional"`
+	IndexId        int64    `json:"indexId,optional"`
 }
 
 type AiWindTrendCompareResp struct {
@@ -621,12 +626,12 @@ type AiWindTrendCompareResp struct {
 }
 
 type AiWindTurbineItem struct {
-	TurbineId int64  `json:"turbineId"`
 	TowerId   int64  `json:"towerId"`
 	TowerCode string `json:"towerCode"`
-	TowerName string `json:"towerName"`
+	FarmId    int64  `json:farmId`
 	FarmCode  string `json:"farmCode"`
 	FarmName  string `json:"farmName"`
 	RiskLevel string `json:"riskLevel"`
 	AiEnabled bool   `json:"aiEnabled"`
+	Remark    string `json:"remark"`
 }

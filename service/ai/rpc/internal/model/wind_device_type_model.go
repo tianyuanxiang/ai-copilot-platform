@@ -16,7 +16,6 @@ type (
 	WindDeviceTypeModel interface {
 		windDeviceTypeModel
 		withSession(session sqlx.Session) WindDeviceTypeModel
-		StableForDeviceType(ctx context.Context, deviceTypeCode string) string
 		FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedField string) []string
 		AlarmDeviceType(deviceTypeCode string) int64
 	}
@@ -39,20 +38,6 @@ func (m *customWindDeviceTypeModel) withSession(session sqlx.Session) WindDevice
 	return NewWindDeviceTypeModel(sqlx.NewSqlConnFromSession(session), m.db)
 }
 
-func (m *customWindDeviceTypeModel) StableForDeviceType(ctx context.Context, deviceTypeCode string) string {
-	code := strings.ToUpper(strings.TrimSpace(deviceTypeCode))
-	if m.db != nil && code != "" {
-		var row struct {
-			TDStable string `gorm:"column:td_stable"`
-		}
-		err := m.db.WithContext(ctx).Raw(`select td_stable from wind_device_type where device_type_code = ? and is_delete = 0 limit 1`, code).Scan(&row).Error
-		if err == nil && row.TDStable != "" {
-			return row.TDStable
-		}
-	}
-	return deviceTypeStableFallback[code]
-}
-
 func (m *customWindDeviceTypeModel) FieldsForDeviceType(ctx context.Context, deviceTypeCode string, requestedField string) []string {
 	code := strings.ToUpper(strings.TrimSpace(deviceTypeCode))
 	field := strings.TrimSpace(requestedField)
@@ -71,7 +56,7 @@ func (m *customWindDeviceTypeModel) FieldsForDeviceType(ctx context.Context, dev
 		}
 	}
 	if len(allowed) == 0 {
-		stable := deviceTypeStableFallback[code]
+		stable := DeviceTypeStableFallback[code]
 		allowed = stableFieldsFallback[stable]
 	}
 	if field == "" {

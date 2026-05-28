@@ -41,14 +41,14 @@ func (l *AiWindListTurbinesLogic) AiWindListTurbines(req *types.AiWindListTurbin
 			continue
 		}
 		list = append(list, types.AiWindTurbineItem{
-			TurbineId: item.TurbineId,
 			TowerId:   item.TowerId,
 			TowerCode: item.TowerCode,
-			TowerName: item.TowerName,
+			FarmId:    item.FarmId,
 			FarmCode:  item.FarmCode,
 			FarmName:  item.FarmName,
 			RiskLevel: item.RiskLevel,
 			AiEnabled: item.AiEnabled,
+			Remark:    item.Remark,
 		})
 	}
 	return &types.AiWindListTurbineResp{Total: result.Total, List: list, Message: result.Message}, nil

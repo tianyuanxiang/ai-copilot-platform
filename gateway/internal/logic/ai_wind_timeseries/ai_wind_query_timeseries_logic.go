@@ -38,6 +38,7 @@ func (l *AiWindQueryTimeseriesLogic) AiWindQueryTimeseries(req *types.AiWindTime
 		EndTime:        req.EndTime,
 		Page:           int64(req.Page),
 		PageSize:       int64(req.PageSize),
+		IndexId:        req.IndexId,
 	})
 	if err != nil {
 		return nil, err

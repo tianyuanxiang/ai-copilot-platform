@@ -2,7 +2,11 @@ package aiwindalarmservicelogic
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"ai-copilot-platform/ai-rpc/internal/engine"
+	"ai-copilot-platform/ai-rpc/internal/logic/aiwinddraft"
 	"ai-copilot-platform/ai-rpc/internal/model"
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
@@ -26,19 +30,62 @@ func NewAnalyzeAlarmLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Anal
 
 func (l *AnalyzeAlarmLogic) AnalyzeAlarm(in *pb.WindAlarmAnalyzeReq) (*pb.WindScaffoldResp, error) {
 	traceID := model.WindTraceID()
-	evidence := map[string]any{
-		"scaffold":       true,
-		"farm_code":      in.FarmCode,
-		"tower_code":     in.TowerCode,
-		"alarm_code":     in.AlarmCode,
-		"input_evidence": in.EvidenceJson,
-		"todo":           "后续补充告警前后时序窗口、SOP 检索、历史案例召回和归因排序。",
+
+	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(l.ctx, l.svcCtx, in.FarmCode, in.TowerCode, in.AlarmCode, in.StartTime, in.EndTime, 0, true)
+	if err != nil {
+		return nil, err
 	}
+	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(in.EvidenceJson, alarmEvidence)
+
+	payload := engine.WindDraftRequest{
+		UserID:       aiwinddraft.UserIDString(in.UserId),
+		TraceID:      traceID,
+		FarmCode:     in.FarmCode,
+		TowerCode:    in.TowerCode,
+		AlarmCode:    in.AlarmCode,
+		Evidence:     evidenceItems,
+		EvidenceJSON: evidenceJSON,
+	}
+
+	startedAt := time.Now()
+	draft, err := l.svcCtx.EngineCallClient.WindAlarmSummary(l.ctx, payload)
+	if err != nil {
+		aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_alarm_analysis", payload, map[string]any{}, startedAt, "failed", err.Error())
+		return nil, err
+	}
+	aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_alarm_analysis", payload, draft, startedAt, "success", "")
+
+	status := draft.Status
+	if status == "" {
+		status = "draft"
+	}
+	content := aiwinddraft.DraftContent(draft)
+
+	// 数据库只存轻量 evidence 摘要，不存全量原始告警记录
+	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+
+	id, err := l.svcCtx.AiAlarmAnalysisModel.InsertReturningID(l.ctx, &model.AiAlarmAnalysis{
+		UserId:    in.UserId,
+		TraceId:   traceID,
+		FarmCode:  in.FarmCode,
+		TowerCode: in.TowerCode,
+		AlarmCode: in.AlarmCode,
+		Title:     draft.Title,
+		Content:   content,
+		Evidence:  evidenceSummary,
+		Status:    status,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// API 响应只返回轻量 evidence 摘要，不回传原始查询数据
 	return &pb.WindScaffoldResp{
+		Id:           id,
 		TraceId:      traceID,
-		Title:        "告警归因草稿",
-		Content:      "告警归因脚手架已预留。一期只记录输入证据和后续补全步骤。",
-		EvidenceJson: model.WindEvidenceJSON(evidence),
-		Message:      "alarm analysis scaffold ready",
+		Title:        draft.Title,
+		Content:      content,
+		EvidenceJson: evidenceSummary,
+		Message:      fmt.Sprintf("%s; status=%s", draft.Message, status),
 	}, nil
 }

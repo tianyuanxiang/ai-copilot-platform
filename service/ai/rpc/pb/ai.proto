@@ -622,14 +622,14 @@ message ListWindFarmResp {
 }
 
 message WindTurbineItem {
-  int64 turbine_id = 1;
-  int64 tower_id = 2;
-  string tower_code = 3;
-  string tower_name = 4;
-  string farm_code = 5;
-  string farm_name = 6;
-  string risk_level = 7;
-  bool ai_enabled = 8;
+  int64 tower_id = 1;
+  string tower_code = 2;
+  int64  farm_id = 3;
+  string farm_code = 4;
+  string farm_name = 5;
+  string risk_level = 6;
+  bool ai_enabled = 7;
+  string remark = 8;
 }
 
 message ListWindTurbineReq {
@@ -673,11 +673,12 @@ message WindTimeseriesQueryReq {
   string tower_code = 2;
   string device_code = 3;
   string device_type_code = 4;
-  string field = 5;
+  repeated string field = 5;
   string start_time = 6;
   string end_time = 7;
   int64 page = 8;
   int64 page_size = 9;
+  int64 index_id = 10;
   int64 user_id = 20;
 }
 
@@ -700,9 +701,11 @@ message WindTrendCompareReq {
   string farm_code = 1;
   string tower_code = 2;
   string device_type_code = 3;
-  string field = 4;
+  repeated string field = 4;
   string start_time = 5;
   string end_time = 6;
+  int64 index_id = 7;
+  string device_code = 8;
   int64 user_id = 20;
 }
 
@@ -752,6 +755,8 @@ message WindAlarmAnalyzeReq {
   string tower_code = 2;
   string alarm_code = 3;
   string evidence_json = 4;
+  string start_time = 5;
+  string end_time = 6;
   int64 user_id = 20;
 }
 

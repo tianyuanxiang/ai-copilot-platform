@@ -23,6 +23,20 @@ type (
 		*defaultWindDeviceModel
 		db *gorm.DB
 	}
+
+	WindDeviceView struct {
+		DeviceId       int64  `gorm:"column:device_id"`
+		DeviceCode     string `gorm:"column:device_code"`
+		DeviceTypeCode string `gorm:"column:device_type_code"`
+		DeviceTypeName string `gorm:"column:device_type_name"`
+		TowerId        int64  `gorm:"column:tower_id"`
+		TowerCode      string `gorm:"column:tower_code"`
+		StructureCode  string `gorm:"column:structure_code"`
+		StructureName  string `gorm:"column:structure_name"`
+		TDStable       string `gorm:"column:td_stable"`
+		Status         int64  `gorm:"column:status"`
+		AiEnabled      bool   `gorm:"column:ai_enabled"`
+	}
 )
 
 // NewWindDeviceModel returns a model for the database table.
@@ -42,9 +56,8 @@ func (m *customWindDeviceModel) ListDevices(ctx context.Context, farmCode string
 	query := m.db.WithContext(ctx).Table("wind_device d").
 		Select(`d.device_id, d.device_code, d.device_type_code, dt.device_type_name,
 			d.tower_id, t.tower_code, d.structure_code, st.structure_name,
-			coalesce(nullif(d.td_stable, ''), dt.td_stable) as td_stable,
-			d.status, d.ai_enabled`).
-		Joins("left join wind_turbine t on t.tower_id = d.tower_id").
+			d.status`).
+		Joins("left join wind_tower t on t.tower_id = d.tower_id").
 		Joins("left join wind_device_type dt on dt.device_type_code = d.device_type_code").
 		Joins("left join wind_structure_type st on st.structure_code = d.structure_code").
 		Where("d.is_delete = 0")

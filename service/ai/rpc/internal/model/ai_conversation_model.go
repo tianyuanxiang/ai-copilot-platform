@@ -136,19 +136,19 @@ func (m *customAiConversationModel) ListByUser(ctx context.Context, query Conver
 	page, pageSize := normalizePage(query.Page, query.PageSize)
 	var list []ConversationListItem
 	err := db.Select(`
-  c.id,
-  coalesce(c.kb_id, 0) as kb_id,
-  c.kb_id is not null as has_kb_id,
-  c.title,
-  coalesce((
-    select m.content
-    from "public"."ai_message" m
-    where m.conversation_id = c.id and m.deleted_at is null
-    order by m.created_at desc, m.id desc
-    limit 1
-  ), '') as latest_message,
-  c.created_at,
-  c.updated_at`).
+		  c.id,
+		  coalesce(c.kb_id, 0) as kb_id,
+		  c.kb_id is not null as has_kb_id,
+		  c.title,
+		  coalesce((
+			select m.content
+			from "public"."ai_message" m
+			where m.conversation_id = c.id and m.deleted_at is null
+			order by m.created_at desc, m.id desc
+			limit 1
+		  ), '') as latest_message,
+		  c.created_at,
+		  c.updated_at`).
 		Order("c.updated_at desc, c.id desc").
 		Limit(int(pageSize)).
 		Offset(int((page - 1) * pageSize)).

@@ -5,9 +5,10 @@ from pydantic import BaseModel, Field
 
 class WindEvidenceRequest(BaseModel):
     user_id: str = "demo-user"
+    trace_id: str = ""
     farm_code: str = Field(default="", max_length=64)
     tower_code: str = Field(default="", max_length=64)
-    question: str = Field(default="", max_length=4000)
+    question: str = Field(default="", max_length=10000)
     evidence: list[dict[str, Any]] = Field(default_factory=list)
     evidence_json: str = ""
 

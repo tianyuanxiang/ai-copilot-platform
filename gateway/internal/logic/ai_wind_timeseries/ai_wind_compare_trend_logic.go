@@ -35,6 +35,7 @@ func (l *AiWindCompareTrendLogic) AiWindCompareTrend(req *types.AiWindTrendCompa
 		Field:          req.Field,
 		StartTime:      req.StartTime,
 		EndTime:        req.EndTime,
+		IndexId:        req.IndexId,
 	})
 	if err != nil {
 		return nil, err

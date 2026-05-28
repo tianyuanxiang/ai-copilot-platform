@@ -1,14 +1,49 @@
 import json
+import logging
 from collections import Counter, defaultdict
 from statistics import mean
-from typing import Any
+from typing import Any, Literal, TypedDict
 
+from langgraph.graph import START, END, StateGraph
+
+from app.core.config import get_settings
+from app.schemas.chat import ChatStreamRequest
 from app.schemas.wind import (
     WindEvidenceRequest,
     WindHealthReportDraftRequest,
     WindScaffoldResponse,
     WindTicketDraftRequest,
 )
+from app.services import llm
+
+"""
+从零写一个 LangGraph 流程，思维框架是
+  第一步：定义 State
+      → 想清楚每个步骤需要读什么、写什么
+  第二步：定义节点（流程分几步？每步干什么？）
+      → 每个节点是一个函数：读 state → 干活 → 写回 state
+  第三步：定义边（步骤之间的顺序是什么？有没有分支？）
+      → 线性就用 add_edge
+      → 有分支就用 add_conditional_edges
+  第四步：设置入口（从哪个节点开始？）
+      → set_entry_point
+  第五步：compile + invoke
+      → 把初始数据塞进 state，启动图
+"""
+logger = logging.getLogger(__name__)
+
+
+class WindDraftState(TypedDict, total=False):
+    payload: WindEvidenceRequest # 原始请求，始终不变
+    task: Literal["timeseries", "alarm", "health_report", "ticket"]
+    evidence: list[dict[str, Any]]
+    alarms: list[dict[str, Any]]
+    points: list[dict[str, Any]]
+    metrics: dict[str, Any]
+    draft: WindScaffoldResponse
+
+
+WindDraftTask = Literal["timeseries", "alarm", "health_report", "ticket"]
 
 
 # Python Engine 的边界很重要：它不直接访问 PostgreSQL、TDengine 或 ES。
@@ -16,9 +51,12 @@ from app.schemas.wind import (
 # 这样后续接入 LLM 时也不会让模型绕过白名单去“自由查库”。
 def _collect_evidence(payload: WindEvidenceRequest) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = list(payload.evidence)
-    if not payload.evidence_json:
+    if items:
+        return items
+    if not payload.evidence_json: # 如果都不是，返回空列表
         return items
 
+    # 尝试解析 evidence_json 字符串
     try:
         parsed = json.loads(payload.evidence_json)
     except json.JSONDecodeError:
@@ -36,16 +74,16 @@ def _insufficient(title: str, payload: WindEvidenceRequest) -> WindScaffoldRespo
     return WindScaffoldResponse(
         title=title,
         status="insufficient_evidence",
-        summary="未收到 Go 侧传入的事实证据，不能生成异常判断、归因结论或处置结论。",
+        summary="未收到可用于生成草稿的风机事实证据，不能生成异常判断、归因结论或处置结论。",
         evidence_count=0,
-        message="请先由 Go RPC 调用 PG/TDengine/RAG 工具形成 evidence，再调用 Python 生成摘要。",
+        message="请先由 Go RPC 调用 PG/TDengine 工具形成有效 evidence，再调用 Python 生成草稿。",
         sections=[
             {
                 "name": "证据要求",
                 "content": "至少需要包含时间范围、数据来源、风场/风机/设备标识，以及查询返回的测点或告警记录。",
             }
         ],
-        recommendations=["补充 evidence 后重试", "不要让 Python 直接访问 TDengine"],
+        recommendations=["补充有效 evidence 后重试", "不要让 Python 直接访问 TDengine"],
         todo=["接入更多 evidence 字段解释", "后续可在此处接 LLM 生成更自然的文本"],
     )
 
@@ -58,7 +96,7 @@ def _numeric(value: Any) -> float | None:
     except (TypeError, ValueError):
         return None
 
-
+# 看有没有 points、rows、values、ts 这些 key
 def _timeseries_points(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
     points: list[dict[str, Any]] = []
     for item in evidence:
@@ -70,6 +108,26 @@ def _timeseries_points(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
             points.append(item)
     return points
 
+# 看有没有 alarm_code、list、alarms 这些 key
+# 优先使用 Go 侧聚合指标(alarm_count/level_counts/status_counts/tower_counts)，
+# 只有没有聚合指标时才回退扫描 list/alarms 原始行
+def _alarms(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    alarms: list[dict[str, Any]] = []
+    for item in evidence:
+        # 优先使用 Go 侧聚合指标
+        if item.get("alarm_count") is not None and "level_counts" in item:
+            # 将聚合指标转换为统一格式，供 _aggregate_alarm_metrics 使用
+            alarms.append(item)
+            continue
+
+        if isinstance(item.get("list"), list):
+            alarms.extend(alarm for alarm in item["list"] if isinstance(alarm, dict))
+        elif isinstance(item.get("alarms"), list):
+            alarms.extend(alarm for alarm in item["alarms"] if isinstance(alarm, dict))
+        elif "alarm_code" in item or "alarmCode" in item:
+            alarms.append(item)
+    return alarms
+
 
 def _point_values(point: dict[str, Any]) -> dict[str, Any]:
     values = point.get("values")
@@ -78,6 +136,7 @@ def _point_values(point: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in point.items() if k not in {"ts", "time", "timestamp"}}
 
 
+# 对每个数值字段算：count(条数)、min(最小)、max(最大)、avg(均值)、latest(最新值)
 def _summarize_numeric_fields(points: list[dict[str, Any]]) -> dict[str, Any]:
     buckets: dict[str, list[float]] = defaultdict(list)
     latest: dict[str, Any] = {}
@@ -112,17 +171,144 @@ def _risk_from_alarm_level(level_counts: Counter[str]) -> str:
     return "normal"
 
 
-async def summarize_timeseries(payload: WindEvidenceRequest) -> WindScaffoldResponse:
-    evidence = _collect_evidence(payload)
-    if not evidence:
-        return _insufficient("测点时序摘要", payload)
+def _level_value(alarm: dict[str, Any]) -> str:
+    value = alarm.get("alarm_level", alarm.get("alarmLevel", ""))
+    return "" if value is None else str(value)
 
+
+def _aggregate_alarm_metrics(alarms: list[dict[str, Any]]) -> dict[str, Any]:
+    # 优先使用 Go 侧预计算的聚合指标
+    # 当 BuildAlarmEvidence 已提供聚合统计时，直接复用，无需重新扫描原始行
+    for alarm in alarms:
+        if alarm.get("alarm_count") is not None and "level_counts" in alarm:
+            precomputed = {
+                "alarm_count": alarm["alarm_count"],
+                "level_counts": alarm.get("level_counts", {}),
+                "status_counts": alarm.get("status_counts", {}),
+                "tower_counts": alarm.get("tower_counts", {}),
+            }
+            # 如果有 level_counts，基于其计算风险等级
+            level_counter = Counter()
+            for k, v in alarm.get("level_counts", {}).items():
+                # level_counts 的 key 格式为 level_1, level_2 等，提取数字部分
+                level_num = k.replace("level_", "") if isinstance(k, str) else str(k)
+                level_counter[level_num] = v if isinstance(v, int) else int(v)
+            precomputed["risk"] = _risk_from_alarm_level(level_counter)
+            precomputed["truncated"] = alarm.get("truncated", False)
+            precomputed["returned_records"] = alarm.get("returned_records", 0)
+            return precomputed
+
+    # 回退：没有聚合指标时，从原始告警行计算
+    level_counts: Counter[str] = Counter()
+    status_counts: Counter[str] = Counter()
+    tower_counts: Counter[str] = Counter()
+    for alarm in alarms:
+        level_counts[_level_value(alarm)] += 1  # 统计每个告警等级出现了多少次
+        status_counts[str(alarm.get("status", ""))] += 1 # 统计每个状态出现了多少次
+        tower_counts[str(alarm.get("tower_code", alarm.get("towerCode", alarm.get("tower_id", ""))))] += 1 # 统计每台风机有多少告警
+
+    return {
+        "alarm_count": len(alarms),
+        "level_counts": dict(level_counts),
+        "status_counts": dict(status_counts),
+        "tower_counts": dict(tower_counts),
+        "risk": _risk_from_alarm_level(level_counts), # 判断整体风险等级
+    }
+
+
+def _priority_from_risk(risk: str, fallback: str) -> str:
+    if risk == "critical":
+        return "urgent"
+    if risk == "high":
+        return "high"
+    if risk == "warning":
+        return "normal"
+    return fallback or "normal"
+
+
+def _validate_evidence(state: WindDraftState) -> WindDraftState:
+    payload = state["payload"]
+    evidence = _collect_evidence(payload)
+    logger.info("[validate_evidence] 提取到 %d 条 evidence, task=%s", len(evidence), state["task"])
+    if not evidence:
+        logger.warning("[validate_evidence] evidence 为空, farm_code=%s tower_code=%s",
+                       payload.farm_code, payload.tower_code)
+    return {**state, "evidence": evidence}
+
+
+# 把证据分成两类——告警记录和测点数据
+def _normalize_evidence(state: WindDraftState) -> WindDraftState:
+    evidence = state.get("evidence", [])
+    alarms = _alarms(evidence)
     points = _timeseries_points(evidence)
-    metrics = _summarize_numeric_fields(points)
-    if not metrics:
+    logger.info("[normalize_evidence] 从 %d 条 evidence 中拆分出 %d 条告警, %d 条测点",
+                len(evidence), len(alarms), len(points))
+    return {**state, "alarms": alarms, "points": points}
+
+
+def _aggregate_facts(state: WindDraftState) -> WindDraftState:
+    points = state.get("points", [])
+    alarms = state.get("alarms", [])
+    alarm_metrics = _aggregate_alarm_metrics(alarms)
+    ts_metrics = _summarize_numeric_fields(points)
+    logger.info("[aggregate_facts] 告警统计: count=%d risk=%s level_counts=%s",
+                alarm_metrics.get("alarm_count", 0),
+                alarm_metrics.get("risk", "normal"),
+                alarm_metrics.get("level_counts", {}))
+    logger.info("[aggregate_facts] 测点统计: point_count=%d fields=%s",
+                len(points), list(ts_metrics.keys()))
+    return {
+        **state,
+        "metrics": {
+            "point_count": len(points),
+            "alarm": alarm_metrics, # 告警统计
+            "timeseries": ts_metrics, # 测点统计
+        },
+    }
+
+# 构建草稿
+def _build_draft(state: WindDraftState) -> WindDraftState:
+    task = state["task"]
+    payload = state["payload"]
+    evidence = state.get("evidence", [])
+    alarms = state.get("alarms", [])
+    points = state.get("points", [])
+    metrics = state.get("metrics", {})
+
+    if not evidence or (not alarms and not points and task in {"alarm", "timeseries", "ticket"}):
+        title = {
+            "alarm": "告警分析摘要",
+            "timeseries": "测点时序摘要",
+            "ticket": "维修工单草稿",
+        }.get(task, "健康报告草稿")
+        logger.warning("[build_draft] 证据不足, 返回 insufficient_evidence, task=%s evidence=%d alarms=%d points=%d",
+                       task, len(evidence), len(alarms), len(points))
+        return {**state, "draft": _insufficient(title, payload)}
+
+    if task == "timeseries":
+        draft = _build_timeseries_draft(payload, evidence, points, metrics)
+    elif task == "alarm":
+        draft = _build_alarm_draft(payload, evidence, alarms, metrics)
+    elif task == "health_report":
+        draft = _build_health_report_draft(payload, evidence, alarms, points, metrics)
+    else:
+        draft = _build_ticket_draft(payload, evidence, alarms, metrics)
+    logger.info("[build_draft] 草稿构建完成 task=%s status=%s title=%s evidence_count=%d",
+                task, draft.status, draft.title, draft.evidence_count)
+    return {**state, "draft": draft}
+
+
+def _build_timeseries_draft(
+    payload: WindEvidenceRequest,
+    evidence: list[dict[str, Any]],
+    points: list[dict[str, Any]],
+    metrics: dict[str, Any],
+) -> WindScaffoldResponse:
+    field_metrics = metrics.get("timeseries", {})
+    if not field_metrics:
         return WindScaffoldResponse(
             title="测点时序摘要",
-            status="no_numeric_points",
+            status="insufficient_evidence",
             summary="已收到 evidence，但没有识别到可统计的数值型测点。",
             evidence_count=len(evidence),
             message="请确认 Go 侧 evidence 中包含 points/rows，以及 values 字段或数值列。",
@@ -132,8 +318,8 @@ async def summarize_timeseries(payload: WindEvidenceRequest) -> WindScaffoldResp
             todo=["补充单位和阈值解释", "接入 LLM 生成更自然的趋势描述"],
         )
 
-    first_field = next(iter(metrics))
-    first = metrics[first_field]
+    first_field = next(iter(field_metrics))
+    first = field_metrics[first_field]
     summary = (
         f"共识别 {len(points)} 条测点记录，字段 {first_field} 最新值 {first['latest']}，"
         f"范围 {first['min']} 至 {first['max']}，均值 {first['avg']}。"
@@ -143,8 +329,8 @@ async def summarize_timeseries(payload: WindEvidenceRequest) -> WindScaffoldResp
         status="ok",
         summary=summary,
         evidence_count=len(evidence),
-        message="已基于 Go 侧 evidence 完成规则模板统计，未直接访问 TDengine。",
-        metrics={"point_count": len(points), "fields": metrics},
+        message="已基于 Go 侧 evidence 完成 LangGraph 规则统计，未直接访问 TDengine。",
+        metrics={"point_count": len(points), "fields": field_metrics},
         sections=[
             {"name": "统计结果", "content": summary},
             {"name": "AI 边界", "content": "当前结果只基于传入 evidence，不代表 Python 自行查库。"},
@@ -153,46 +339,29 @@ async def summarize_timeseries(payload: WindEvidenceRequest) -> WindScaffoldResp
         todo=["接入阈值配置", "接入 LLM 生成异常解释"],
     )
 
-
-async def summarize_alarm(payload: WindEvidenceRequest) -> WindScaffoldResponse:
-    evidence = _collect_evidence(payload)
-    if not evidence:
+# 把前面算出来的统计数字，填进一个模板里，生成结构化的分析草稿。
+def _build_alarm_draft(
+    payload: WindEvidenceRequest,
+    evidence: list[dict[str, Any]],
+    alarms: list[dict[str, Any]],
+    metrics: dict[str, Any],
+) -> WindScaffoldResponse:
+    alarm_metrics = metrics.get("alarm", {})
+    if not alarms:
         return _insufficient("告警分析摘要", payload)
 
-    alarms = []
-    for item in evidence:
-        if isinstance(item.get("list"), list):
-            alarms.extend(alarm for alarm in item["list"] if isinstance(alarm, dict))
-        elif isinstance(item.get("alarms"), list):
-            alarms.extend(alarm for alarm in item["alarms"] if isinstance(alarm, dict))
-        elif "alarm_code" in item or "alarmCode" in item:
-            alarms.append(item)
-
-    level_counts: Counter[str] = Counter()
-    status_counts: Counter[str] = Counter()
-    tower_counts: Counter[str] = Counter()
-    for alarm in alarms:
-        level_counts[str(alarm.get("alarm_level", alarm.get("alarmLevel", "")))] += 1
-        status_counts[str(alarm.get("status", ""))] += 1
-        tower_counts[str(alarm.get("tower_code", alarm.get("towerCode", alarm.get("tower_id", ""))))] += 1
-
-    risk = _risk_from_alarm_level(level_counts)
+    risk = str(alarm_metrics.get("risk", "normal"))
     summary = f"识别到 {len(alarms)} 条告警，风险等级建议为 {risk}。"
     return WindScaffoldResponse(
         title="告警分析摘要",
-        status="ok" if alarms else "no_alarm_rows",
+        status="ok",
         summary=summary,
         evidence_count=len(evidence),
-        message="已按告警等级、状态和风机位置完成规则聚合。",
-        metrics={
-            "alarm_count": len(alarms),
-            "level_counts": dict(level_counts),
-            "status_counts": dict(status_counts),
-            "tower_counts": dict(tower_counts),
-            "risk": risk,
-        },
+        message="已按告警等级、状态和风机位置完成 LangGraph 规则聚合。",
+        metrics=alarm_metrics,
         sections=[
             {"name": "告警概览", "content": summary},
+            {"name": "可能影响", "content": "当前为草稿结论，需结合告警前后测点窗口确认是否存在持续异常。"},
             {"name": "后续归因需要", "content": "告警前后测点窗口、设备元数据、SOP 检索结果和历史案例。"},
         ],
         recommendations=["先确认高等级告警是否仍处于未恢复状态", "拉取告警前后 30 分钟关键测点趋势"],
@@ -200,20 +369,26 @@ async def summarize_alarm(payload: WindEvidenceRequest) -> WindScaffoldResponse:
     )
 
 
-async def draft_health_report(payload: WindHealthReportDraftRequest) -> WindScaffoldResponse:
-    evidence = _collect_evidence(payload)
-    if not evidence:
+def _build_health_report_draft(
+    payload: WindEvidenceRequest,
+    evidence: list[dict[str, Any]],
+    alarms: list[dict[str, Any]],
+    points: list[dict[str, Any]],
+    metrics: dict[str, Any],
+) -> WindScaffoldResponse:
+    if not evidence or (not alarms and not points):
         return _insufficient("健康报告草稿", payload)
 
-    points = _timeseries_points(evidence)
-    metrics = _summarize_numeric_fields(points)
-    alarm_summary = await summarize_alarm(payload)
+    alarm_metrics = metrics.get("alarm", {})
+    timeseries_metrics = metrics.get("timeseries", {})
+    risk = str(alarm_metrics.get("risk", "normal"))
+    alarm_summary = f"识别到 {len(alarms)} 条告警，风险等级建议为 {risk}。" if alarms else "本次 evidence 未包含可识别告警记录。"
     report_title = f"{payload.farm_code or '风场'} {payload.tower_code or '全部风机'} 健康报告草稿"
     sections = [
-        {"name": "一、概览", "content": f"报告类型：{payload.report_type}；时间范围：{payload.start_time or '-'} 至 {payload.end_time or '-'}。"},
-        {"name": "二、测点趋势", "content": f"识别到 {len(points)} 条测点记录，数值字段 {len(metrics)} 个。"},
-        {"name": "三、告警情况", "content": alarm_summary.summary},
-        {"name": "四、风险建议", "content": "当前为规则模板草稿，后续可接入 LLM 生成正式报告语言。"},
+        {"name": "一、概览", "content": f"报告类型：{getattr(payload, 'report_type', 'health')}；时间范围：{getattr(payload, 'start_time', '') or '-'} 至 {getattr(payload, 'end_time', '') or '-'}。"},
+        {"name": "二、测点趋势", "content": f"识别到 {len(points)} 条测点记录，数值字段 {len(timeseries_metrics)} 个。"},
+        {"name": "三、告警情况", "content": alarm_summary},
+        {"name": "四、风险建议", "content": "当前为规则模板草稿，提交前需由运维人员结合现场情况复核。"},
         {"name": "五、待补证据", "content": "在线率、缺测率、阈值配置、SOP 引用和历史故障案例。"},
     ]
     return WindScaffoldResponse(
@@ -221,26 +396,33 @@ async def draft_health_report(payload: WindHealthReportDraftRequest) -> WindScaf
         status="draft",
         summary="健康报告草稿已生成，包含概览、测点趋势、告警情况、风险建议和待补证据。",
         evidence_count=len(evidence),
-        message="报告由规则模板生成，事实完全来自 Go 侧 evidence。",
-        metrics={"timeseries": metrics, "alarm": alarm_summary.metrics},
+        message="报告由 LangGraph 规则模板生成，事实完全来自 Go 侧 evidence。",
+        metrics={"timeseries": timeseries_metrics, "alarm": alarm_metrics},
         sections=sections,
         recommendations=["保存到 ai_health_report 后允许人工编辑", "后续补齐日报、周报、单机报告和故障复盘模板"],
         todo=["接入健康评分", "接入 SOP 引用", "接入 LLM 润色"],
     )
 
 
-async def draft_ticket(payload: WindTicketDraftRequest) -> WindScaffoldResponse:
-    evidence = _collect_evidence(payload)
-    if not evidence:
+def _build_ticket_draft(
+    payload: WindTicketDraftRequest,
+    evidence: list[dict[str, Any]],
+    alarms: list[dict[str, Any]],
+    metrics: dict[str, Any],
+) -> WindScaffoldResponse:
+    if not alarms:
         return _insufficient("维修工单草稿", payload)
 
-    alarm_summary = await summarize_alarm(payload)
+    alarm_metrics = metrics.get("alarm", {})
+    risk = str(alarm_metrics.get("risk", "normal"))
+    priority = _priority_from_risk(risk, payload.priority)
+    summary = f"识别到 {len(alarms)} 条告警，建议工单优先级为 {priority}。"
     title = f"{payload.farm_code or '风场'} {payload.tower_code or '风机'} 告警处置工单草稿"
     if payload.alarm_code:
         title += f" - {payload.alarm_code}"
     sections = [
-        {"name": "问题描述", "content": alarm_summary.summary},
-        {"name": "优先级", "content": payload.priority},
+        {"name": "问题描述", "content": summary},
+        {"name": "优先级", "content": priority},
         {"name": "建议步骤", "content": "核对告警状态；检查对应设备；拉取前后测点趋势；按 SOP 执行现场确认。"},
         {"name": "证据引用", "content": f"本草稿引用 {len(evidence)} 条 evidence，提交前需人工复核。"},
     ]
@@ -250,8 +432,114 @@ async def draft_ticket(payload: WindTicketDraftRequest) -> WindScaffoldResponse:
         summary="维修工单草稿已生成，包含问题描述、优先级、建议步骤和证据引用。",
         evidence_count=len(evidence),
         message="一期只生成可编辑草稿，不自动提交到工单系统。",
-        metrics=alarm_summary.metrics,
+        metrics=alarm_metrics,
         sections=sections,
         recommendations=["人工确认后再提交工单", "补充现场照片、备件和负责人信息"],
         todo=["接入工单系统", "接入 SOP 检索", "补充自动优先级映射"],
     )
+
+# 可选 LLM 润色
+async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
+    draft = state["draft"]
+    if draft.status == "insufficient_evidence":
+        logger.info("[optional_llm_polish] 跳过 LLM 润色, 原因: 证据不足")
+        return state
+
+    settings = get_settings()
+    if settings.mock_llm or settings.llm_provider == "mock" or not settings.llm_api_key:
+        logger.info("[optional_llm_polish] 跳过 LLM 润色, 原因: LLM 未配置 (mock_llm=%s, provider=%s, api_key=%s)",
+                    settings.mock_llm, settings.llm_provider, bool(settings.llm_api_key))
+        return state
+
+    logger.info("[optional_llm_polish] 开始 LLM 润色, trace_id=%s", state["payload"].trace_id)
+
+    payload = state["payload"]
+    prompt = (
+        "你是风机混塔智能运维 Copilot。只能基于下面已生成的草稿和 evidence 指标润色摘要，"
+        "不得新增事实、不得编造原因。只输出一段中文摘要。\n\n"
+        f"标题：{draft.title}\n"
+        f"当前摘要：{draft.summary}\n"
+        f"指标：{json.dumps(draft.metrics, ensure_ascii=False)}"
+    )
+    request = ChatStreamRequest(
+        user_id=payload.user_id,
+        kb_id="",
+        conversation_id=payload.trace_id,
+        question=prompt,
+        history=[],
+    )
+
+    try:
+        parts: list[str] = []
+        async for event in llm.stream_chat(request, trace_id=payload.trace_id or None):
+            if event.type == "token":
+                parts.append(event.content)
+            elif event.type == "error":
+                logger.warning("wind llm polish failed trace_id=%s error=%s", payload.trace_id, event.content)
+                return state
+        polished = "".join(parts).strip()
+        if polished:
+            draft.summary = polished
+            draft.message += "；已执行可选 LLM 润色"
+            logger.info("[optional_llm_polish] LLM 润色完成, 原始长度=%d, 润色后长度=%d",
+                        len(draft.summary), len(polished))
+        else:
+            logger.warning("[optional_llm_polish] LLM 返回为空, 保留原始摘要")
+    except Exception:
+        logger.exception("wind llm polish exception trace_id=%s", payload.trace_id)
+    return {**state, "draft": draft}
+
+
+def _finalize_response(state: WindDraftState) -> WindDraftState:
+    draft = state.get("draft")
+    if draft:
+        logger.info("[finalize_response] 图执行完成, task=%s status=%s title=%s",
+                    state["task"], draft.status, draft.title)
+    return state
+
+
+def _build_graph():
+    graph = StateGraph(WindDraftState)
+    graph.add_node("validate_evidence", _validate_evidence)
+    graph.add_node("normalize_evidence", _normalize_evidence)
+    graph.add_node("aggregate_facts", _aggregate_facts)
+    graph.add_node("build_draft", _build_draft)
+    graph.add_node("optional_llm_polish", _optional_llm_polish)
+    graph.add_node("finalize_response", _finalize_response)
+
+    graph.add_edge(START, "validate_evidence")
+    graph.add_edge("validate_evidence", "normalize_evidence")
+    graph.add_edge("normalize_evidence", "aggregate_facts")
+    graph.add_edge("aggregate_facts", "build_draft")
+    graph.add_edge("build_draft", "optional_llm_polish")
+    graph.add_edge("optional_llm_polish", "finalize_response")
+    graph.add_edge("finalize_response", END)
+    return graph.compile()
+
+
+_WIND_DRAFT_GRAPH = _build_graph()
+
+
+async def _run_wind_graph(payload: WindEvidenceRequest, task: WindDraftTask) -> WindScaffoldResponse:
+    logger.info("[wind_graph] 开始执行 task=%s farm_code=%s tower_code=%s trace_id=%s",
+                task, payload.farm_code, payload.tower_code, payload.trace_id)
+    state = await _WIND_DRAFT_GRAPH.ainvoke({"payload": payload, "task": task})
+    draft = state["draft"]
+    logger.info("[wind_graph] 执行完成 task=%s status=%s title=%s", task, draft.status, draft.title)
+    return draft
+
+
+async def summarize_timeseries(payload: WindEvidenceRequest) -> WindScaffoldResponse:
+    return await _run_wind_graph(payload, "timeseries")
+
+
+async def summarize_alarm(payload: WindEvidenceRequest) -> WindScaffoldResponse:
+    return await _run_wind_graph(payload, "alarm")
+
+
+async def draft_health_report(payload: WindHealthReportDraftRequest) -> WindScaffoldResponse:
+    return await _run_wind_graph(payload, "health_report")
+
+
+async def draft_ticket(payload: WindTicketDraftRequest) -> WindScaffoldResponse:
+    return await _run_wind_graph(payload, "ticket")

@@ -285,18 +285,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/alarms/analyze",
-				Handler: ai_wind_alarm.AiWindAnalyzeAlarmHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/alarms/query",
-				Handler: ai_wind_alarm.AiWindQueryAlarmsHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/alarms/analyze",
+					Handler: ai_wind_alarm.AiWindAnalyzeAlarmHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/alarms/query",
+					Handler: ai_wind_alarm.AiWindQueryAlarmsHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/ai/wind"),
 	)
 

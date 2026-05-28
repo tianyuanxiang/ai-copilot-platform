@@ -1,11 +1,11 @@
 # 风机混塔智能运维 AI Copilot
 
-基于 Go + Python 的风机混塔智能运维 AI Copilot，面向风场运维场景提供运维知识问答、测点时序分析、告警处置、健康报告和工单草稿能力。项目保留原有 RAG 知识库底座，将旧的 SSH 安全分析、AI 安全日报和旧 Agent 占位接口替换为风机混塔运维业务闭环。
+基于 Go-Zero + Python FastApi 架构的风机混塔智能运维 AI Copilot，面向风场运维场景提供运维知识问答、测点时序分析、告警处置、健康报告和工单草稿能力。项目通过 RAG 知识库底座和Langgraph编排完成智能化改造。
 
 核心原则：
 
 ```text
-Go 管事实和权限，Python 管总结和生成。
+Go 负责事实和权限，Python Engine 负责总结和生成。
 ```
 
 ## 业务目标
@@ -17,13 +17,13 @@ Go 管事实和权限，Python 管总结和生成。
 - 知识库中的设备说明书、SOP、验收文档和历史故障案例。
 - LLMOps 与 `ai_tool_call_log` 中的工具调用、trace 和 token 日志。
 
-一期先跑通工程闭环：元数据查询、TDengine 查询封装、evidence 汇总、Python 规则模板生成、工具日志留痕。后续再逐步接入更完整的告警归因、SOP 检索、健康报告、故障复盘和 LangGraph Agent 编排。
+v1版本跑通工程闭环：元数据查询、TDengine 查询封装、evidence 汇总、Python 规则模板生成、工具日志留痕。后续再逐步接入更完整的告警归因、SOP 检索、健康报告、故障复盘和 LangGraph Agent 编排。
 
 ## 功能模块
 
 | 模块 | 一期能力 | 后续扩展 |
 | --- | --- | --- |
-| 运维知识副驾驶 | 复用文档入库、父子分块、pgvector + Elasticsearch Hybrid Search、RAG 问答和引用溯源 | SOP 专用检索、历史案例召回、带证据的处置问答 |
+| 运维知识副驾驶 | 文档入库、父子分块、pgvector + Elasticsearch Hybrid Search、RAG 问答和引用溯源 | SOP 专用检索、历史案例召回、带证据的处置问答 |
 | 测点分析副驾驶 | 查询风场/风机/设备元数据，按白名单查询 TDengine 时序数据，生成 points evidence | 多窗口趋势对比、持续超限判断、异常测点排名 |
 | 告警处置副驾驶 | 查询 TDengine alarm 数据，按等级、状态、风机聚合，返回归因草稿结构 | 告警前后测点回查、SOP/历史案例检索、归因候选入库 |
 | 健康报告副驾驶 | 基于 evidence 生成风场日报、周报、单机报告或故障复盘草稿 | 在线率、缺测率、重复告警、风险趋势和引用报告 |
@@ -81,8 +81,8 @@ flowchart TB
 | 层 | 职责 |
 | --- | --- |
 | Gateway | 统一 HTTP 入口、鉴权、限流、WebSocket/SSE 转发、DTO 转换 |
-| Go AI RPC | 权限校验、元数据查询、TDengine 查询、RAG 编排、evidence 汇总、审计日志 |
-| Python AI Engine | 文档解析、分块、Embedding、Hybrid Search、规则模板摘要、报告和工单草稿 |
+| Go AI RPC | 权限校验、元数据查询、TDengine 查询、RAG 编排、Hybrid Search、evidence 汇总、审计日志 |
+| Python AI Engine | 文档解析、分块、Embedding、Rerank、规则模板摘要、报告和工单草稿 |
 | PostgreSQL | 知识库、会话、LLMOps、风机元数据、报告草稿、工单草稿 |
 | TDengine | 风机传感器时序数据与告警超级表 |
 | Elasticsearch | 知识库 BM25 关键词召回 |
@@ -146,7 +146,7 @@ ai-copilot-platform/
 | 表 | 作用 |
 | --- | --- |
 | `wind_farm` | 风场信息与 TDengine database 映射 |
-| `wind_turbine` | 风机/混塔元数据 |
+| `wind_tower` | 风机元数据 |
 | `wind_device_type` | 设备类型与 TDengine stable 映射 |
 | `wind_device` | 设备实例、通道和安装位置 |
 | `wind_device_meta` | 字段白名单、单位、阈值和测点描述 |

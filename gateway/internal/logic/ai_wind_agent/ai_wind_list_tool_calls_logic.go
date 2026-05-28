@@ -9,6 +9,8 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,9 +30,14 @@ func NewAiWindListToolCallsLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *AiWindListToolCallsLogic) AiWindListToolCalls(req *types.AiWindListToolCallReq) (resp *types.AiWindListToolCallResp, err error) {
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
 	result, err := l.svcCtx.AiWindAgentClient.ListToolCallLog(l.ctx, &pb.WindListToolCallLogReq{
 		Page:     int64(req.Page),
 		PageSize: int64(req.PageSize),
+		UserId:   userID,
 		TraceId:  req.TraceId,
 		ToolName: req.ToolName,
 		Status:   req.Status,

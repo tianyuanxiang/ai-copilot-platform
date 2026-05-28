@@ -9,6 +9,8 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,12 +30,16 @@ func NewAiWindCreateTicketDraftLogic(ctx context.Context, svcCtx *svc.ServiceCon
 }
 
 func (l *AiWindCreateTicketDraftLogic) AiWindCreateTicketDraft(req *types.AiWindTicketDraftReq) (resp *types.AiWindScaffoldResp, err error) {
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
 	result, err := l.svcCtx.AiWindAgentClient.CreateTicketDraft(l.ctx, &pb.WindTicketDraftReq{
 		FarmCode:     req.FarmCode,
 		TowerCode:    req.TowerCode,
 		AlarmCode:    req.AlarmCode,
 		EvidenceJson: req.EvidenceJson,
-		UserId:       0,
+		UserId:       userID,
 	})
 	if err != nil {
 		return nil, err

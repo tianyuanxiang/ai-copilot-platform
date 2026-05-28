@@ -2,7 +2,11 @@ package aiwindagentservicelogic
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"ai-copilot-platform/ai-rpc/internal/engine"
+	"ai-copilot-platform/ai-rpc/internal/logic/aiwinddraft"
 	"ai-copilot-platform/ai-rpc/internal/model"
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
@@ -26,19 +30,62 @@ func NewCreateTicketDraftLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 func (l *CreateTicketDraftLogic) CreateTicketDraft(in *pb.WindTicketDraftReq) (*pb.WindScaffoldResp, error) {
 	traceID := model.WindTraceID()
-	evidence := map[string]any{
-		"scaffold":       true,
-		"farm_code":      in.FarmCode,
-		"tower_code":     in.TowerCode,
-		"alarm_code":     in.AlarmCode,
-		"input_evidence": in.EvidenceJson,
-		"todo":           "后续补充检查项、备件、人员、工单系统提交前确认。",
+
+	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(l.ctx, l.svcCtx, in.FarmCode, in.TowerCode, in.AlarmCode, "", "", 0, true)
+	if err != nil {
+		return nil, err
 	}
+	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(in.EvidenceJson, alarmEvidence)
+
+	payload := engine.WindDraftRequest{
+		UserID:       aiwinddraft.UserIDString(in.UserId),
+		TraceID:      traceID,
+		FarmCode:     in.FarmCode,
+		TowerCode:    in.TowerCode,
+		AlarmCode:    in.AlarmCode,
+		Priority:     "normal",
+		Evidence:     evidenceItems,
+		EvidenceJSON: evidenceJSON,
+	}
+	startedAt := time.Now()
+	draft, err := l.svcCtx.EngineCallClient.WindTicketDraft(l.ctx, payload)
+	if err != nil {
+		aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_ticket_draft", payload, map[string]any{}, startedAt, "failed", err.Error())
+		return nil, err
+	}
+	aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_ticket_draft", payload, draft, startedAt, "success", "")
+
+	status := draft.Status
+	if status == "" {
+		status = "draft"
+	}
+	content := aiwinddraft.DraftContent(draft)
+
+	// 数据库只存轻量 evidence 摘要
+	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+
+	id, err := l.svcCtx.AiMaintenanceTicketDraftModel.InsertReturningID(l.ctx, &model.AiMaintenanceTicketDraft{
+		UserId:    in.UserId,
+		TraceId:   traceID,
+		FarmCode:  in.FarmCode,
+		TowerCode: in.TowerCode,
+		AlarmCode: in.AlarmCode,
+		Title:     draft.Title,
+		Content:   content,
+		Evidence:  evidenceSummary,
+		Status:    status,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// API 响应只返回轻量 evidence 摘要
 	return &pb.WindScaffoldResp{
+		Id:           id,
 		TraceId:      traceID,
-		Title:        "维修工单草稿",
-		Content:      "维修工单草稿脚手架已预留。一期不自动提交工单。",
-		EvidenceJson: model.WindEvidenceJSON(evidence),
-		Message:      "maintenance ticket draft scaffold ready",
+		Title:        draft.Title,
+		Content:      content,
+		EvidenceJson: evidenceSummary,
+		Message:      fmt.Sprintf("%s; status=%s", draft.Message, status),
 	}, nil
 }

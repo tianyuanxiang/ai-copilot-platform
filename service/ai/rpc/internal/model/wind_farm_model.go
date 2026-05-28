@@ -51,11 +51,14 @@ func (m *customWindFarmModel) ListFarms(ctx context.Context, keyword string) ([]
 
 func (m *customWindFarmModel) FarmDatabase(ctx context.Context, farmCode string) string {
 	code := strings.ToUpper(strings.TrimSpace(farmCode))
-	if m.db != nil && code != "" {
+	if code != "" {
 		var row struct {
 			TDDatabase string `gorm:"column:td_database"`
 		}
-		err := m.db.WithContext(ctx).Raw(`select td_database from wind_farm where farm_code = ? and is_delete = 0 limit 1`, code).Scan(&row).Error
+		err := m.db.WithContext(ctx).Table("wind_farm").
+			Where("farm_code = ?", code).
+			Where("is_delete = 0").
+			First(&row).Error
 		if err == nil && row.TDDatabase != "" {
 			return row.TDDatabase
 		}

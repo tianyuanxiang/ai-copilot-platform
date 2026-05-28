@@ -8,9 +8,13 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	aichatclient "ai-copilot-platform/ai-rpc/client/aichatservice"
+	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
 	"ai-copilot-platform/gateway/internal/types"
 	"go-zero-rpc/common/middleware"
@@ -24,6 +28,8 @@ type AiChatStreamLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
+
+var citationMarkerPattern = regexp.MustCompile(`\[(\d+)\]`)
 
 func NewAiChatStreamLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AiChatStreamLogic {
 	return &AiChatStreamLogic{
@@ -63,6 +69,7 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 	flusher, _ := w.(http.Flusher)
+	var answer strings.Builder
 
 	for {
 		event, err := rpcStream.Recv()
@@ -81,11 +88,36 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 			return nil
 		}
 
+		content := event.Content
+		citations := streamCitationsFromRPC(event.Citations)
+		references := []streamReference(nil)
+		if event.Type == "token" {
+			answer.WriteString(content)
+		}
+		if event.Type == "done" {
+			content = ""
+			finalAnswer := answer.String()
+			references = streamReferencesFromAnswer(finalAnswer, citations)
+			if err := writeChatSSE(w, streamEvent{
+				Type:       event.Type,
+				Content:    content,
+				Answer:     finalAnswer,
+				TraceID:    event.TraceId,
+				Citations:  citations,
+				References: references,
+			}); err != nil {
+				return err
+			}
+			if flusher != nil {
+				flusher.Flush()
+			}
+			continue
+		}
+
 		if err := writeChatSSE(w, streamEvent{
-			Type:      event.Type,
-			Content:   event.Content,
-			TraceID:   event.TraceId,
-			Citations: citationsFromRPC(event.Citations),
+			Type:    event.Type,
+			Content: content,
+			TraceID: event.TraceId,
 		}); err != nil {
 			return err
 		}
@@ -96,10 +128,72 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 }
 
 type streamEvent struct {
-	Type      string             `json:"type"`
-	Content   string             `json:"content,omitempty"`
-	TraceID   string             `json:"traceId,omitempty"`
-	Citations []types.AiCitation `json:"citations,omitempty"`
+	Type       string            `json:"type"`
+	Content    string            `json:"content,omitempty"`
+	Answer     string            `json:"answer,omitempty"`
+	TraceID    string            `json:"traceId,omitempty"`
+	Citations  []streamCitation  `json:"citations,omitempty"`
+	References []streamReference `json:"references,omitempty"`
+}
+
+type streamCitation struct {
+	RefIndex   int     `json:"refIndex"`
+	RefText    string  `json:"refText"`
+	DocumentId int64   `json:"documentId"`
+	ChunkId    int64   `json:"chunkId"`
+	Title      string  `json:"title"`
+	Snippet    string  `json:"snippet"`
+	Score      float64 `json:"score"`
+}
+
+type streamReference struct {
+	RefIndex int            `json:"refIndex"`
+	RefText  string         `json:"refText"`
+	Start    int            `json:"start"`
+	End      int            `json:"end"`
+	Citation streamCitation `json:"citation"`
+}
+
+func streamCitationsFromRPC(citations []*pb.Citation) []streamCitation {
+	items := make([]streamCitation, 0, len(citations))
+	for _, item := range citations {
+		if item == nil {
+			continue
+		}
+		refIndex := len(items) + 1
+		items = append(items, streamCitation{
+			RefIndex:   refIndex,
+			RefText:    "[" + strconv.Itoa(refIndex) + "]",
+			DocumentId: item.DocumentId,
+			ChunkId:    item.ChunkId,
+			Title:      item.Title,
+			Snippet:    item.Snippet,
+			Score:      item.Score,
+		})
+	}
+	return items
+}
+
+func streamReferencesFromAnswer(answer string, citations []streamCitation) []streamReference {
+	matches := citationMarkerPattern.FindAllStringSubmatchIndex(answer, -1)
+	references := make([]streamReference, 0, len(matches))
+	for _, match := range matches {
+		if len(match) < 4 {
+			continue
+		}
+		refIndex, err := strconv.Atoi(answer[match[2]:match[3]])
+		if err != nil || refIndex <= 0 || refIndex > len(citations) {
+			continue
+		}
+		references = append(references, streamReference{
+			RefIndex: refIndex,
+			RefText:  answer[match[0]:match[1]],
+			Start:    utf8.RuneCountInString(answer[:match[0]]),
+			End:      utf8.RuneCountInString(answer[:match[1]]),
+			Citation: citations[refIndex-1],
+		})
+	}
+	return references
 }
 
 func writeChatSSE(w http.ResponseWriter, event streamEvent) error {

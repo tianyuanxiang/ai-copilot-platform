@@ -1,11 +1,10 @@
 package aiwindmetadataservicelogic
 
 import (
-	"context"
-	"strings"
-
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
+	"context"
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,42 +24,15 @@ func NewListDevicesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListD
 }
 
 func (l *ListDevicesLogic) ListDevices(in *pb.ListWindDeviceReq) (*pb.ListWindDeviceResp, error) {
-	var rows []struct {
-		DeviceId       int64  `gorm:"column:device_id"`
-		DeviceCode     string `gorm:"column:device_code"`
-		DeviceTypeCode string `gorm:"column:device_type_code"`
-		DeviceTypeName string `gorm:"column:device_type_name"`
-		TowerId        int64  `gorm:"column:tower_id"`
-		TowerCode      string `gorm:"column:tower_code"`
-		StructureCode  string `gorm:"column:structure_code"`
-		StructureName  string `gorm:"column:structure_name"`
-		Status         int64  `gorm:"column:status"`
+
+	windDevices, err := l.svcCtx.WindDeviceModel.ListDevices(l.ctx, in.FarmCode, in.TowerCode, in.DeviceTypeCode, in.Keyword)
+	if err != nil {
+		l.Logger.Errorf("ListDevices err %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "查询风机设备列表错误")
 	}
 
-	query := l.svcCtx.Orm.Table("wind_device wd").
-		Select("wd.device_id, wd.device_code, wd.device_type_code, wd.device_type_name, wd.tower_id, wt.tower_code, wd.structure_code, wd.structure_name, wd.status").
-		Joins("left join wind_tower wt on wt.tower_id = wd.tower_id").
-		Joins("left join wind_device_type wdt on wdt.device_type_id = wd.device_type_id").
-		Where("wd.is_delete = 0")
-
-	if farmCode := strings.TrimSpace(in.FarmCode); farmCode != "" {
-		query = query.Where("wt.farm_code = ?", strings.ToUpper(farmCode))
-	}
-	if towerCode := strings.TrimSpace(in.TowerCode); towerCode != "" {
-		query = query.Where("wt.tower_code = ?", towerCode)
-	}
-	if deviceTypeCode := strings.TrimSpace(in.DeviceTypeCode); deviceTypeCode != "" {
-		query = query.Where("wd.device_type_code = ?", strings.ToUpper(deviceTypeCode))
-	}
-	if keyword := strings.TrimSpace(in.Keyword); keyword != "" {
-		like := "%" + keyword + "%"
-		query = query.Where("wd.device_code like ? or wd.device_type_name like ?", like, like)
-	}
-	if err := query.Order("wt.farm_code asc, wt.tower_code asc, wd.device_type_code asc, wd.device_code asc").Find(&rows).Error; err != nil {
-		return nil, err
-	}
-	items := make([]*pb.WindDeviceItem, 0, len(rows))
-	for _, row := range rows {
+	items := make([]*pb.WindDeviceItem, 0, len(windDevices))
+	for _, row := range windDevices {
 		items = append(items, &pb.WindDeviceItem{
 			DeviceId:       row.DeviceId,
 			DeviceCode:     row.DeviceCode,

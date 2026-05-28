@@ -33,16 +33,19 @@ type ServiceContext struct {
 	ES  *elasticsearch.Client
 	TD  *sql.DB
 
-	AiDocumentModel            model.AiDocumentModel
-	AiDocumentParentChunkModel model.AiDocumentParentChunkModel
-	AiDocumentChunkModel       model.AiDocumentChunkModel
-	AiKnowledgeBaseModel       model.AiKnowledgeBaseModel
-	AiKbDomainModel            model.AiKbDomainModel
-	AiKbMemberModel            model.AiKbMemberModel
-	AiToolCallLogModel         model.AiToolCallLogModel
-	AiConversationModel        model.AiConversationModel
-	AiMessageModel             model.AiMessageModel
-	AiLlmCallLogModel          model.AiLlmCallLogModel
+	AiDocumentModel               model.AiDocumentModel
+	AiDocumentParentChunkModel    model.AiDocumentParentChunkModel
+	AiDocumentChunkModel          model.AiDocumentChunkModel
+	AiKnowledgeBaseModel          model.AiKnowledgeBaseModel
+	AiKbDomainModel               model.AiKbDomainModel
+	AiKbMemberModel               model.AiKbMemberModel
+	AiToolCallLogModel            model.AiToolCallLogModel
+	AiAlarmAnalysisModel          model.AiAlarmAnalysisModel
+	AiHealthReportModel           model.AiHealthReportModel
+	AiMaintenanceTicketDraftModel model.AiMaintenanceTicketDraftModel
+	AiConversationModel           model.AiConversationModel
+	AiMessageModel                model.AiMessageModel
+	AiLlmCallLogModel             model.AiLlmCallLogModel
 
 	PermRpc permclient.PermissionService
 	// WindMetadataModel          model.WindMetadataModel
@@ -54,6 +57,7 @@ type ServiceContext struct {
 	WindCameraRecordModel  model.WindCameraRecordModel
 	WindDeviceMetaModel    model.WindDeviceMetaModel
 	TdengineModel          model.TdengineModel
+	ThresholdResolver      model.ThresholdResolver
 
 	EngineClient     *http.Client
 	EngineCallClient *engine.Client
@@ -117,21 +121,29 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	sysCli := zrpc.MustNewClient(c.SysRpc)
 	permSvc := permclient.NewPermissionService(sysCli)
 
+	// 从 gorm 获取底层 *sql.DB 用于阈值查询
+	sqlDB, sqlDBErr := db.DB()
+	if sqlDBErr != nil {
+		logx.Errorf("get sql.DB from gorm failed: %v", sqlDBErr)
+	}
+
 	return &ServiceContext{
-		Config:                     c,
-		Orm:                        db,
-		ES:                         esClient,
-		TD:                         td,
-		AiDocumentModel:            model.NewAiDocumentModel(conn, db),
-		AiDocumentParentChunkModel: model.NewAiDocumentParentChunkModel(conn, db),
-		AiDocumentChunkModel:       model.NewAiDocumentChunkModel(db),
-		AiKnowledgeBaseModel:       model.NewAiKnowledgeBaseModel(conn, db),
-		AiKbDomainModel:            model.NewAiKbDomainModel(conn, db),
-		AiKbMemberModel:            model.NewAiKbMemberModel(conn, db),
-		AiToolCallLogModel:         model.NewAiToolCallLogModel(conn, db),
-		AiConversationModel:        model.NewAiConversationModel(conn, db),
-		AiMessageModel:             model.NewAiMessageModel(conn, db),
-		AiLlmCallLogModel:          model.NewAiLlmCallLogModel(conn, db),
+		Config:                        c,
+		Orm:                           db,
+		ES:                            esClient,
+		AiDocumentModel:               model.NewAiDocumentModel(conn, db),
+		AiDocumentParentChunkModel:    model.NewAiDocumentParentChunkModel(conn, db),
+		AiDocumentChunkModel:          model.NewAiDocumentChunkModel(db),
+		AiKnowledgeBaseModel:          model.NewAiKnowledgeBaseModel(conn, db),
+		AiKbDomainModel:               model.NewAiKbDomainModel(conn, db),
+		AiKbMemberModel:               model.NewAiKbMemberModel(conn, db),
+		AiToolCallLogModel:            model.NewAiToolCallLogModel(conn, db),
+		AiAlarmAnalysisModel:          model.NewAiAlarmAnalysisModel(conn),
+		AiHealthReportModel:           model.NewAiHealthReportModel(conn),
+		AiMaintenanceTicketDraftModel: model.NewAiMaintenanceTicketDraftModel(conn),
+		AiConversationModel:           model.NewAiConversationModel(conn, db),
+		AiMessageModel:                model.NewAiMessageModel(conn, db),
+		AiLlmCallLogModel:             model.NewAiLlmCallLogModel(conn, db),
 		// WindMetadataModel:          model.NewWindMetadataModel(db),
 		WindFarmModel:          model.NewWindFarmModel(conn, db),
 		WindTowerModel:         model.NewWindTowerModel(conn, db),
@@ -141,9 +153,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		WindCameraRecordModel:  model.NewWindCameraRecordModel(conn),
 		WindStructureTypeModel: model.NewWindStructureTypeModel(conn),
 		TdengineModel:          model.NewTdengineModel(td),
-
-		EngineClient:     &http.Client{Timeout: engineTimeout},
-		EngineCallClient: engine.NewClient(c.Engine.BaseURL, &http.Client{Timeout: engineTimeout}),
+		ThresholdResolver:      model.NewThresholdResolver(sqlDB),
+		TD:                     td,
+		RDB:                    rdb,
+		EngineClient:           &http.Client{Timeout: engineTimeout},
+		EngineCallClient:       engine.NewClient(c.Engine.BaseURL, &http.Client{Timeout: engineTimeout}),
 
 		PermRpc: permSvc,
 	}

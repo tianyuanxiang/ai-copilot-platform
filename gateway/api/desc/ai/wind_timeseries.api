@@ -5,11 +5,12 @@ type AiWindTimeseriesQueryReq {
 	towerCode string `json:"towerCode,optional"`
 	deviceCode string `json:"deviceCode,optional"`
 	deviceTypeCode string `json:"deviceTypeCode"`
-	field string `json:"field,optional"`
+	field []string `json:"field,optional"`
 	startTime string `json:"startTime,optional"`
 	endTime string `json:"endTime,optional"`
 	page int `json:"page,optional"`
 	pageSize int `json:"pageSize,optional"`
+	indexId int64 `json:"indexId,optional"`
 }
 
 type AiWindTimeseriesQueryResp {
@@ -26,9 +27,11 @@ type AiWindTrendCompareReq {
 	farmCode string `json:"farmCode"`
 	towerCode string `json:"towerCode,optional"`
 	deviceTypeCode string `json:"deviceTypeCode"`
-	field string `json:"field,optional"`
+	deviceCode string `json:"deviceCode,optional"`
+	field []string `json:"field,optional"`
 	startTime string `json:"startTime,optional"`
 	endTime string `json:"endTime,optional"`
+	indexId int64 `json:"indexId,optional"`
 }
 
 type AiWindTrendCompareResp {

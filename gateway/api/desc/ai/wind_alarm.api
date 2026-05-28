@@ -25,12 +25,15 @@ type AiWindAlarmAnalyzeReq {
 	farmCode string `json:"farmCode"`
 	towerCode string `json:"towerCode,optional"`
 	alarmCode string `json:"alarmCode,optional"`
+	startTime string `json:"startTime,optional"`
+	endTime string `json:"endTime,optional"`
 	evidenceJson string `json:"evidenceJson,optional"`
 }
 
 @server (
 	group: ai_wind_alarm
 	prefix: /api/v1/ai/wind
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 查询 TDengine alarm 超级表，一期只做安全白名单查询。
