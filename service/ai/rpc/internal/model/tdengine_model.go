@@ -36,6 +36,13 @@ type (
 		QueryBoundaryRows(ctx context.Context, database string, stable string, fields []string, where string) (first map[string]string, last map[string]string, err error)
 		// QueryMinuteBuckets 趋势专用：分钟级降采样查询，返回各字段在各时间窗口的聚合。
 		QueryMinuteBuckets(ctx context.Context, database string, stable string, fields []string, where string) ([]BucketRow, error)
+
+		// QueryAlarmAggregates 一次性查询当前条件下的告警总数、首末时间戳。
+		QueryAlarmAggregates(ctx context.Context, database string, where string) (map[string]string, error)
+		// QueryAlarmGroupBy 按指定列分组统计告警数量。
+		QueryAlarmGroupBy(ctx context.Context, database string, groupByColumn string, where string, limit int64) ([]map[string]string, error)
+		// QueryAlarmTimeBuckets 按时间桶统计告警数量。
+		QueryAlarmTimeBuckets(ctx context.Context, database string, where string, interval string) ([]map[string]string, error)
 	}
 
 	tdengineModel struct {
@@ -621,4 +628,96 @@ func (m *tdengineModel) QueryMinuteBuckets(ctx context.Context, database, stable
 		}
 	}
 	return allRows, nil
+}
+
+var alarmGroupByAllowlist = map[string]bool{
+	"alarm_level": true,
+	"status":      true,
+	"alarm_code":  true,
+	"tower_id":    true,
+}
+
+var alarmIntervalPattern = regexp.MustCompile(`^\d+[smhdw]$`)
+
+// QueryAlarmAggregates 一次性查询当前条件下的告警总数、首末时间戳。
+func (m *tdengineModel) QueryAlarmAggregates(ctx context.Context, database string, where string) (map[string]string, error) {
+	if !m.IsConfigured() {
+		return nil, nil
+	}
+	database, err := SafeIdentifier(database)
+	if err != nil {
+		return nil, err
+	}
+	query := fmt.Sprintf("SELECT COUNT(*),FIRST(ts),LAST(ts) FROM %s.alarm WHERE %s",
+		database, where)
+	fmt.Printf("[TDengine] [%s]: %s\n", database, query)
+
+	var total sql.NullString
+	var firstTs, lastTs sql.NullString
+	if err := m.db.QueryRowContext(ctx, query).Scan(&total, &firstTs, &lastTs); err != nil {
+		return nil, err
+	}
+	return map[string]string{
+		"total":    nullStr(total),
+		"first_ts": nullStr(firstTs),
+		"last_ts":  nullStr(lastTs),
+	}, nil
+}
+
+// QueryAlarmGroupBy 按指定列分组统计告警数量。
+func (m *tdengineModel) QueryAlarmGroupBy(ctx context.Context, database string, groupByColumn string, where string, limit int64) ([]map[string]string, error) {
+	if !m.IsConfigured() {
+		return nil, nil
+	}
+	if !alarmGroupByAllowlist[groupByColumn] {
+		return nil, fmt.Errorf("alarm group by column not allowed: %s", groupByColumn)
+	}
+	database, err := SafeIdentifier(database)
+	if err != nil {
+		return nil, err
+	}
+	query := fmt.Sprintf("SELECT %s,COUNT(*) AS cnt FROM %s.alarm WHERE %s GROUP BY %s ORDER BY cnt DESC",
+		groupByColumn, database, where, groupByColumn)
+	if limit > 0 {
+		query += fmt.Sprintf(" LIMIT %d", limit)
+	}
+	fmt.Printf("[TDengine] [%s]: %s\n", database, query)
+	rows, err := m.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	maps, _, err := scanTDengineRows(rows)
+	return maps, err
+}
+
+// QueryAlarmTimeBuckets 按时间桶统计告警数量。
+func (m *tdengineModel) QueryAlarmTimeBuckets(ctx context.Context, database string, where string, interval string) ([]map[string]string, error) {
+	if !m.IsConfigured() {
+		return nil, nil
+	}
+	if !alarmIntervalPattern.MatchString(interval) {
+		return nil, fmt.Errorf("invalid alarm interval: %s", interval)
+	}
+	database, err := SafeIdentifier(database)
+	if err != nil {
+		return nil, err
+	}
+	query := fmt.Sprintf("SELECT _wstart,COUNT(*) AS cnt FROM %s.alarm WHERE %s INTERVAL(%s)",
+		database, where, interval)
+	fmt.Printf("[TDengine] [%s]: %s\n", database, query)
+	rows, err := m.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	maps, _, err := scanTDengineRows(rows)
+	return maps, err
+}
+
+func nullStr(ns sql.NullString) string {
+	if ns.Valid {
+		return ns.String
+	}
+	return ""
 }

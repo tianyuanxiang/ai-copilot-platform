@@ -33,6 +33,7 @@ func (l *GenerateHealthReportLogic) GenerateHealthReport(in *pb.WindHealthReport
 
 	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(l.ctx, l.svcCtx, in.FarmCode, in.TowerCode, "", in.StartTime, in.EndTime, 0, false)
 	if err != nil {
+		l.Logger.Errorf("Generate health build alarm evidence failed: %v", err)
 		return nil, err
 	}
 	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(in.EvidenceJson, alarmEvidence)
@@ -51,6 +52,7 @@ func (l *GenerateHealthReportLogic) GenerateHealthReport(in *pb.WindHealthReport
 	startedAt := time.Now()
 	draft, err := l.svcCtx.EngineCallClient.WindHealthReportDraft(l.ctx, payload)
 	if err != nil {
+		l.Logger.Errorf("健康报告AI分析失败: %v", err)
 		aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_health_report_draft", payload, map[string]any{}, startedAt, "failed", err.Error())
 		return nil, err
 	}
@@ -83,6 +85,7 @@ func (l *GenerateHealthReportLogic) GenerateHealthReport(in *pb.WindHealthReport
 		Status:     status,
 	})
 	if err != nil {
+		l.Logger.Errorf("AiHealthReportModel insertReturningID failed: %v", err)
 		return nil, err
 	}
 

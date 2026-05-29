@@ -100,23 +100,37 @@ def _numeric(value: Any) -> float | None:
 def _timeseries_points(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
     points: list[dict[str, Any]] = []
     for item in evidence:
+        # 告警聚合 evidence 包含 by_level，其 samples 是告警记录而非测点，跳过
+        if (
+            item.get("source") == "tdengine.alarm"
+            or item.get("by_level") is not None
+            or (item.get("alarm_count") is not None and "level_counts" in item)
+        ):
+            continue
+
         if isinstance(item.get("points"), list):
             points.extend(point for point in item["points"] if isinstance(point, dict))
         elif isinstance(item.get("rows"), list):
             points.extend(point for point in item["rows"] if isinstance(point, dict))
+        elif isinstance(item.get("samples"), list):
+            points.extend(point for point in item["samples"] if isinstance(point, dict))
         elif "values" in item or "ts" in item:
             points.append(item)
+
     return points
 
 # 看有没有 alarm_code、list、alarms 这些 key
-# 优先使用 Go 侧聚合指标(alarm_count/level_counts/status_counts/tower_counts)，
+# 优先使用 Go 侧聚合指标(by_level 或 alarm_count+level_counts)，
 # 只有没有聚合指标时才回退扫描 list/alarms 原始行
 def _alarms(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
     alarms: list[dict[str, Any]] = []
     for item in evidence:
-        # 优先使用 Go 侧聚合指标
+        # 新版聚合 evidence: 包含 by_level 字段
+        if item.get("by_level") is not None:
+            alarms.append(item)
+            continue
+        # 旧版聚合 evidence: 包含 alarm_count + level_counts
         if item.get("alarm_count") is not None and "level_counts" in item:
-            # 将聚合指标转换为统一格式，供 _aggregate_alarm_metrics 使用
             alarms.append(item)
             continue
 
@@ -177,42 +191,49 @@ def _level_value(alarm: dict[str, Any]) -> str:
 
 
 def _aggregate_alarm_metrics(alarms: list[dict[str, Any]]) -> dict[str, Any]:
-    # 优先使用 Go 侧预计算的聚合指标
-    # 当 BuildAlarmEvidence 已提供聚合统计时，直接复用，无需重新扫描原始行
+    # 新版聚合 evidence: 包含 by_level 字段（确定性 SQL 聚合结果）
     for alarm in alarms:
-        if alarm.get("alarm_count") is not None and "level_counts" in alarm:
-            precomputed = {
-                "alarm_count": alarm["alarm_count"],
-                "level_counts": alarm.get("level_counts", {}),
-                "status_counts": alarm.get("status_counts", {}),
-                "tower_counts": alarm.get("tower_counts", {}),
-            }
-            # 如果有 level_counts，基于其计算风险等级
+        by_level = alarm.get("by_level")
+        if by_level is not None and isinstance(by_level, dict):
             level_counter = Counter()
-            for k, v in alarm.get("level_counts", {}).items():
-                # level_counts 的 key 格式为 level_1, level_2 等，提取数字部分
-                level_num = k.replace("level_", "") if isinstance(k, str) else str(k)
-                level_counter[level_num] = v if isinstance(v, int) else int(v)
-            precomputed["risk"] = _risk_from_alarm_level(level_counter)
-            precomputed["truncated"] = alarm.get("truncated", False)
-            precomputed["returned_records"] = alarm.get("returned_records", 0)
-            return precomputed
+            for k, v in by_level.items():
+                level_counter[str(k)] = int(v) if not isinstance(v, int) else v
+
+            by_status = alarm.get("by_status", {})
+            status_counts = {str(k): int(v) if not isinstance(v, int) else v for k, v in by_status.items()}
+
+            tower_top = alarm.get("by_tower_top", [])
+            tower_counts = {str(t.get("key", "")): t.get("count", 0) for t in tower_top if isinstance(t, dict)}
+
+            return {
+                "alarm_count": alarm.get("total", 0),
+                "level_counts": dict(level_counter),
+                "status_counts": status_counts,
+                "tower_counts": tower_counts,
+                "risk": _risk_from_alarm_level(level_counter),
+                "truncated": alarm.get("truncated", False),
+                "returned_records": alarm.get("sampled", 0),
+                "granularity": alarm.get("granularity", ""),
+                "peak_bucket": alarm.get("peak_bucket"),
+                "by_alarm_code_top": alarm.get("by_alarm_code_top", []),
+                "by_time_bucket": alarm.get("by_time_bucket", []),
+            }
 
     # 回退：没有聚合指标时，从原始告警行计算
     level_counts: Counter[str] = Counter()
     status_counts: Counter[str] = Counter()
     tower_counts: Counter[str] = Counter()
     for alarm in alarms:
-        level_counts[_level_value(alarm)] += 1  # 统计每个告警等级出现了多少次
-        status_counts[str(alarm.get("status", ""))] += 1 # 统计每个状态出现了多少次
-        tower_counts[str(alarm.get("tower_code", alarm.get("towerCode", alarm.get("tower_id", ""))))] += 1 # 统计每台风机有多少告警
+        level_counts[_level_value(alarm)] += 1
+        status_counts[str(alarm.get("status", ""))] += 1
+        tower_counts[str(alarm.get("tower_code", alarm.get("towerCode", alarm.get("tower_id", ""))))] += 1
 
     return {
         "alarm_count": len(alarms),
         "level_counts": dict(level_counts),
         "status_counts": dict(status_counts),
         "tower_counts": dict(tower_counts),
-        "risk": _risk_from_alarm_level(level_counts), # 判断整体风险等级
+        "risk": _risk_from_alarm_level(level_counts),
     }
 
 
@@ -351,7 +372,36 @@ def _build_alarm_draft(
         return _insufficient("告警分析摘要", payload)
 
     risk = str(alarm_metrics.get("risk", "normal"))
-    summary = f"识别到 {len(alarms)} 条告警，风险等级建议为 {risk}。"
+    alarm_count = alarm_metrics.get("alarm_count", len(alarms))
+    granularity = alarm_metrics.get("granularity", "")
+
+    summary = f"识别到 {alarm_count} 条告警，风险等级建议为 {risk}。"
+    if granularity:
+        summary += f" 聚合粒度: {granularity}。"
+
+    sections = [
+        {"name": "告警概览", "content": summary},
+        {"name": "可能影响", "content": "当前为草稿结论，需结合告警前后测点窗口确认是否存在持续异常。"},
+        {"name": "后续归因需要", "content": "告警前后测点窗口、设备元数据、SOP 检索结果和历史案例。"},
+    ]
+
+    # 新版聚合指标增强: 告警高峰和高频告警码
+    peak = alarm_metrics.get("peak_bucket")
+    if peak and isinstance(peak, dict):
+        sections.append({
+            "name": "告警高峰",
+            "content": f"告警集中在 {peak.get('bucket_start', '')} 时段，共 {peak.get('count', 0)} 条。",
+        })
+
+    top_codes = alarm_metrics.get("by_alarm_code_top", [])
+    if top_codes and isinstance(top_codes, list):
+        code_parts = []
+        for c in top_codes[:5]:
+            if isinstance(c, dict):
+                code_parts.append(f"代码{c.get('key', '?')}({c.get('count', 0)}次)")
+        if code_parts:
+            sections.append({"name": "高频告警码", "content": "、".join(code_parts)})
+
     return WindScaffoldResponse(
         title="告警分析摘要",
         status="ok",
@@ -359,12 +409,8 @@ def _build_alarm_draft(
         evidence_count=len(evidence),
         message="已按告警等级、状态和风机位置完成 LangGraph 规则聚合。",
         metrics=alarm_metrics,
-        sections=[
-            {"name": "告警概览", "content": summary},
-            {"name": "可能影响", "content": "当前为草稿结论，需结合告警前后测点窗口确认是否存在持续异常。"},
-            {"name": "后续归因需要", "content": "告警前后测点窗口、设备元数据、SOP 检索结果和历史案例。"},
-        ],
-        recommendations=["先确认高等级告警是否仍处于未恢复状态", "拉取告警前后 30 分钟关键测点趋势"],
+        sections=sections,
+        recommendations=["优先核对高等级未删除告警记录", "拉取告警前后 30 分钟关键测点趋势"],
         todo=["补充相似 SOP 检索", "补充多证据归因排序"],
     )
 
@@ -380,9 +426,10 @@ def _build_health_report_draft(
         return _insufficient("健康报告草稿", payload)
 
     alarm_metrics = metrics.get("alarm", {})
+    alarm_count = alarm_metrics.get("alarm_count", len(alarms))
     timeseries_metrics = metrics.get("timeseries", {})
     risk = str(alarm_metrics.get("risk", "normal"))
-    alarm_summary = f"识别到 {len(alarms)} 条告警，风险等级建议为 {risk}。" if alarms else "本次 evidence 未包含可识别告警记录。"
+    alarm_summary = f"识别到 {alarm_count} 条告警，风险等级建议为 {risk}。" if alarms else "本次 evidence 未包含可识别告警记录。"
     report_title = f"{payload.farm_code or '风场'} {payload.tower_code or '全部风机'} 健康报告草稿"
     sections = [
         {"name": "一、概览", "content": f"报告类型：{getattr(payload, 'report_type', 'health')}；时间范围：{getattr(payload, 'start_time', '') or '-'} 至 {getattr(payload, 'end_time', '') or '-'}。"},
@@ -414,9 +461,10 @@ def _build_ticket_draft(
         return _insufficient("维修工单草稿", payload)
 
     alarm_metrics = metrics.get("alarm", {})
+    alarm_count = alarm_metrics.get("alarm_count", len(alarms))
     risk = str(alarm_metrics.get("risk", "normal"))
     priority = _priority_from_risk(risk, payload.priority)
-    summary = f"识别到 {len(alarms)} 条告警，建议工单优先级为 {priority}。"
+    summary = f"识别到 {alarm_count} 条告警，建议工单优先级为 {priority}。"
     title = f"{payload.farm_code or '风场'} {payload.tower_code or '风机'} 告警处置工单草稿"
     if payload.alarm_code:
         title += f" - {payload.alarm_code}"
@@ -452,11 +500,10 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
         return state
 
     logger.info("[optional_llm_polish] 开始 LLM 润色, trace_id=%s", state["payload"].trace_id)
-
     payload = state["payload"]
     prompt = (
         "你是风机混塔智能运维 Copilot。只能基于下面已生成的草稿和 evidence 指标润色摘要，"
-        "不得新增事实、不得编造原因。只输出一段中文摘要。\n\n"
+        "不得新增事实、不得编造原因。只输出一段中文摘要,按问题描述、建议步骤、证据引用来分层。\n\n"
         f"标题：{draft.title}\n"
         f"当前摘要：{draft.summary}\n"
         f"指标：{json.dumps(draft.metrics, ensure_ascii=False)}"
@@ -479,10 +526,13 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
                 return state
         polished = "".join(parts).strip()
         if polished:
+            original_summary = draft.summary
+            logger.info("[optional_llm_polish] 润色前: %s", original_summary)
+            logger.info("[optional_llm_polish] 润色后: %s", polished)
             draft.summary = polished
             draft.message += "；已执行可选 LLM 润色"
             logger.info("[optional_llm_polish] LLM 润色完成, 原始长度=%d, 润色后长度=%d",
-                        len(draft.summary), len(polished))
+                        len(original_summary), len(polished))
         else:
             logger.warning("[optional_llm_polish] LLM 返回为空, 保留原始摘要")
     except Exception:

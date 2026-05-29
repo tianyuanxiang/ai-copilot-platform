@@ -3,6 +3,7 @@ package aiwindalarmservicelogic
 import (
 	"context"
 	"fmt"
+	"go-zero-rpc/common/xerr"
 	"time"
 
 	"ai-copilot-platform/ai-rpc/internal/engine"
@@ -33,7 +34,8 @@ func (l *AnalyzeAlarmLogic) AnalyzeAlarm(in *pb.WindAlarmAnalyzeReq) (*pb.WindSc
 
 	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(l.ctx, l.svcCtx, in.FarmCode, in.TowerCode, in.AlarmCode, in.StartTime, in.EndTime, 0, true)
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("build alarm evidence failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "建立告警事件失败")
 	}
 	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(in.EvidenceJson, alarmEvidence)
 
@@ -50,8 +52,9 @@ func (l *AnalyzeAlarmLogic) AnalyzeAlarm(in *pb.WindAlarmAnalyzeReq) (*pb.WindSc
 	startedAt := time.Now()
 	draft, err := l.svcCtx.EngineCallClient.WindAlarmSummary(l.ctx, payload)
 	if err != nil {
+		l.Logger.Errorf("告警数据AI分析失败: %v", err)
 		aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_alarm_analysis", payload, map[string]any{}, startedAt, "failed", err.Error())
-		return nil, err
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "告警数据AI分析失败")
 	}
 	aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_alarm_analysis", payload, draft, startedAt, "success", "")
 
@@ -76,7 +79,8 @@ func (l *AnalyzeAlarmLogic) AnalyzeAlarm(in *pb.WindAlarmAnalyzeReq) (*pb.WindSc
 		Status:    status,
 	})
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("InsertReturningID failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "插入告警分析结果失败")
 	}
 
 	// API 响应只返回轻量 evidence 摘要，不回传原始查询数据
