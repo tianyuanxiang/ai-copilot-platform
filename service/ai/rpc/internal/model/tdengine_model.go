@@ -694,7 +694,7 @@ func (m *tdengineModel) QueryAlarmGroupBy(ctx context.Context, database string, 
 // QueryAlarmTimeBuckets 按时间桶统计告警数量。
 func (m *tdengineModel) QueryAlarmTimeBuckets(ctx context.Context, database string, where string, interval string) ([]map[string]string, error) {
 	if !m.IsConfigured() {
-		return nil, nil
+		return nil, fmt.Errorf("tdengine not configured")
 	}
 	if !alarmIntervalPattern.MatchString(interval) {
 		return nil, fmt.Errorf("invalid alarm interval: %s", interval)

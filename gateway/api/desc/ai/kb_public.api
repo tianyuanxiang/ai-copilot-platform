@@ -61,6 +61,7 @@ type AiUpdatePublicKbReq {
 @server (
 	group: ai_kb_public
 	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 创建公共知识库，需具备公共知识库管理权限。

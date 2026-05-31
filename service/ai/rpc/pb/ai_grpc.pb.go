@@ -2092,6 +2092,9 @@ const (
 	AiWindAgentService_CreateTicketDraft_FullMethodName = "/ai.AiWindAgentService/CreateTicketDraft"
 	AiWindAgentService_RunAgent_FullMethodName          = "/ai.AiWindAgentService/RunAgent"
 	AiWindAgentService_ListToolCallLog_FullMethodName   = "/ai.AiWindAgentService/ListToolCallLog"
+	AiWindAgentService_ExecuteTool_FullMethodName       = "/ai.AiWindAgentService/ExecuteTool"
+	AiWindAgentService_RunAgentStream_FullMethodName    = "/ai.AiWindAgentService/RunAgentStream"
+	AiWindAgentService_ResumeAgentStream_FullMethodName = "/ai.AiWindAgentService/ResumeAgentStream"
 )
 
 // AiWindAgentServiceClient is the client API for AiWindAgentService service.
@@ -2101,6 +2104,9 @@ type AiWindAgentServiceClient interface {
 	CreateTicketDraft(ctx context.Context, in *WindTicketDraftReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
 	RunAgent(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (*WindAgentRunResp, error)
 	ListToolCallLog(ctx context.Context, in *WindListToolCallLogReq, opts ...grpc.CallOption) (*WindListToolCallLogResp, error)
+	ExecuteTool(ctx context.Context, in *WindToolExecuteReq, opts ...grpc.CallOption) (*WindToolExecuteResp, error)
+	RunAgentStream(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WindAgentStreamEvent], error)
+	ResumeAgentStream(ctx context.Context, in *WindAgentResumeReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WindAgentStreamEvent], error)
 }
 
 type aiWindAgentServiceClient struct {
@@ -2141,6 +2147,54 @@ func (c *aiWindAgentServiceClient) ListToolCallLog(ctx context.Context, in *Wind
 	return out, nil
 }
 
+func (c *aiWindAgentServiceClient) ExecuteTool(ctx context.Context, in *WindToolExecuteReq, opts ...grpc.CallOption) (*WindToolExecuteResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WindToolExecuteResp)
+	err := c.cc.Invoke(ctx, AiWindAgentService_ExecuteTool_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiWindAgentServiceClient) RunAgentStream(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WindAgentStreamEvent], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AiWindAgentService_ServiceDesc.Streams[0], AiWindAgentService_RunAgentStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WindAgentRunReq, WindAgentStreamEvent]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiWindAgentService_RunAgentStreamClient = grpc.ServerStreamingClient[WindAgentStreamEvent]
+
+func (c *aiWindAgentServiceClient) ResumeAgentStream(ctx context.Context, in *WindAgentResumeReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WindAgentStreamEvent], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AiWindAgentService_ServiceDesc.Streams[1], AiWindAgentService_ResumeAgentStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WindAgentResumeReq, WindAgentStreamEvent]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiWindAgentService_ResumeAgentStreamClient = grpc.ServerStreamingClient[WindAgentStreamEvent]
+
 // AiWindAgentServiceServer is the server API for AiWindAgentService service.
 // All implementations must embed UnimplementedAiWindAgentServiceServer
 // for forward compatibility.
@@ -2148,6 +2202,9 @@ type AiWindAgentServiceServer interface {
 	CreateTicketDraft(context.Context, *WindTicketDraftReq) (*WindScaffoldResp, error)
 	RunAgent(context.Context, *WindAgentRunReq) (*WindAgentRunResp, error)
 	ListToolCallLog(context.Context, *WindListToolCallLogReq) (*WindListToolCallLogResp, error)
+	ExecuteTool(context.Context, *WindToolExecuteReq) (*WindToolExecuteResp, error)
+	RunAgentStream(*WindAgentRunReq, grpc.ServerStreamingServer[WindAgentStreamEvent]) error
+	ResumeAgentStream(*WindAgentResumeReq, grpc.ServerStreamingServer[WindAgentStreamEvent]) error
 	mustEmbedUnimplementedAiWindAgentServiceServer()
 }
 
@@ -2166,6 +2223,15 @@ func (UnimplementedAiWindAgentServiceServer) RunAgent(context.Context, *WindAgen
 }
 func (UnimplementedAiWindAgentServiceServer) ListToolCallLog(context.Context, *WindListToolCallLogReq) (*WindListToolCallLogResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListToolCallLog not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) ExecuteTool(context.Context, *WindToolExecuteReq) (*WindToolExecuteResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExecuteTool not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) RunAgentStream(*WindAgentRunReq, grpc.ServerStreamingServer[WindAgentStreamEvent]) error {
+	return status.Errorf(codes.Unimplemented, "method RunAgentStream not implemented")
+}
+func (UnimplementedAiWindAgentServiceServer) ResumeAgentStream(*WindAgentResumeReq, grpc.ServerStreamingServer[WindAgentStreamEvent]) error {
+	return status.Errorf(codes.Unimplemented, "method ResumeAgentStream not implemented")
 }
 func (UnimplementedAiWindAgentServiceServer) mustEmbedUnimplementedAiWindAgentServiceServer() {}
 func (UnimplementedAiWindAgentServiceServer) testEmbeddedByValue()                            {}
@@ -2242,6 +2308,46 @@ func _AiWindAgentService_ListToolCallLog_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiWindAgentService_ExecuteTool_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WindToolExecuteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiWindAgentServiceServer).ExecuteTool(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiWindAgentService_ExecuteTool_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiWindAgentServiceServer).ExecuteTool(ctx, req.(*WindToolExecuteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiWindAgentService_RunAgentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WindAgentRunReq)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AiWindAgentServiceServer).RunAgentStream(m, &grpc.GenericServerStream[WindAgentRunReq, WindAgentStreamEvent]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiWindAgentService_RunAgentStreamServer = grpc.ServerStreamingServer[WindAgentStreamEvent]
+
+func _AiWindAgentService_ResumeAgentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WindAgentResumeReq)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AiWindAgentServiceServer).ResumeAgentStream(m, &grpc.GenericServerStream[WindAgentResumeReq, WindAgentStreamEvent]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiWindAgentService_ResumeAgentStreamServer = grpc.ServerStreamingServer[WindAgentStreamEvent]
+
 // AiWindAgentService_ServiceDesc is the grpc.ServiceDesc for AiWindAgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2261,7 +2367,22 @@ var AiWindAgentService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ListToolCallLog",
 			Handler:    _AiWindAgentService_ListToolCallLog_Handler,
 		},
+		{
+			MethodName: "ExecuteTool",
+			Handler:    _AiWindAgentService_ExecuteTool_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "RunAgentStream",
+			Handler:       _AiWindAgentService_RunAgentStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ResumeAgentStream",
+			Handler:       _AiWindAgentService_ResumeAgentStream_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "pb/ai.proto",
 }

@@ -445,6 +445,7 @@ message ToolCall {
   string result_json = 5;
   string message = 6;
   string created_at = 7;
+  int64 latency_ms = 8;
 }
 
 message ListToolCallLogReq {
@@ -798,6 +799,13 @@ message WindAgentRunReq {
   string input = 3;
 }
 
+message WindAgentResumeReq {
+  int64 user_id = 1;
+  string conversation_id = 2;
+  string action = 3;             // approve/reject/clarify
+  string content = 4;            // clarify 时必填
+}
+
 message WindAgentRunResp {
   string answer = 1;
   repeated ToolCall tool_calls = 2;
@@ -816,6 +824,45 @@ message WindListToolCallLogReq {
 message WindListToolCallLogResp {
   int64 total = 1;
   repeated ToolCall list = 2;
+}
+
+
+message WindAgentStreamEvent {
+  string type = 1;              // start/intent/tool_start/tool_result/evidence/token/done/error
+  string trace_id = 2;
+  string conversation_id = 3;
+  string content = 4;           // 给前端展示的文本
+  ToolCall tool_call = 5;        // 单次工具事件
+  repeated ToolCall tool_calls = 6;
+  repeated Citation citations = 7;
+  WindDraftRef draft = 8;
+  string error_msg = 9;
+}
+
+message WindDraftRef {
+  string draft_type = 1;         // alarm_analysis/health_report/ticket
+  int64 draft_id = 2;
+  string title = 3;
+}
+
+message WindToolExecuteReq {
+  int64 user_id = 1;
+  string trace_id = 2;
+  string conversation_id = 3;
+  string tool_name = 4;
+  string arguments_json = 5;     // Agent 传来的结构化参数 JSON
+  int64 step = 6;                // 第几步 ReAct
+}
+
+message WindToolExecuteResp {
+  int64 tool_call_id = 1;
+  string tool_name = 2;
+  string status = 3;             // success/failed/denied/partial
+  string result_json = 4;        // 工具返回给 Agent 的结构化结果
+  string evidence_json = 5;      // 可进入最终答案的证据
+  repeated Citation citations = 6;
+  string message = 7;
+  int64 latency_ms = 8;
 }
 
 service AiWindMetadataService {
@@ -843,4 +890,8 @@ service AiWindAgentService {
   rpc CreateTicketDraft(WindTicketDraftReq) returns (WindScaffoldResp);
   rpc RunAgent(WindAgentRunReq) returns (WindAgentRunResp);
   rpc ListToolCallLog(WindListToolCallLogReq) returns (WindListToolCallLogResp);
+
+  rpc ExecuteTool(WindToolExecuteReq) returns (WindToolExecuteResp);
+  rpc RunAgentStream(WindAgentRunReq) returns (stream WindAgentStreamEvent);
+  rpc ResumeAgentStream(WindAgentResumeReq) returns (stream WindAgentStreamEvent);
 }

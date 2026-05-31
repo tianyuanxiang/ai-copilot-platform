@@ -50,6 +50,7 @@ type AiUpdatePersonalKbReq {
 @server (
 	group: ai_kb_personal
 	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 创建当前登录用户的个人知识库。

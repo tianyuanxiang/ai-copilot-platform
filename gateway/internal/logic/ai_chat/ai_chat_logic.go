@@ -5,7 +5,7 @@ package ai_chat
 
 import (
 	aichatclient "ai-copilot-platform/ai-rpc/client/aichatservice"
-	"ai-copilot-platform/ai-rpc/pb"
+	"ai-copilot-platform/gateway/internal/logic/ai_wind_tool"
 	"context"
 	"go-zero-rpc/common/middleware"
 	"go-zero-rpc/common/xerr"
@@ -61,23 +61,6 @@ func (l *AiChatLogic) AiChat(req *types.AiChatReq) (resp *types.AiChatResp, err 
 		TraceId:        rpcResp.TraceId,
 		Mode:           rpcResp.Mode,
 		ConversationId: rpcResp.ConversationId,
-		Citations:      citationsFromRPC(rpcResp.Citations),
+		Citations:      ai_wind_tool.CitationsFromRPC(rpcResp.Citations),
 	}, nil
-}
-
-func citationsFromRPC(citations []*pb.Citation) []types.AiCitation {
-	items := make([]types.AiCitation, 0, len(citations))
-	for _, item := range citations {
-		if item == nil {
-			continue
-		}
-		items = append(items, types.AiCitation{
-			DocumentId: item.DocumentId,
-			ChunkId:    item.ChunkId,
-			Title:      item.Title,
-			Snippet:    item.Snippet,
-			Score:      item.Score,
-		})
-	}
-	return items
 }

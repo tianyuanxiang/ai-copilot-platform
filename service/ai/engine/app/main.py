@@ -1,6 +1,7 @@
 import logging
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from starlette.requests import Request
@@ -12,6 +13,7 @@ from app.api.routes_knowledge import router as knowledge_router
 from app.api.routes_wind import router as wind_router
 from app.core.config import get_settings
 from app.core.logging import setup_logging
+from app.services.agent_runtime import AgentRuntime
 
 
 logger = logging.getLogger("app.request")
@@ -20,7 +22,18 @@ logger = logging.getLogger("app.request")
 def create_app() -> FastAPI:
     settings = get_settings()
     setup_logging()
-    app = FastAPI(title=settings.app_name, version="0.1.0")
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        runtime = AgentRuntime(settings)
+        await runtime.start()
+        app.state.agent_runtime = runtime
+        try:
+            yield
+        finally:
+            await runtime.close()
+
+    app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
 
     @app.middleware("http")
     async def request_logging_middleware(request: Request, call_next):

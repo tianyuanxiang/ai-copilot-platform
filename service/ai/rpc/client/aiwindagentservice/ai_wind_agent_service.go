@@ -14,17 +14,24 @@ import (
 )
 
 type (
+	WindAgentResumeReq      = pb.WindAgentResumeReq
 	WindAgentRunReq         = pb.WindAgentRunReq
 	WindAgentRunResp        = pb.WindAgentRunResp
+	WindAgentStreamEvent    = pb.WindAgentStreamEvent
 	WindListToolCallLogReq  = pb.WindListToolCallLogReq
 	WindListToolCallLogResp = pb.WindListToolCallLogResp
 	WindScaffoldResp        = pb.WindScaffoldResp
 	WindTicketDraftReq      = pb.WindTicketDraftReq
+	WindToolExecuteReq      = pb.WindToolExecuteReq
+	WindToolExecuteResp     = pb.WindToolExecuteResp
 
 	AiWindAgentService interface {
 		CreateTicketDraft(ctx context.Context, in *WindTicketDraftReq, opts ...grpc.CallOption) (*WindScaffoldResp, error)
 		RunAgent(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (*WindAgentRunResp, error)
 		ListToolCallLog(ctx context.Context, in *WindListToolCallLogReq, opts ...grpc.CallOption) (*WindListToolCallLogResp, error)
+		ExecuteTool(ctx context.Context, in *WindToolExecuteReq, opts ...grpc.CallOption) (*WindToolExecuteResp, error)
+		RunAgentStream(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (pb.AiWindAgentService_RunAgentStreamClient, error)
+		ResumeAgentStream(ctx context.Context, in *WindAgentResumeReq, opts ...grpc.CallOption) (pb.AiWindAgentService_ResumeAgentStreamClient, error)
 	}
 
 	defaultAiWindAgentService struct {
@@ -51,4 +58,19 @@ func (m *defaultAiWindAgentService) RunAgent(ctx context.Context, in *WindAgentR
 func (m *defaultAiWindAgentService) ListToolCallLog(ctx context.Context, in *WindListToolCallLogReq, opts ...grpc.CallOption) (*WindListToolCallLogResp, error) {
 	client := pb.NewAiWindAgentServiceClient(m.cli.Conn())
 	return client.ListToolCallLog(ctx, in, opts...)
+}
+
+func (m *defaultAiWindAgentService) ExecuteTool(ctx context.Context, in *WindToolExecuteReq, opts ...grpc.CallOption) (*WindToolExecuteResp, error) {
+	client := pb.NewAiWindAgentServiceClient(m.cli.Conn())
+	return client.ExecuteTool(ctx, in, opts...)
+}
+
+func (m *defaultAiWindAgentService) RunAgentStream(ctx context.Context, in *WindAgentRunReq, opts ...grpc.CallOption) (pb.AiWindAgentService_RunAgentStreamClient, error) {
+	client := pb.NewAiWindAgentServiceClient(m.cli.Conn())
+	return client.RunAgentStream(ctx, in, opts...)
+}
+
+func (m *defaultAiWindAgentService) ResumeAgentStream(ctx context.Context, in *WindAgentResumeReq, opts ...grpc.CallOption) (pb.AiWindAgentService_ResumeAgentStreamClient, error) {
+	client := pb.NewAiWindAgentServiceClient(m.cli.Conn())
+	return client.ResumeAgentStream(ctx, in, opts...)
 }

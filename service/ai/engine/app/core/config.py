@@ -37,6 +37,11 @@ class Settings(BaseModel):
     rerank_api_key: str = ""
     rerank_top_n: int = 5
     rerank_timeout_seconds: int = 30
+    agent_go_rpc_target: str = "127.0.0.1:8091"
+    agent_go_rpc_timeout_seconds: int = 30
+    agent_max_steps: int = 6
+    agent_checkpoint_backend: Literal["memory", "postgres"] = "postgres"
+    agent_checkpoint_dsn: str = ""
 
 
 # Mapping from flat Settings field names to (yaml_section, yaml_key) pairs.
@@ -68,6 +73,11 @@ _FIELD_MAP: dict[str, tuple[str, str]] = {
     "rerank_api_key": ("rerank", "api_key"),
     "rerank_top_n": ("rerank", "top_n"),
     "rerank_timeout_seconds": ("rerank", "timeout_seconds"),
+    "agent_go_rpc_target": ("agent", "go_rpc_target"),
+    "agent_go_rpc_timeout_seconds": ("agent", "go_rpc_timeout_seconds"),
+    "agent_max_steps": ("agent", "max_steps"),
+    "agent_checkpoint_backend": ("agent", "checkpoint_backend"),
+    "agent_checkpoint_dsn": ("agent", "checkpoint_dsn"),
 }
 
 

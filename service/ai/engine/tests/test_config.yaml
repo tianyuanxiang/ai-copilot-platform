@@ -32,3 +32,10 @@ rerank:
   api_key: ""
   top_n: 5
   timeout_seconds: 30
+
+agent:
+  go_rpc_target: "127.0.0.1:8091"
+  go_rpc_timeout_seconds: 30
+  max_steps: 6
+  checkpoint_backend: memory
+  checkpoint_dsn: ""

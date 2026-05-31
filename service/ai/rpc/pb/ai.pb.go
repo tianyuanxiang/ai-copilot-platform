@@ -4062,6 +4062,7 @@ type ToolCall struct {
 	ResultJson    string                 `protobuf:"bytes,5,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
 	Message       string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	LatencyMs     int64                  `protobuf:"varint,8,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4143,6 +4144,13 @@ func (x *ToolCall) GetCreatedAt() string {
 		return x.CreatedAt
 	}
 	return ""
+}
+
+func (x *ToolCall) GetLatencyMs() int64 {
+	if x != nil {
+		return x.LatencyMs
+	}
+	return 0
 }
 
 type ListToolCallLogReq struct {
@@ -6681,6 +6689,74 @@ func (x *WindAgentRunReq) GetInput() string {
 	return ""
 }
 
+type WindAgentResumeReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	Action         string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`   // approve/reject/clarify
+	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"` // clarify 时必填
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindAgentResumeReq) Reset() {
+	*x = WindAgentResumeReq{}
+	mi := &file_pb_ai_proto_msgTypes[89]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAgentResumeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAgentResumeReq) ProtoMessage() {}
+
+func (x *WindAgentResumeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[89]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAgentResumeReq.ProtoReflect.Descriptor instead.
+func (*WindAgentResumeReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{89}
+}
+
+func (x *WindAgentResumeReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *WindAgentResumeReq) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *WindAgentResumeReq) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *WindAgentResumeReq) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 type WindAgentRunResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Answer        string                 `protobuf:"bytes,1,opt,name=answer,proto3" json:"answer,omitempty"`
@@ -6692,7 +6768,7 @@ type WindAgentRunResp struct {
 
 func (x *WindAgentRunResp) Reset() {
 	*x = WindAgentRunResp{}
-	mi := &file_pb_ai_proto_msgTypes[89]
+	mi := &file_pb_ai_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6704,7 +6780,7 @@ func (x *WindAgentRunResp) String() string {
 func (*WindAgentRunResp) ProtoMessage() {}
 
 func (x *WindAgentRunResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[89]
+	mi := &file_pb_ai_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6717,7 +6793,7 @@ func (x *WindAgentRunResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAgentRunResp.ProtoReflect.Descriptor instead.
 func (*WindAgentRunResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{89}
+	return file_pb_ai_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *WindAgentRunResp) GetAnswer() string {
@@ -6755,7 +6831,7 @@ type WindListToolCallLogReq struct {
 
 func (x *WindListToolCallLogReq) Reset() {
 	*x = WindListToolCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[90]
+	mi := &file_pb_ai_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6767,7 +6843,7 @@ func (x *WindListToolCallLogReq) String() string {
 func (*WindListToolCallLogReq) ProtoMessage() {}
 
 func (x *WindListToolCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[90]
+	mi := &file_pb_ai_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6780,7 +6856,7 @@ func (x *WindListToolCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindListToolCallLogReq.ProtoReflect.Descriptor instead.
 func (*WindListToolCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{90}
+	return file_pb_ai_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *WindListToolCallLogReq) GetPage() int64 {
@@ -6835,7 +6911,7 @@ type WindListToolCallLogResp struct {
 
 func (x *WindListToolCallLogResp) Reset() {
 	*x = WindListToolCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[91]
+	mi := &file_pb_ai_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6847,7 +6923,7 @@ func (x *WindListToolCallLogResp) String() string {
 func (*WindListToolCallLogResp) ProtoMessage() {}
 
 func (x *WindListToolCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[91]
+	mi := &file_pb_ai_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6860,7 +6936,7 @@ func (x *WindListToolCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindListToolCallLogResp.ProtoReflect.Descriptor instead.
 func (*WindListToolCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{91}
+	return file_pb_ai_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *WindListToolCallLogResp) GetTotal() int64 {
@@ -6875,6 +6951,358 @@ func (x *WindListToolCallLogResp) GetList() []*ToolCall {
 		return x.List
 	}
 	return nil
+}
+
+type WindAgentStreamEvent struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Type           string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // start/intent/tool_start/tool_result/evidence/token/done/error
+	TraceId        string                 `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,3,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                   // 给前端展示的文本
+	ToolCall       *ToolCall              `protobuf:"bytes,5,opt,name=tool_call,json=toolCall,proto3" json:"tool_call,omitempty"` // 单次工具事件
+	ToolCalls      []*ToolCall            `protobuf:"bytes,6,rep,name=tool_calls,json=toolCalls,proto3" json:"tool_calls,omitempty"`
+	Citations      []*Citation            `protobuf:"bytes,7,rep,name=citations,proto3" json:"citations,omitempty"`
+	Draft          *WindDraftRef          `protobuf:"bytes,8,opt,name=draft,proto3" json:"draft,omitempty"`
+	ErrorMsg       string                 `protobuf:"bytes,9,opt,name=error_msg,json=errorMsg,proto3" json:"error_msg,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindAgentStreamEvent) Reset() {
+	*x = WindAgentStreamEvent{}
+	mi := &file_pb_ai_proto_msgTypes[93]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindAgentStreamEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindAgentStreamEvent) ProtoMessage() {}
+
+func (x *WindAgentStreamEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[93]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindAgentStreamEvent.ProtoReflect.Descriptor instead.
+func (*WindAgentStreamEvent) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{93}
+}
+
+func (x *WindAgentStreamEvent) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *WindAgentStreamEvent) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *WindAgentStreamEvent) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *WindAgentStreamEvent) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *WindAgentStreamEvent) GetToolCall() *ToolCall {
+	if x != nil {
+		return x.ToolCall
+	}
+	return nil
+}
+
+func (x *WindAgentStreamEvent) GetToolCalls() []*ToolCall {
+	if x != nil {
+		return x.ToolCalls
+	}
+	return nil
+}
+
+func (x *WindAgentStreamEvent) GetCitations() []*Citation {
+	if x != nil {
+		return x.Citations
+	}
+	return nil
+}
+
+func (x *WindAgentStreamEvent) GetDraft() *WindDraftRef {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
+func (x *WindAgentStreamEvent) GetErrorMsg() string {
+	if x != nil {
+		return x.ErrorMsg
+	}
+	return ""
+}
+
+type WindDraftRef struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DraftType     string                 `protobuf:"bytes,1,opt,name=draft_type,json=draftType,proto3" json:"draft_type,omitempty"` // alarm_analysis/health_report/ticket
+	DraftId       int64                  `protobuf:"varint,2,opt,name=draft_id,json=draftId,proto3" json:"draft_id,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindDraftRef) Reset() {
+	*x = WindDraftRef{}
+	mi := &file_pb_ai_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindDraftRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindDraftRef) ProtoMessage() {}
+
+func (x *WindDraftRef) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindDraftRef.ProtoReflect.Descriptor instead.
+func (*WindDraftRef) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{94}
+}
+
+func (x *WindDraftRef) GetDraftType() string {
+	if x != nil {
+		return x.DraftType
+	}
+	return ""
+}
+
+func (x *WindDraftRef) GetDraftId() int64 {
+	if x != nil {
+		return x.DraftId
+	}
+	return 0
+}
+
+func (x *WindDraftRef) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+type WindToolExecuteReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TraceId        string                 `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,3,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ToolName       string                 `protobuf:"bytes,4,opt,name=tool_name,json=toolName,proto3" json:"tool_name,omitempty"`
+	ArgumentsJson  string                 `protobuf:"bytes,5,opt,name=arguments_json,json=argumentsJson,proto3" json:"arguments_json,omitempty"` // Agent 传来的结构化参数 JSON
+	Step           int64                  `protobuf:"varint,6,opt,name=step,proto3" json:"step,omitempty"`                                       // 第几步 ReAct
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WindToolExecuteReq) Reset() {
+	*x = WindToolExecuteReq{}
+	mi := &file_pb_ai_proto_msgTypes[95]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindToolExecuteReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindToolExecuteReq) ProtoMessage() {}
+
+func (x *WindToolExecuteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[95]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindToolExecuteReq.ProtoReflect.Descriptor instead.
+func (*WindToolExecuteReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{95}
+}
+
+func (x *WindToolExecuteReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *WindToolExecuteReq) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *WindToolExecuteReq) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *WindToolExecuteReq) GetToolName() string {
+	if x != nil {
+		return x.ToolName
+	}
+	return ""
+}
+
+func (x *WindToolExecuteReq) GetArgumentsJson() string {
+	if x != nil {
+		return x.ArgumentsJson
+	}
+	return ""
+}
+
+func (x *WindToolExecuteReq) GetStep() int64 {
+	if x != nil {
+		return x.Step
+	}
+	return 0
+}
+
+type WindToolExecuteResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ToolCallId    int64                  `protobuf:"varint,1,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
+	ToolName      string                 `protobuf:"bytes,2,opt,name=tool_name,json=toolName,proto3" json:"tool_name,omitempty"`
+	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`                                 // success/failed/denied/partial
+	ResultJson    string                 `protobuf:"bytes,4,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`       // 工具返回给 Agent 的结构化结果
+	EvidenceJson  string                 `protobuf:"bytes,5,opt,name=evidence_json,json=evidenceJson,proto3" json:"evidence_json,omitempty"` // 可进入最终答案的证据
+	Citations     []*Citation            `protobuf:"bytes,6,rep,name=citations,proto3" json:"citations,omitempty"`
+	Message       string                 `protobuf:"bytes,7,opt,name=message,proto3" json:"message,omitempty"`
+	LatencyMs     int64                  `protobuf:"varint,8,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WindToolExecuteResp) Reset() {
+	*x = WindToolExecuteResp{}
+	mi := &file_pb_ai_proto_msgTypes[96]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WindToolExecuteResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WindToolExecuteResp) ProtoMessage() {}
+
+func (x *WindToolExecuteResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[96]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WindToolExecuteResp.ProtoReflect.Descriptor instead.
+func (*WindToolExecuteResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{96}
+}
+
+func (x *WindToolExecuteResp) GetToolCallId() int64 {
+	if x != nil {
+		return x.ToolCallId
+	}
+	return 0
+}
+
+func (x *WindToolExecuteResp) GetToolName() string {
+	if x != nil {
+		return x.ToolName
+	}
+	return ""
+}
+
+func (x *WindToolExecuteResp) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *WindToolExecuteResp) GetResultJson() string {
+	if x != nil {
+		return x.ResultJson
+	}
+	return ""
+}
+
+func (x *WindToolExecuteResp) GetEvidenceJson() string {
+	if x != nil {
+		return x.EvidenceJson
+	}
+	return ""
+}
+
+func (x *WindToolExecuteResp) GetCitations() []*Citation {
+	if x != nil {
+		return x.Citations
+	}
+	return nil
+}
+
+func (x *WindToolExecuteResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *WindToolExecuteResp) GetLatencyMs() int64 {
+	if x != nil {
+		return x.LatencyMs
+	}
+	return 0
 }
 
 var File_pb_ai_proto protoreflect.FileDescriptor
@@ -7251,7 +7679,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\x03R\tmessageId\"\xe2\x01\n" +
+	"message_id\x18\x03 \x01(\x03R\tmessageId\"\x81\x02\n" +
 	"\bToolCall\x12 \n" +
 	"\ftool_call_id\x18\x01 \x01(\x03R\n" +
 	"toolCallId\x12\x1b\n" +
@@ -7262,7 +7690,9 @@ const file_pb_ai_proto_rawDesc = "" +
 	"resultJson\x12\x18\n" +
 	"\amessage\x18\x06 \x01(\tR\amessage\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tR\tcreatedAt\"\x87\x02\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"latency_ms\x18\b \x01(\x03R\tlatencyMs\"\x87\x02\n" +
 	"\x12ListToolCallLogReq\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x17\n" +
@@ -7514,7 +7944,12 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x0fWindAgentRunReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x14\n" +
-	"\x05input\x18\x03 \x01(\tR\x05input\"r\n" +
+	"\x05input\x18\x03 \x01(\tR\x05input\"\x88\x01\n" +
+	"\x12WindAgentResumeReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
+	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\"r\n" +
 	"\x10WindAgentRunResp\x12\x16\n" +
 	"\x06answer\x18\x01 \x01(\tR\x06answer\x12+\n" +
 	"\n" +
@@ -7529,7 +7964,42 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x06status\x18\x06 \x01(\tR\x06status\"Q\n" +
 	"\x17WindListToolCallLogResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12 \n" +
-	"\x04list\x18\x02 \x03(\v2\f.ai.ToolCallR\x04list2:\n" +
+	"\x04list\x18\x02 \x03(\v2\f.ai.ToolCallR\x04list\"\xd1\x02\n" +
+	"\x14WindAgentStreamEvent\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x19\n" +
+	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12'\n" +
+	"\x0fconversation_id\x18\x03 \x01(\tR\x0econversationId\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\x12)\n" +
+	"\ttool_call\x18\x05 \x01(\v2\f.ai.ToolCallR\btoolCall\x12+\n" +
+	"\n" +
+	"tool_calls\x18\x06 \x03(\v2\f.ai.ToolCallR\ttoolCalls\x12*\n" +
+	"\tcitations\x18\a \x03(\v2\f.ai.CitationR\tcitations\x12&\n" +
+	"\x05draft\x18\b \x01(\v2\x10.ai.WindDraftRefR\x05draft\x12\x1b\n" +
+	"\terror_msg\x18\t \x01(\tR\berrorMsg\"^\n" +
+	"\fWindDraftRef\x12\x1d\n" +
+	"\n" +
+	"draft_type\x18\x01 \x01(\tR\tdraftType\x12\x19\n" +
+	"\bdraft_id\x18\x02 \x01(\x03R\adraftId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"\xc9\x01\n" +
+	"\x12WindToolExecuteReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x19\n" +
+	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12'\n" +
+	"\x0fconversation_id\x18\x03 \x01(\tR\x0econversationId\x12\x1b\n" +
+	"\ttool_name\x18\x04 \x01(\tR\btoolName\x12%\n" +
+	"\x0earguments_json\x18\x05 \x01(\tR\rargumentsJson\x12\x12\n" +
+	"\x04step\x18\x06 \x01(\x03R\x04step\"\x97\x02\n" +
+	"\x13WindToolExecuteResp\x12 \n" +
+	"\ftool_call_id\x18\x01 \x01(\x03R\n" +
+	"toolCallId\x12\x1b\n" +
+	"\ttool_name\x18\x02 \x01(\tR\btoolName\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
+	"\vresult_json\x18\x04 \x01(\tR\n" +
+	"resultJson\x12#\n" +
+	"\revidence_json\x18\x05 \x01(\tR\fevidenceJson\x12*\n" +
+	"\tcitations\x18\x06 \x03(\v2\f.ai.CitationR\tcitations\x12\x18\n" +
+	"\amessage\x18\a \x01(\tR\amessage\x12\x1d\n" +
+	"\n" +
+	"latency_ms\x18\b \x01(\x03R\tlatencyMs2:\n" +
 	"\x0fAiStatusService\x12'\n" +
 	"\x06Health\x12\r.ai.HealthReq\x1a\x0e.ai.HealthResp2\xf1\b\n" +
 	"\x12AiKnowledgeService\x129\n" +
@@ -7577,11 +8047,14 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\fAnalyzeAlarm\x12\x17.ai.WindAlarmAnalyzeReq\x1a\x14.ai.WindScaffoldResp2\xa1\x01\n" +
 	"\x13AiWindReportService\x12E\n" +
 	"\x14GenerateHealthReport\x12\x17.ai.WindHealthReportReq\x1a\x14.ai.WindScaffoldResp\x12C\n" +
-	"\x0fGetHealthReport\x12\x1a.ai.WindHealthReportGetReq\x1a\x14.ai.WindScaffoldResp2\xda\x01\n" +
+	"\x0fGetHealthReport\x12\x1a.ai.WindHealthReportGetReq\x1a\x14.ai.WindScaffoldResp2\xa6\x03\n" +
 	"\x12AiWindAgentService\x12A\n" +
 	"\x11CreateTicketDraft\x12\x16.ai.WindTicketDraftReq\x1a\x14.ai.WindScaffoldResp\x125\n" +
 	"\bRunAgent\x12\x13.ai.WindAgentRunReq\x1a\x14.ai.WindAgentRunResp\x12J\n" +
-	"\x0fListToolCallLog\x12\x1a.ai.WindListToolCallLogReq\x1a\x1b.ai.WindListToolCallLogRespB\x06Z\x04./pbb\x06proto3"
+	"\x0fListToolCallLog\x12\x1a.ai.WindListToolCallLogReq\x1a\x1b.ai.WindListToolCallLogResp\x12>\n" +
+	"\vExecuteTool\x12\x16.ai.WindToolExecuteReq\x1a\x17.ai.WindToolExecuteResp\x12A\n" +
+	"\x0eRunAgentStream\x12\x13.ai.WindAgentRunReq\x1a\x18.ai.WindAgentStreamEvent0\x01\x12G\n" +
+	"\x11ResumeAgentStream\x12\x16.ai.WindAgentResumeReq\x1a\x18.ai.WindAgentStreamEvent0\x01B\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_pb_ai_proto_rawDescOnce sync.Once
@@ -7595,7 +8068,7 @@ func file_pb_ai_proto_rawDescGZIP() []byte {
 	return file_pb_ai_proto_rawDescData
 }
 
-var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 93)
+var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 98)
 var file_pb_ai_proto_goTypes = []any{
 	(*Empty)(nil),                       // 0: ai.Empty
 	(*CommonResp)(nil),                  // 1: ai.CommonResp
@@ -7686,10 +8159,15 @@ var file_pb_ai_proto_goTypes = []any{
 	(*WindHealthReportGetReq)(nil),      // 86: ai.WindHealthReportGetReq
 	(*WindTicketDraftReq)(nil),          // 87: ai.WindTicketDraftReq
 	(*WindAgentRunReq)(nil),             // 88: ai.WindAgentRunReq
-	(*WindAgentRunResp)(nil),            // 89: ai.WindAgentRunResp
-	(*WindListToolCallLogReq)(nil),      // 90: ai.WindListToolCallLogReq
-	(*WindListToolCallLogResp)(nil),     // 91: ai.WindListToolCallLogResp
-	nil,                                 // 92: ai.WindDataPoint.ValuesEntry
+	(*WindAgentResumeReq)(nil),          // 89: ai.WindAgentResumeReq
+	(*WindAgentRunResp)(nil),            // 90: ai.WindAgentRunResp
+	(*WindListToolCallLogReq)(nil),      // 91: ai.WindListToolCallLogReq
+	(*WindListToolCallLogResp)(nil),     // 92: ai.WindListToolCallLogResp
+	(*WindAgentStreamEvent)(nil),        // 93: ai.WindAgentStreamEvent
+	(*WindDraftRef)(nil),                // 94: ai.WindDraftRef
+	(*WindToolExecuteReq)(nil),          // 95: ai.WindToolExecuteReq
+	(*WindToolExecuteResp)(nil),         // 96: ai.WindToolExecuteResp
+	nil,                                 // 97: ai.WindDataPoint.ValuesEntry
 }
 var file_pb_ai_proto_depIdxs = []int32{
 	13, // 0: ai.ListDomainResp.list:type_name -> ai.DomainItem
@@ -7709,100 +8187,111 @@ var file_pb_ai_proto_depIdxs = []int32{
 	66, // 14: ai.ListWindFarmResp.list:type_name -> ai.WindFarmItem
 	69, // 15: ai.ListWindTurbineResp.list:type_name -> ai.WindTurbineItem
 	72, // 16: ai.ListWindDeviceResp.list:type_name -> ai.WindDeviceItem
-	92, // 17: ai.WindDataPoint.values:type_name -> ai.WindDataPoint.ValuesEntry
+	97, // 17: ai.WindDataPoint.values:type_name -> ai.WindDataPoint.ValuesEntry
 	76, // 18: ai.WindTimeseriesQueryResp.points:type_name -> ai.WindDataPoint
 	81, // 19: ai.WindAlarmQueryResp.list:type_name -> ai.WindAlarmItem
 	56, // 20: ai.WindAgentRunResp.tool_calls:type_name -> ai.ToolCall
 	56, // 21: ai.WindListToolCallLogResp.list:type_name -> ai.ToolCall
-	11, // 22: ai.AiStatusService.Health:input_type -> ai.HealthReq
-	14, // 23: ai.AiKnowledgeService.CreateDomain:input_type -> ai.CreateDomainReq
-	16, // 24: ai.AiKnowledgeService.UpdateDomain:input_type -> ai.UpdateDomainReq
-	17, // 25: ai.AiKnowledgeService.DeleteDomain:input_type -> ai.DeleteDomainReq
-	18, // 26: ai.AiKnowledgeService.ListDomain:input_type -> ai.ListDomainReq
-	21, // 27: ai.AiKnowledgeService.CreateKnowledgeBase:input_type -> ai.CreateKnowledgeBaseReq
-	23, // 28: ai.AiKnowledgeService.UpdateKnowledgeBase:input_type -> ai.UpdateKnowledgeBaseReq
-	24, // 29: ai.AiKnowledgeService.DeleteKnowledgeBase:input_type -> ai.DeleteKnowledgeBaseReq
-	25, // 30: ai.AiKnowledgeService.GetKnowledgeBase:input_type -> ai.GetKnowledgeBaseReq
-	26, // 31: ai.AiKnowledgeService.ListKnowledgeBase:input_type -> ai.ListKnowledgeBaseReq
-	29, // 32: ai.AiKnowledgeService.ListKbMember:input_type -> ai.ListKbMemberReq
-	31, // 33: ai.AiKnowledgeService.AddKbMember:input_type -> ai.AddKbMemberReq
-	32, // 34: ai.AiKnowledgeService.UpdateKbMember:input_type -> ai.UpdateKbMemberReq
-	33, // 35: ai.AiKnowledgeService.RemoveKbMember:input_type -> ai.RemoveKbMemberReq
-	35, // 36: ai.AiKnowledgeService.IngestDocument:input_type -> ai.IngestDocumentReq
-	36, // 37: ai.AiKnowledgeService.ListDocument:input_type -> ai.ListDocumentReq
-	38, // 38: ai.AiKnowledgeService.GetDocument:input_type -> ai.GetDocumentReq
-	39, // 39: ai.AiKnowledgeService.DeleteDocument:input_type -> ai.DeleteDocumentReq
-	40, // 40: ai.AiKnowledgeService.RebuildDocumentIndex:input_type -> ai.RebuildDocumentIndexReq
-	41, // 41: ai.AiKnowledgeService.SearchKnowledge:input_type -> ai.SearchKnowledgeReq
-	44, // 42: ai.AiChatService.RagChat:input_type -> ai.RagChatReq
-	44, // 43: ai.AiChatService.RagChatStream:input_type -> ai.RagChatReq
-	48, // 44: ai.AiChatService.ListConversation:input_type -> ai.ListConversationReq
-	51, // 45: ai.AiChatService.GetConversationMessages:input_type -> ai.GetConversationMessagesReq
-	53, // 46: ai.AiChatService.UpdateConversationTitle:input_type -> ai.UpdateConversationTitleReq
-	54, // 47: ai.AiChatService.DeleteConversation:input_type -> ai.DeleteConversationReq
-	55, // 48: ai.AiChatService.DeleteMessage:input_type -> ai.DeleteMessageReq
-	60, // 49: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
-	62, // 50: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
-	64, // 51: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
-	67, // 52: ai.AiWindMetadataService.ListFarms:input_type -> ai.ListWindFarmReq
-	70, // 53: ai.AiWindMetadataService.ListTurbines:input_type -> ai.ListWindTurbineReq
-	73, // 54: ai.AiWindMetadataService.ListDevices:input_type -> ai.ListWindDeviceReq
-	75, // 55: ai.AiWindTimeseriesService.QueryTimeseries:input_type -> ai.WindTimeseriesQueryReq
-	78, // 56: ai.AiWindTimeseriesService.CompareTrend:input_type -> ai.WindTrendCompareReq
-	80, // 57: ai.AiWindAlarmService.QueryAlarms:input_type -> ai.WindAlarmQueryReq
-	83, // 58: ai.AiWindAlarmService.AnalyzeAlarm:input_type -> ai.WindAlarmAnalyzeReq
-	85, // 59: ai.AiWindReportService.GenerateHealthReport:input_type -> ai.WindHealthReportReq
-	86, // 60: ai.AiWindReportService.GetHealthReport:input_type -> ai.WindHealthReportGetReq
-	87, // 61: ai.AiWindAgentService.CreateTicketDraft:input_type -> ai.WindTicketDraftReq
-	88, // 62: ai.AiWindAgentService.RunAgent:input_type -> ai.WindAgentRunReq
-	90, // 63: ai.AiWindAgentService.ListToolCallLog:input_type -> ai.WindListToolCallLogReq
-	12, // 64: ai.AiStatusService.Health:output_type -> ai.HealthResp
-	15, // 65: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
-	0,  // 66: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
-	0,  // 67: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
-	19, // 68: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
-	22, // 69: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
-	0,  // 70: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
-	0,  // 71: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
-	20, // 72: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
-	27, // 73: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
-	30, // 74: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
-	0,  // 75: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
-	0,  // 76: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
-	0,  // 77: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
-	10, // 78: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
-	37, // 79: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
-	34, // 80: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
-	0,  // 81: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
-	10, // 82: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
-	42, // 83: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
-	45, // 84: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
-	46, // 85: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
-	49, // 86: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
-	52, // 87: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
-	0,  // 88: ai.AiChatService.UpdateConversationTitle:output_type -> ai.Empty
-	0,  // 89: ai.AiChatService.DeleteConversation:output_type -> ai.Empty
-	0,  // 90: ai.AiChatService.DeleteMessage:output_type -> ai.Empty
-	61, // 91: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
-	63, // 92: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
-	65, // 93: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
-	68, // 94: ai.AiWindMetadataService.ListFarms:output_type -> ai.ListWindFarmResp
-	71, // 95: ai.AiWindMetadataService.ListTurbines:output_type -> ai.ListWindTurbineResp
-	74, // 96: ai.AiWindMetadataService.ListDevices:output_type -> ai.ListWindDeviceResp
-	77, // 97: ai.AiWindTimeseriesService.QueryTimeseries:output_type -> ai.WindTimeseriesQueryResp
-	79, // 98: ai.AiWindTimeseriesService.CompareTrend:output_type -> ai.WindTrendCompareResp
-	82, // 99: ai.AiWindAlarmService.QueryAlarms:output_type -> ai.WindAlarmQueryResp
-	84, // 100: ai.AiWindAlarmService.AnalyzeAlarm:output_type -> ai.WindScaffoldResp
-	84, // 101: ai.AiWindReportService.GenerateHealthReport:output_type -> ai.WindScaffoldResp
-	84, // 102: ai.AiWindReportService.GetHealthReport:output_type -> ai.WindScaffoldResp
-	84, // 103: ai.AiWindAgentService.CreateTicketDraft:output_type -> ai.WindScaffoldResp
-	89, // 104: ai.AiWindAgentService.RunAgent:output_type -> ai.WindAgentRunResp
-	91, // 105: ai.AiWindAgentService.ListToolCallLog:output_type -> ai.WindListToolCallLogResp
-	64, // [64:106] is the sub-list for method output_type
-	22, // [22:64] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	56, // 22: ai.WindAgentStreamEvent.tool_call:type_name -> ai.ToolCall
+	56, // 23: ai.WindAgentStreamEvent.tool_calls:type_name -> ai.ToolCall
+	7,  // 24: ai.WindAgentStreamEvent.citations:type_name -> ai.Citation
+	94, // 25: ai.WindAgentStreamEvent.draft:type_name -> ai.WindDraftRef
+	7,  // 26: ai.WindToolExecuteResp.citations:type_name -> ai.Citation
+	11, // 27: ai.AiStatusService.Health:input_type -> ai.HealthReq
+	14, // 28: ai.AiKnowledgeService.CreateDomain:input_type -> ai.CreateDomainReq
+	16, // 29: ai.AiKnowledgeService.UpdateDomain:input_type -> ai.UpdateDomainReq
+	17, // 30: ai.AiKnowledgeService.DeleteDomain:input_type -> ai.DeleteDomainReq
+	18, // 31: ai.AiKnowledgeService.ListDomain:input_type -> ai.ListDomainReq
+	21, // 32: ai.AiKnowledgeService.CreateKnowledgeBase:input_type -> ai.CreateKnowledgeBaseReq
+	23, // 33: ai.AiKnowledgeService.UpdateKnowledgeBase:input_type -> ai.UpdateKnowledgeBaseReq
+	24, // 34: ai.AiKnowledgeService.DeleteKnowledgeBase:input_type -> ai.DeleteKnowledgeBaseReq
+	25, // 35: ai.AiKnowledgeService.GetKnowledgeBase:input_type -> ai.GetKnowledgeBaseReq
+	26, // 36: ai.AiKnowledgeService.ListKnowledgeBase:input_type -> ai.ListKnowledgeBaseReq
+	29, // 37: ai.AiKnowledgeService.ListKbMember:input_type -> ai.ListKbMemberReq
+	31, // 38: ai.AiKnowledgeService.AddKbMember:input_type -> ai.AddKbMemberReq
+	32, // 39: ai.AiKnowledgeService.UpdateKbMember:input_type -> ai.UpdateKbMemberReq
+	33, // 40: ai.AiKnowledgeService.RemoveKbMember:input_type -> ai.RemoveKbMemberReq
+	35, // 41: ai.AiKnowledgeService.IngestDocument:input_type -> ai.IngestDocumentReq
+	36, // 42: ai.AiKnowledgeService.ListDocument:input_type -> ai.ListDocumentReq
+	38, // 43: ai.AiKnowledgeService.GetDocument:input_type -> ai.GetDocumentReq
+	39, // 44: ai.AiKnowledgeService.DeleteDocument:input_type -> ai.DeleteDocumentReq
+	40, // 45: ai.AiKnowledgeService.RebuildDocumentIndex:input_type -> ai.RebuildDocumentIndexReq
+	41, // 46: ai.AiKnowledgeService.SearchKnowledge:input_type -> ai.SearchKnowledgeReq
+	44, // 47: ai.AiChatService.RagChat:input_type -> ai.RagChatReq
+	44, // 48: ai.AiChatService.RagChatStream:input_type -> ai.RagChatReq
+	48, // 49: ai.AiChatService.ListConversation:input_type -> ai.ListConversationReq
+	51, // 50: ai.AiChatService.GetConversationMessages:input_type -> ai.GetConversationMessagesReq
+	53, // 51: ai.AiChatService.UpdateConversationTitle:input_type -> ai.UpdateConversationTitleReq
+	54, // 52: ai.AiChatService.DeleteConversation:input_type -> ai.DeleteConversationReq
+	55, // 53: ai.AiChatService.DeleteMessage:input_type -> ai.DeleteMessageReq
+	60, // 54: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
+	62, // 55: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
+	64, // 56: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
+	67, // 57: ai.AiWindMetadataService.ListFarms:input_type -> ai.ListWindFarmReq
+	70, // 58: ai.AiWindMetadataService.ListTurbines:input_type -> ai.ListWindTurbineReq
+	73, // 59: ai.AiWindMetadataService.ListDevices:input_type -> ai.ListWindDeviceReq
+	75, // 60: ai.AiWindTimeseriesService.QueryTimeseries:input_type -> ai.WindTimeseriesQueryReq
+	78, // 61: ai.AiWindTimeseriesService.CompareTrend:input_type -> ai.WindTrendCompareReq
+	80, // 62: ai.AiWindAlarmService.QueryAlarms:input_type -> ai.WindAlarmQueryReq
+	83, // 63: ai.AiWindAlarmService.AnalyzeAlarm:input_type -> ai.WindAlarmAnalyzeReq
+	85, // 64: ai.AiWindReportService.GenerateHealthReport:input_type -> ai.WindHealthReportReq
+	86, // 65: ai.AiWindReportService.GetHealthReport:input_type -> ai.WindHealthReportGetReq
+	87, // 66: ai.AiWindAgentService.CreateTicketDraft:input_type -> ai.WindTicketDraftReq
+	88, // 67: ai.AiWindAgentService.RunAgent:input_type -> ai.WindAgentRunReq
+	91, // 68: ai.AiWindAgentService.ListToolCallLog:input_type -> ai.WindListToolCallLogReq
+	95, // 69: ai.AiWindAgentService.ExecuteTool:input_type -> ai.WindToolExecuteReq
+	88, // 70: ai.AiWindAgentService.RunAgentStream:input_type -> ai.WindAgentRunReq
+	89, // 71: ai.AiWindAgentService.ResumeAgentStream:input_type -> ai.WindAgentResumeReq
+	12, // 72: ai.AiStatusService.Health:output_type -> ai.HealthResp
+	15, // 73: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
+	0,  // 74: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
+	0,  // 75: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
+	19, // 76: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
+	22, // 77: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
+	0,  // 78: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
+	0,  // 79: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
+	20, // 80: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
+	27, // 81: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
+	30, // 82: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
+	0,  // 83: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
+	0,  // 84: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
+	0,  // 85: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
+	10, // 86: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
+	37, // 87: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
+	34, // 88: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
+	0,  // 89: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
+	10, // 90: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
+	42, // 91: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
+	45, // 92: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
+	46, // 93: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
+	49, // 94: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
+	52, // 95: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
+	0,  // 96: ai.AiChatService.UpdateConversationTitle:output_type -> ai.Empty
+	0,  // 97: ai.AiChatService.DeleteConversation:output_type -> ai.Empty
+	0,  // 98: ai.AiChatService.DeleteMessage:output_type -> ai.Empty
+	61, // 99: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
+	63, // 100: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
+	65, // 101: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
+	68, // 102: ai.AiWindMetadataService.ListFarms:output_type -> ai.ListWindFarmResp
+	71, // 103: ai.AiWindMetadataService.ListTurbines:output_type -> ai.ListWindTurbineResp
+	74, // 104: ai.AiWindMetadataService.ListDevices:output_type -> ai.ListWindDeviceResp
+	77, // 105: ai.AiWindTimeseriesService.QueryTimeseries:output_type -> ai.WindTimeseriesQueryResp
+	79, // 106: ai.AiWindTimeseriesService.CompareTrend:output_type -> ai.WindTrendCompareResp
+	82, // 107: ai.AiWindAlarmService.QueryAlarms:output_type -> ai.WindAlarmQueryResp
+	84, // 108: ai.AiWindAlarmService.AnalyzeAlarm:output_type -> ai.WindScaffoldResp
+	84, // 109: ai.AiWindReportService.GenerateHealthReport:output_type -> ai.WindScaffoldResp
+	84, // 110: ai.AiWindReportService.GetHealthReport:output_type -> ai.WindScaffoldResp
+	84, // 111: ai.AiWindAgentService.CreateTicketDraft:output_type -> ai.WindScaffoldResp
+	90, // 112: ai.AiWindAgentService.RunAgent:output_type -> ai.WindAgentRunResp
+	92, // 113: ai.AiWindAgentService.ListToolCallLog:output_type -> ai.WindListToolCallLogResp
+	96, // 114: ai.AiWindAgentService.ExecuteTool:output_type -> ai.WindToolExecuteResp
+	93, // 115: ai.AiWindAgentService.RunAgentStream:output_type -> ai.WindAgentStreamEvent
+	93, // 116: ai.AiWindAgentService.ResumeAgentStream:output_type -> ai.WindAgentStreamEvent
+	72, // [72:117] is the sub-list for method output_type
+	27, // [27:72] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_pb_ai_proto_init() }
@@ -7816,7 +8305,7 @@ func file_pb_ai_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_ai_proto_rawDesc), len(file_pb_ai_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   93,
+			NumMessages:   98,
 			NumExtensions: 0,
 			NumServices:   9,
 		},

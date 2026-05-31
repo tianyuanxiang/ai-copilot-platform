@@ -69,3 +69,13 @@ type AiWindToolCallItem {
 	message string `json:"message"`
 	createdAt string `json:"createdAt"`
 }
+
+type WindAgentStreamEvent{
+    messageType           string  `json:"type"`
+    traceId        string `json:"traceId"`
+    conversationId string `json:"conversationId"`
+    content        string `json:"content"`
+    toolCalls      []AiWindToolCallItem `json:"toolCalls"`
+    citations      []AiCitation `json:"citations"`
+    draft          string  `json:"draft"`
+}

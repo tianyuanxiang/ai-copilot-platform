@@ -635,3 +635,13 @@ type AiWindTurbineItem struct {
 	AiEnabled bool   `json:"aiEnabled"`
 	Remark    string `json:"remark"`
 }
+
+type WindAgentStreamEvent struct {
+	MessageType    string               `json:"type"`
+	TraceId        string               `json:"traceId"`
+	ConversationId string               `json:"conversationId"`
+	Content        string               `json:"content"`
+	ToolCalls      []AiWindToolCallItem `json:"toolCalls"`
+	Citations      []AiCitation         `json:"citations"`
+	Draft          string               `json:"draft"`
+}

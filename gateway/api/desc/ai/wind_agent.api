@@ -34,8 +34,13 @@ type AiWindListToolCallResp {
 @server (
 	group: ai_wind_agent
 	prefix: /api/v1/ai/wind
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
+    // 运维智能助手
+    @handler aiWindCopilotAgent
+    post /agent/stream (AiWindAgentRunReq)
+
 	// 创建维修工单草稿，一期返回可编辑草稿结构。
 	@handler aiWindCreateTicketDraft
 	post /tickets/draft (AiWindTicketDraftReq) returns (AiWindScaffoldResp)

@@ -37,3 +37,18 @@ func (s *AiWindAgentServiceServer) ListToolCallLog(ctx context.Context, in *pb.W
 	l := aiwindagentservicelogic.NewListToolCallLogLogic(ctx, s.svcCtx)
 	return l.ListToolCallLog(in)
 }
+
+func (s *AiWindAgentServiceServer) ExecuteTool(ctx context.Context, in *pb.WindToolExecuteReq) (*pb.WindToolExecuteResp, error) {
+	l := aiwindagentservicelogic.NewExecuteToolLogic(ctx, s.svcCtx)
+	return l.ExecuteTool(in)
+}
+
+func (s *AiWindAgentServiceServer) RunAgentStream(in *pb.WindAgentRunReq, stream pb.AiWindAgentService_RunAgentStreamServer) error {
+	l := aiwindagentservicelogic.NewRunAgentStreamLogic(stream.Context(), s.svcCtx)
+	return l.RunAgentStream(in, stream)
+}
+
+func (s *AiWindAgentServiceServer) ResumeAgentStream(in *pb.WindAgentResumeReq, stream pb.AiWindAgentService_ResumeAgentStreamServer) error {
+	l := aiwindagentservicelogic.NewResumeAgentStreamLogic(stream.Context(), s.svcCtx)
+	return l.ResumeAgentStream(in, stream)
+}

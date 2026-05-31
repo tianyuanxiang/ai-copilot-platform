@@ -4,21 +4,17 @@
 package ai_chat
 
 import (
+	aichatclient "ai-copilot-platform/ai-rpc/client/aichatservice"
+	"ai-copilot-platform/gateway/internal/logic/ai_wind_tool"
+	"ai-copilot-platform/gateway/internal/svc"
+	"ai-copilot-platform/gateway/internal/types"
 	"context"
-	"encoding/json"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 	"io"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
-	"unicode/utf8"
-
-	aichatclient "ai-copilot-platform/ai-rpc/client/aichatservice"
-	"ai-copilot-platform/ai-rpc/pb"
-	"ai-copilot-platform/gateway/internal/svc"
-	"ai-copilot-platform/gateway/internal/types"
-	"go-zero-rpc/common/middleware"
-	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -77,7 +73,7 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 			return nil
 		}
 		if err != nil {
-			_ = writeChatSSE(w, streamEvent{
+			_ = ai_wind_tool.WriteChatSSE(w, ai_wind_tool.StreamEvent{
 				Type:    "error",
 				Content: err.Error(),
 			})
@@ -89,16 +85,16 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 		}
 
 		content := event.Content
-		citations := streamCitationsFromRPC(event.Citations)
-		references := []streamReference(nil)
+		citations := ai_wind_tool.StreamCitationsFromRPC(event.Citations)
+		references := []ai_wind_tool.StreamReference(nil)
 		if event.Type == "token" {
 			answer.WriteString(content)
 		}
 		if event.Type == "done" {
 			content = ""
 			finalAnswer := answer.String()
-			references = streamReferencesFromAnswer(finalAnswer, citations)
-			if err := writeChatSSE(w, streamEvent{
+			references = ai_wind_tool.StreamReferencesFromAnswer(finalAnswer, citations)
+			if err := ai_wind_tool.WriteChatSSE(w, ai_wind_tool.StreamEvent{
 				Type:       event.Type,
 				Content:    content,
 				Answer:     finalAnswer,
@@ -114,7 +110,7 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 			continue
 		}
 
-		if err := writeChatSSE(w, streamEvent{
+		if err := ai_wind_tool.WriteChatSSE(w, ai_wind_tool.StreamEvent{
 			Type:    event.Type,
 			Content: content,
 			TraceID: event.TraceId,
@@ -125,88 +121,4 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 			flusher.Flush()
 		}
 	}
-}
-
-type streamEvent struct {
-	Type       string            `json:"type"`
-	Content    string            `json:"content,omitempty"`
-	Answer     string            `json:"answer,omitempty"`
-	TraceID    string            `json:"traceId,omitempty"`
-	Citations  []streamCitation  `json:"citations,omitempty"`
-	References []streamReference `json:"references,omitempty"`
-}
-
-type streamCitation struct {
-	RefIndex   int     `json:"refIndex"`
-	RefText    string  `json:"refText"`
-	DocumentId int64   `json:"documentId"`
-	ChunkId    int64   `json:"chunkId"`
-	Title      string  `json:"title"`
-	Snippet    string  `json:"snippet"`
-	Score      float64 `json:"score"`
-}
-
-type streamReference struct {
-	RefIndex int            `json:"refIndex"`
-	RefText  string         `json:"refText"`
-	Start    int            `json:"start"`
-	End      int            `json:"end"`
-	Citation streamCitation `json:"citation"`
-}
-
-func streamCitationsFromRPC(citations []*pb.Citation) []streamCitation {
-	items := make([]streamCitation, 0, len(citations))
-	for _, item := range citations {
-		if item == nil {
-			continue
-		}
-		refIndex := len(items) + 1
-		items = append(items, streamCitation{
-			RefIndex:   refIndex,
-			RefText:    "[" + strconv.Itoa(refIndex) + "]",
-			DocumentId: item.DocumentId,
-			ChunkId:    item.ChunkId,
-			Title:      item.Title,
-			Snippet:    item.Snippet,
-			Score:      item.Score,
-		})
-	}
-	return items
-}
-
-func streamReferencesFromAnswer(answer string, citations []streamCitation) []streamReference {
-	matches := citationMarkerPattern.FindAllStringSubmatchIndex(answer, -1)
-	references := make([]streamReference, 0, len(matches))
-	for _, match := range matches {
-		if len(match) < 4 {
-			continue
-		}
-		refIndex, err := strconv.Atoi(answer[match[2]:match[3]])
-		if err != nil || refIndex <= 0 || refIndex > len(citations) {
-			continue
-		}
-		references = append(references, streamReference{
-			RefIndex: refIndex,
-			RefText:  answer[match[0]:match[1]],
-			Start:    utf8.RuneCountInString(answer[:match[0]]),
-			End:      utf8.RuneCountInString(answer[:match[1]]),
-			Citation: citations[refIndex-1],
-		})
-	}
-	return references
-}
-
-func writeChatSSE(w http.ResponseWriter, event streamEvent) error {
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-	if _, err := w.Write([]byte("data: ")); err != nil {
-		return err
-	}
-	if _, err := w.Write(data); err != nil {
-		return err
-	}
-	_, err = w.Write([]byte("\n\n"))
-	return err
 }

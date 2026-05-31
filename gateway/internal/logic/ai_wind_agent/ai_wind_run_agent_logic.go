@@ -5,6 +5,8 @@ package ai_wind_agent
 
 import (
 	"context"
+	"go-zero-rpc/common/middleware"
+	"go-zero-rpc/common/xerr"
 
 	"ai-copilot-platform/ai-rpc/pb"
 	"ai-copilot-platform/gateway/internal/svc"
@@ -28,10 +30,15 @@ func NewAiWindRunAgentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ai
 }
 
 func (l *AiWindRunAgentLogic) AiWindRunAgent(req *types.AiWindAgentRunReq) (resp *types.AiWindAgentRunResp, err error) {
+	userID := middleware.GetUserIdFromCtx(l.ctx)
+	if userID <= 0 {
+		return nil, xerr.NewCodeError(xerr.ErrUnauthorized)
+	}
+
 	result, err := l.svcCtx.AiWindAgentClient.RunAgent(l.ctx, &pb.WindAgentRunReq{
 		ConversationId: req.ConversationId,
 		Input:          req.Input,
-		UserId:         0,
+		UserId:         userID,
 	})
 	if err != nil {
 		return nil, err

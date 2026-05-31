@@ -108,7 +108,6 @@ func BuildAlarmEvidence(ctx context.Context, svcCtx *svc.ServiceContext, farmCod
 	if peakBucket != nil {
 		peakBucketStart = peakBucket["bucket_start"].(string)
 	}
-
 	// 分层抽样
 	samples := selectAlarmSamples(poolRows, topAlarmCodes, topTowers, peakBucketStart)
 
@@ -133,7 +132,7 @@ func BuildAlarmEvidence(ctx context.Context, svcCtx *svc.ServiceContext, farmCod
 		"by_status":         byStatus,
 		"by_alarm_code_top": byAlarmCodeTop,
 		"by_tower_top":      byTowerTop,
-		"by_time_bucket":    byTimeBucket,
+		"time_bucket_count": len(byTimeBucket),
 		"first_ts":          firstTs,
 		"last_ts":           lastTs,
 		"peak_bucket":       peakBucket,
@@ -432,7 +431,7 @@ func BuildEvidenceSummary(evidenceJSON string) string {
 			"total", "query_mode", "risk", "point_count",
 			"granularity", "start_time", "end_time",
 			"by_level", "by_status", "by_alarm_code_top", "by_tower_top",
-			"by_time_bucket", "first_ts", "last_ts", "peak_bucket",
+			"time_bucket_count", "first_ts", "last_ts", "peak_bucket",
 			"sampled"} {
 			if v, ok := item[key]; ok {
 				summary[key] = v
@@ -464,7 +463,6 @@ func DraftContent(resp *engine.WindDraftResponse) string {
 	data, err := json.Marshal(map[string]any{
 		"status":          resp.Status,
 		"summary":         resp.Summary,
-		"metrics":         resp.Metrics,
 		"sections":        resp.Sections,
 		"recommendations": resp.Recommendations,
 		"todo":            resp.Todo,

@@ -59,6 +59,7 @@ type AiTokenStatsResp {
 @server (
 	group: ai_llmops
 	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 查询指定 traceId 的 LLM 调用链路。

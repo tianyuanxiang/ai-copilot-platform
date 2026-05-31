@@ -37,6 +37,7 @@ type AiWindListDeviceResp {
 @server (
 	group: ai_wind_metadata
 	prefix: /api/v1/ai/wind
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 查询风场列表，返回 TDengine database 映射。

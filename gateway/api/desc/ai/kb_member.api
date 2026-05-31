@@ -46,6 +46,7 @@ type AiKbMemberPathReq {
 @server (
 	group: ai_kb_member
 	prefix: /api/v1/ai
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 查询公共知识库成员列表。

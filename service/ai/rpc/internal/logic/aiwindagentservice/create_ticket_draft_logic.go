@@ -3,6 +3,7 @@ package aiwindagentservicelogic
 import (
 	"context"
 	"fmt"
+	"go-zero-rpc/common/xerr"
 	"time"
 
 	"ai-copilot-platform/ai-rpc/internal/engine"
@@ -33,7 +34,8 @@ func (l *CreateTicketDraftLogic) CreateTicketDraft(in *pb.WindTicketDraftReq) (*
 
 	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(l.ctx, l.svcCtx, in.FarmCode, in.TowerCode, in.AlarmCode, "", "", 0, true)
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("Draft build alarm evidence failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "建立告警事件失败")
 	}
 	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(in.EvidenceJson, alarmEvidence)
 
@@ -50,6 +52,7 @@ func (l *CreateTicketDraftLogic) CreateTicketDraft(in *pb.WindTicketDraftReq) (*
 	startedAt := time.Now()
 	draft, err := l.svcCtx.EngineCallClient.WindTicketDraft(l.ctx, payload)
 	if err != nil {
+		l.Logger.Errorf("告警数据AI分析失败: %v", err)
 		aiwinddraft.WriteToolCallLog(l.ctx, l.svcCtx, in.UserId, traceID, "wind_ticket_draft", payload, map[string]any{}, startedAt, "failed", err.Error())
 		return nil, err
 	}
@@ -76,7 +79,8 @@ func (l *CreateTicketDraftLogic) CreateTicketDraft(in *pb.WindTicketDraftReq) (*
 		Status:    status,
 	})
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("Draft insert failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "插入AI维修工单草稿表失败")
 	}
 
 	// API 响应只返回轻量 evidence 摘要

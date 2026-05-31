@@ -215,8 +215,10 @@ def _aggregate_alarm_metrics(alarms: list[dict[str, Any]]) -> dict[str, Any]:
                 "returned_records": alarm.get("sampled", 0),
                 "granularity": alarm.get("granularity", ""),
                 "peak_bucket": alarm.get("peak_bucket"),
-                "by_alarm_code_top": alarm.get("by_alarm_code_top", []),
-                "by_time_bucket": alarm.get("by_time_bucket", []),
+                "by_alarm_code_top": alarm.get("by_alarm_code_top", [])[:5],
+                "time_bucket_count": alarm.get("time_bucket_count", 0),
+                "first_ts": alarm.get("first_ts", ""),
+                "last_ts": alarm.get("last_ts", ""),
             }
 
     # 回退：没有聚合指标时，从原始告警行计算
@@ -501,20 +503,43 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
 
     logger.info("[optional_llm_polish] 开始 LLM 润色, trace_id=%s", state["payload"].trace_id)
     payload = state["payload"]
+
+    # 从 state 构建紧凑事实包（兼容扁平/嵌套 metrics）
+    polish_context = _build_polish_context(state)
+    if not polish_context:
+        logger.warning("[optional_llm_polish] 跳过 LLM 润色, 原因: context 构建失败或超长, trace_id=%s", payload.trace_id)
+        return state
+
     prompt = (
         "你是风机混塔智能运维 Copilot。只能基于下面已生成的草稿和 evidence 指标润色摘要，"
         "不得新增事实、不得编造原因。只输出一段中文摘要,按问题描述、建议步骤、证据引用来分层。\n\n"
         f"标题：{draft.title}\n"
         f"当前摘要：{draft.summary}\n"
-        f"指标：{json.dumps(draft.metrics, ensure_ascii=False)}"
+        f"事实：{json.dumps(polish_context, ensure_ascii=False)}"
     )
-    request = ChatStreamRequest(
-        user_id=payload.user_id,
-        kb_id="",
-        conversation_id=payload.trace_id,
-        question=prompt,
-        history=[],
-    )
+
+    # 硬性长度保护：截断或跳过 LLM polish
+    if len(prompt) > _MAX_POLISH_PROMPT_CHARS:
+        logger.warning(
+            "[optional_llm_polish] prompt 超长 (%d chars > %d), 跳过 LLM 润色, trace_id=%s",
+            len(prompt), _MAX_POLISH_PROMPT_CHARS, payload.trace_id,
+        )
+        return state
+
+    try:
+        request = ChatStreamRequest(
+            user_id=payload.user_id,
+            kb_id="",
+            conversation_id=payload.trace_id,
+            question=prompt,
+            history=[],
+        )
+    except Exception as exc:
+        logger.warning(
+            "[optional_llm_polish] ChatStreamRequest 构造失败, 跳过润色, trace_id=%s error=%s",
+            payload.trace_id, exc,
+        )
+        return state
 
     try:
         parts: list[str] = []
@@ -538,6 +563,135 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
     except Exception:
         logger.exception("wind llm polish exception trace_id=%s", payload.trace_id)
     return {**state, "draft": draft}
+
+
+# 精简 metrics 用于 LLM 润色 prompt，避免超长
+_MAX_POLISH_PROMPT_CHARS = 50000
+_MAX_SAMPLES_DEFAULT = 10
+_MAX_SAMPLES_REDUCED = 3
+_SECTION_CONTENT_LIMIT = 200
+
+
+def _build_polish_context(state: WindDraftState) -> dict[str, Any]:
+    """从 state 构建 LLM 润色所需的紧凑事实包。
+
+    直接从 state["metrics"]（嵌套结构）+ state["evidence"] + draft + payload 取事实，
+    兼容扁平 alarm metrics 和嵌套 {"alarm": ...} metrics。
+
+    包含：风场/风机/告警码、标题、规则草稿摘要、已有 sections、
+    告警总数、风险等级、等级分布、状态分布、top 告警码、top 风机、
+    峰值时间桶、首末时间、代表性 samples。
+    不放完整 by_time_bucket，只放 time_bucket_count。
+    """
+    payload = state["payload"]
+    metrics = state.get("metrics", {})
+    draft = state.get("draft")
+    evidence = state.get("evidence", [])
+
+    # 提取告警指标：兼容嵌套 {"alarm": {...}} 和扁平 {"alarm_count": ...} 结构
+    alarm_metrics: dict[str, Any] = {}
+    if "alarm" in metrics and isinstance(metrics["alarm"], dict):
+        # 嵌套结构（来自 _aggregate_facts）
+        alarm_metrics = metrics["alarm"]
+    elif "alarm_count" in metrics:
+        # 扁平结构（兼容旧格式）
+        alarm_metrics = metrics
+
+    # 构建紧凑事实包
+    context: dict[str, Any] = {}
+
+    # 基本信息
+    context["farm_code"] = getattr(payload, "farm_code", "") or ""
+    context["tower_code"] = getattr(payload, "tower_code", "") or ""
+    context["alarm_code"] = getattr(payload, "alarm_code", "") or ""
+
+    # 草稿信息
+    if draft:
+        context["title"] = draft.title or ""
+        context["summary"] = draft.summary or ""
+        # sections 只保留 name 和截断后的 content
+        if draft.sections:
+            context["sections"] = [
+                {
+                    "name": s.get("name", ""),
+                    "content": str(s.get("content", ""))[:_SECTION_CONTENT_LIMIT],
+                }
+                for s in draft.sections
+                if isinstance(s, dict)
+            ]
+
+    # 告警指标摘要
+    if alarm_metrics:
+        context["alarm_count"] = alarm_metrics.get("alarm_count", 0)
+        context["risk"] = alarm_metrics.get("risk", "normal")
+        context["level_counts"] = alarm_metrics.get("level_counts", {})
+        context["status_counts"] = alarm_metrics.get("status_counts", {})
+        context["tower_counts"] = alarm_metrics.get("tower_counts", {})
+        context["truncated"] = alarm_metrics.get("truncated", False)
+        context["returned_records"] = alarm_metrics.get("returned_records", 0)
+        context["granularity"] = alarm_metrics.get("granularity", "")
+        context["peak_bucket"] = alarm_metrics.get("peak_bucket")
+        context["time_bucket_count"] = alarm_metrics.get("time_bucket_count", 0)
+        context["first_ts"] = alarm_metrics.get("first_ts", "")
+        context["last_ts"] = alarm_metrics.get("last_ts", "")
+
+        top_codes = alarm_metrics.get("by_alarm_code_top", [])
+        if isinstance(top_codes, list):
+            context["by_alarm_code_top"] = top_codes[:5]
+
+    # 测点指标摘要
+    ts_metrics = metrics.get("timeseries", {})
+    if ts_metrics and isinstance(ts_metrics, dict):
+        ts_summary: dict[str, Any] = {}
+        for field, stats in list(ts_metrics.items())[:20]:
+            if isinstance(stats, dict):
+                ts_summary[field] = {
+                    "count": stats.get("count"),
+                    "latest": stats.get("latest"),
+                    "min": stats.get("min"),
+                    "max": stats.get("max"),
+                    "avg": stats.get("avg"),
+                }
+        if ts_summary:
+            context["timeseries"] = ts_summary
+
+    if "point_count" in metrics:
+        context["point_count"] = metrics["point_count"]
+
+    # 提取代表性 samples（最多 N 条）
+    samples = _extract_samples(evidence, _MAX_SAMPLES_DEFAULT)
+    if samples:
+        context["samples"] = samples
+
+    # 长度保护：序列化后检查，超长则减少 samples
+    serialized = json.dumps(context, ensure_ascii=False)
+    if len(serialized) > _MAX_POLISH_PROMPT_CHARS:
+        context["samples"] = _extract_samples(evidence, _MAX_SAMPLES_REDUCED)
+        serialized = json.dumps(context, ensure_ascii=False)
+        if len(serialized) > _MAX_POLISH_PROMPT_CHARS:
+            logger.warning(
+                "[build_polish_context] context 仍超长 (%d chars), 返回空",
+                len(serialized),
+            )
+            return {}
+
+    return context
+
+
+def _extract_samples(evidence: list[dict[str, Any]], max_count: int) -> list[dict[str, Any]]:
+    """从 evidence 中提取代表性告警 samples，最多 max_count 条。"""
+    samples: list[dict[str, Any]] = []
+    for item in evidence:
+        if len(samples) >= max_count:
+            break
+        item_samples = item.get("samples", [])
+        if isinstance(item_samples, list):
+            for s in item_samples:
+                if len(samples) >= max_count:
+                    break
+                if isinstance(s, dict):
+                    samples.append(s)
+    return samples
 
 
 def _finalize_response(state: WindDraftState) -> WindDraftState:

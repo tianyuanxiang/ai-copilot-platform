@@ -43,6 +43,7 @@ type AiWindTrendCompareResp {
 @server (
 	group: ai_wind_timeseries
 	prefix: /api/v1/ai/wind
+	middleware: AuthMiddleware,CasbinMiddleware
 )
 service gateway {
 	// 查询测点时序数据，字段只允许来自 wind_device_meta 白名单。

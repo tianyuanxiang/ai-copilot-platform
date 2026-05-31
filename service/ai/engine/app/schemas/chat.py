@@ -18,7 +18,7 @@ class ChatStreamRequest(BaseModel):
     user_id: str = Field(default="demo-user")
     kb_id: str = ""
     conversation_id: str = ""
-    question: str = Field(min_length=1, max_length=10000)
+    question: str = Field(min_length=1, max_length=50000)
     history: list[ChatMessage] = Field(default_factory=list)
 
 

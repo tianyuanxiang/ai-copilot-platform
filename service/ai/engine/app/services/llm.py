@@ -4,6 +4,7 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncIterator
+from typing import Any
 
 import httpx
 
@@ -14,12 +15,131 @@ from app.schemas.chat import ChatStreamRequest, StreamEvent
 logger = logging.getLogger(__name__)
 
 
+async def plan_agent_action(
+    messages: list[dict[str, str]],
+    tools: list[dict[str, Any]],
+    trace_id: str,
+) -> dict[str, Any]:
+    """Ask the configured LLM to choose exactly one Agent tool or control action."""
+
+    settings = get_settings()
+    if settings.mock_llm or settings.llm_provider == "mock":
+        return _mock_plan_agent_action(messages)
+    if settings.llm_provider != "deepseek":
+        raise RuntimeError(f"unsupported llm provider: {settings.llm_provider}")
+    if not settings.llm_api_key:
+        raise RuntimeError("llm api key is empty")
+
+    body = {
+        "model": settings.llm_model,
+        "stream": False,
+        "messages": messages,
+        "tools": tools,
+        "tool_choice": "auto",
+    }
+    headers = {
+        "Authorization": f"Bearer {settings.llm_api_key}",
+        "Content-Type": "application/json",
+    }
+    logger.info("agent.plan.request trace_id=%s model=%s messages=%s", trace_id, settings.llm_model, len(messages))
+    try:
+        timeout = httpx.Timeout(float(settings.llm_timeout_seconds))
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(settings.deepseek_chat_url, headers=headers, json=body)
+            response.raise_for_status()
+            payload = response.json()
+    except Exception as exc:
+        raise RuntimeError(f"deepseek planner failed: {exc}") from exc
+
+    choices = payload.get("choices") or []
+    if not choices:
+        raise RuntimeError("deepseek planner returned no choices")
+    message = choices[0].get("message") or {}
+    tool_calls = message.get("tool_calls") or []
+    if tool_calls:
+        function = tool_calls[0].get("function") or {}
+        return {
+            "name": str(function.get("name") or ""),
+            "arguments": _parse_tool_arguments(function.get("arguments")),
+        }
+
+    # A provider may occasionally answer in plain text despite tool_choice=auto.
+    # Treat that text as answer focus instead of losing the otherwise useful turn.
+    return {
+        "name": "finish_answer",
+        "arguments": {
+            "evidenceRequirement": "none",
+            "answerFocus": str(message.get("content") or ""),
+        },
+    }
+
+
+async def stream_agent_answer(
+    prompt: str,
+    *,
+    user_id: int,
+    conversation_id: str,
+    trace_id: str,
+) -> AsyncIterator[str]:
+    """Stream final answer tokens without exposing planner internals."""
+
+    settings = get_settings()
+    if settings.mock_llm or settings.llm_provider == "mock":
+        text = "已根据当前可用证据完成分析。请结合工具结果和引用内容复核后再执行现场操作。"
+        for token in text:
+            await asyncio.sleep(0)
+            yield token
+        return
+
+    request = ChatStreamRequest(
+        user_id=str(user_id),
+        kb_id="",
+        conversation_id=conversation_id,
+        question=prompt,
+        history=[],
+    )
+    async for event in stream_chat(request, trace_id=trace_id):
+        if event.type == "token":
+            yield event.content
+        elif event.type == "error":
+            raise RuntimeError(event.content)
+
+
+def _parse_tool_arguments(raw: Any) -> dict[str, Any]:
+    if isinstance(raw, dict):
+        return raw
+    if not isinstance(raw, str) or not raw.strip():
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"planner returned invalid tool arguments: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise RuntimeError("planner tool arguments must be a JSON object")
+    return parsed
+
+
+def _mock_plan_agent_action(messages: list[dict[str, str]]) -> dict[str, Any]:
+    """Provide deterministic local behavior for smoke tests without an LLM key."""
+
+    # System instructions mention every available tool. Mock planning must only
+    # inspect conversation content, otherwise even "hello" accidentally
+    # triggers search_maintenance_sop during local smoke tests.
+    transcript = "\n".join(item.get("content", "") for item in messages if item.get("role") != "system")
+    lower = transcript.lower()
+    if "工具结果 search_maintenance_sop" not in transcript and ("sop" in lower or "规程" in transcript):
+        return {"name": "search_maintenance_sop", "arguments": {"query": transcript[-500:]}}
+    if "工具结果 query_alarm_events" not in transcript and ("告警" in transcript or "alarm" in lower):
+        return {"name": "request_clarification", "arguments": {"question": "请补充风场编码，例如 FY。", "reason": "查询告警必须明确风场。"}}
+    return {"name": "finish_answer", "arguments": {"evidenceRequirement": "none", "answerFocus": "回答用户问题"}}
+
+
 async def stream_chat(request: ChatStreamRequest, trace_id: str | None = None) -> AsyncIterator[StreamEvent]:
     current_trace_id = trace_id or str(uuid.uuid4())
     settings = get_settings()
     started_at = time.perf_counter()
     logger.info(
-        "chat.stream开始：trace_id=%s provider=%s model=%s user_id=%s kb_id=%s conversation_id=%s question_chars=%s history_count=%s",
+        "chat.stream.start trace_id=%s provider=%s model=%s user_id=%s kb_id=%s conversation_id=%s question_chars=%s history_count=%s",
         current_trace_id,
         settings.llm_provider,
         settings.llm_model,

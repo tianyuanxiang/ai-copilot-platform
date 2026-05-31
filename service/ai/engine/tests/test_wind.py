@@ -81,7 +81,9 @@ def test_wind_alarm_summary_uses_go_aggregate_evidence():
                     "by_status": {"0": 12},
                     "by_alarm_code_top": [{"key": "1001", "count": 5}],
                     "by_tower_top": [{"key": "03", "count": 7}],
-                    "by_time_bucket": [{"bucket_start": "2026-05-25 10:00:00", "count": 6}],
+                    "time_bucket_count": 1,
+                    "first_ts": "2026-05-25 10:00:00",
+                    "last_ts": "2026-05-25 11:00:00",
                     "peak_bucket": {"bucket_start": "2026-05-25 10:00:00", "count": 6},
                     "samples": [
                         {"ts": "2026-05-25 10:01:00", "alarm_level": 4, "alarm_code": 1001, "status": 0},
@@ -99,6 +101,10 @@ def test_wind_alarm_summary_uses_go_aggregate_evidence():
     assert body["metrics"]["risk"] == "critical"
     assert body["metrics"]["status_counts"] == {"0": 12}
     assert body["metrics"]["returned_records"] == 3
+    assert body["metrics"]["time_bucket_count"] == 1
+    assert body["metrics"]["first_ts"] == "2026-05-25 10:00:00"
+    assert body["metrics"]["last_ts"] == "2026-05-25 11:00:00"
+    assert "by_time_bucket" not in body["metrics"]
 
 
 def test_wind_timeseries_summary_ignores_alarm_samples():
@@ -149,6 +155,7 @@ def test_agent_tool_whitelist_is_wind_domain():
         "query_alarm_events",
         "get_turbine_metadata",
         "compare_sensor_trend",
+        "generate_alarm_analysis_draft",
         "generate_health_report",
         "create_maintenance_ticket_draft",
     }
