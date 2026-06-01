@@ -8,7 +8,7 @@ type AiWindTicketDraftReq {
 }
 
 type AiWindAgentRunReq {
-	conversationId string `json:"conversationId,optional"`
+	agentSessionId string `json:"agentSessionId,optional"`
 	input string `json:"input"`
 }
 
@@ -16,6 +16,12 @@ type AiWindAgentRunResp {
 	answer string `json:"answer"`
 	traceId string `json:"traceId"`
 	toolCalls []AiWindToolCallItem `json:"toolCalls"`
+}
+
+type AiWindAgentResumeReq {
+	agentSessionId string `json:"agentSessionId"`
+	action string `json:"action"`
+	content string `json:"content,optional"`
 }
 
 type AiWindListToolCallReq {
@@ -40,6 +46,10 @@ service gateway {
     // 运维智能助手
     @handler aiWindCopilotAgent
     post /agent/stream (AiWindAgentRunReq)
+
+	// 恢复等待澄清或人工确认的运维 Agent。
+	@handler aiWindResumeAgent
+	post /agent/resume/stream (AiWindAgentResumeReq)
 
 	// 创建维修工单草稿，一期返回可编辑草稿结构。
 	@handler aiWindCreateTicketDraft

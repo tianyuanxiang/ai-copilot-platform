@@ -34,10 +34,12 @@ class WindToolExecuteResult:
 class WindToolRPCError(RuntimeError):
     """Raised when Python cannot reach the Go tool runtime."""
 
+# Python Agent调 Go 工具服务的客户端
 
 class WindToolRPCClient:
     """Calls Go ExecuteTool through one reusable async gRPC channel."""
-
+    """Python Agent 调 Go 后端工具的 RPC 客户端。"""
+    """ 理解用户问题 决定下一步调用什么工具  组织最终回答"""
     def __init__(
         self,
         target: str,

@@ -33,8 +33,8 @@ func (l *ResumeAgentStreamLogic) ResumeAgentStream(in *pb.WindAgentResumeReq, st
 	if in.UserId <= 0 {
 		return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "userId 必须大于 0")
 	}
-	conversationID := strings.TrimSpace(in.ConversationId)
-	if conversationID == "" {
+	agentSessionId := strings.TrimSpace(in.AgentSessionId)
+	if agentSessionId == "" {
 		return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "conversationId 不能为空")
 	}
 	action := strings.ToLower(strings.TrimSpace(in.Action))
@@ -51,7 +51,7 @@ func (l *ResumeAgentStreamLogic) ResumeAgentStream(in *pb.WindAgentResumeReq, st
 	// 恢复请求仍由 Python checkpoint 接管，Go 不解释审批或澄清业务。
 	return l.svcCtx.EngineCallClient.EngineWindAgentResumeStream(l.ctx, engine.WindAgentResumeRequest{
 		UserID:         in.UserId,
-		ConversationID: conversationID,
+		AgentSessionId: agentSessionId,
 		Action:         action,
 		Content:        strings.TrimSpace(in.Content),
 	}, func(event engine.WindAgentStreamEvent) error {

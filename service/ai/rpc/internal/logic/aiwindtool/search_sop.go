@@ -12,7 +12,7 @@ import (
 
 // executeSearchMaintenanceSOP 将 Agent 的 SOP 查询转换为现有 SearchKnowledge 请求。
 // SearchKnowledge 内部已经包含知识库读取权限、向量召回、BM25 和 RRF 融合，
-// 因此工具层不重复实现检索逻辑。
+// 工具层不重复实现检索逻辑。
 func (e *Executor) executeSearchMaintenanceSOP(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args SearchMaintenanceSOPArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {

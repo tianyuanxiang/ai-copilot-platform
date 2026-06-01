@@ -42,7 +42,7 @@ func TestWindAgentStreamEventToPB(t *testing.T) {
 	got := windAgentStreamEventToPB(engine.WindAgentStreamEvent{
 		Type:           "confirmation_required",
 		TraceID:        "trace-1",
-		ConversationID: "conv-1",
+		AgentSessionId: "conv-1",
 		Content:        "approve?",
 		ToolCall: &engine.WindAgentToolCall{
 			ToolCallID:    1,
@@ -59,7 +59,7 @@ func TestWindAgentStreamEventToPB(t *testing.T) {
 		ErrorMsg:  "error detail",
 	})
 
-	if got.Type != "confirmation_required" || got.TraceId != "trace-1" || got.ConversationId != "conv-1" || got.Content != "approve?" {
+	if got.Type != "confirmation_required" || got.TraceId != "trace-1" || got.AgentSessionId != "conv-1" || got.Content != "approve?" {
 		t.Fatalf("event = %+v", got)
 	}
 	if got.ToolCall == nil || got.ToolCall.LatencyMs != 5 || len(got.ToolCalls) != 1 || got.ToolCalls[0].LatencyMs != 6 {
@@ -92,10 +92,10 @@ func TestResumeAgentStreamValidation(t *testing.T) {
 	stream := &testWindAgentStream{}
 	for _, request := range []*pb.WindAgentResumeReq{
 		nil,
-		{UserId: 0, ConversationId: "conv-1", Action: "approve"},
-		{UserId: 1, ConversationId: "  ", Action: "approve"},
-		{UserId: 1, ConversationId: "conv-1", Action: "unknown"},
-		{UserId: 1, ConversationId: "conv-1", Action: "clarify", Content: "  "},
+		{UserId: 0, AgentSessionId: "conv-1", Action: "approve"},
+		{UserId: 1, AgentSessionId: "  ", Action: "approve"},
+		{UserId: 1, AgentSessionId: "conv-1", Action: "unknown"},
+		{UserId: 1, AgentSessionId: "conv-1", Action: "clarify", Content: "  "},
 	} {
 		if err := logic.ResumeAgentStream(request, stream); err == nil {
 			t.Fatalf("ResumeAgentStream(%+v) error = nil", request)
@@ -105,7 +105,7 @@ func TestResumeAgentStreamValidation(t *testing.T) {
 
 func TestRunAgentStreamForwardsPythonErrorEvent(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = io.WriteString(w, `data: {"type":"error","trace_id":"trace-1","conversation_id":"conv-1","error_msg":"agent failed"}`+"\n\n")
+		_, _ = io.WriteString(w, `data: {"type":"error","trace_id":"trace-1","agent_session_id":"conv-1","error_msg":"agent failed"}`+"\n\n")
 		_, _ = io.WriteString(w, "data: [DONE]\n\n")
 	}))
 	defer server.Close()
@@ -127,7 +127,7 @@ func TestResumeAgentStreamForwardsEvent(t *testing.T) {
 		if r.URL.Path != "/v1/agent/resume/stream" {
 			t.Fatalf("path = %q", r.URL.Path)
 		}
-		_, _ = io.WriteString(w, `data: {"type":"done","conversation_id":"conv-1","content":"approved"}`+"\n\n")
+		_, _ = io.WriteString(w, `data: {"type":"done","agent_session_id":"conv-1","content":"approved"}`+"\n\n")
 	}))
 	defer server.Close()
 
@@ -137,7 +137,7 @@ func TestResumeAgentStreamForwardsEvent(t *testing.T) {
 	})
 	if err := logic.ResumeAgentStream(&pb.WindAgentResumeReq{
 		UserId:         1,
-		ConversationId: "conv-1",
+		AgentSessionId: "conv-1",
 		Action:         " approve ",
 	}, stream); err != nil {
 		t.Fatalf("ResumeAgentStream() error = %v", err)

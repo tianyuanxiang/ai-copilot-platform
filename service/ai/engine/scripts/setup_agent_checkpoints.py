@@ -5,7 +5,7 @@ not run DDL during startup.
 """
 
 import asyncio
-
+import sys
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from app.core.config import get_settings
@@ -21,4 +21,6 @@ async def setup() -> None:
 
 
 if __name__ == "__main__":
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(setup())

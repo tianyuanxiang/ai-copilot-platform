@@ -284,6 +284,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
+					Path:    "/agent/resume/stream",
+					Handler: ai_wind_agent.AiWindResumeAgentHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
 					Path:    "/agent/run",
 					Handler: ai_wind_agent.AiWindRunAgentHandler(serverCtx),
 				},

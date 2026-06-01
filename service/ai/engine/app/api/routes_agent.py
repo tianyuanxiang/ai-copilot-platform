@@ -20,7 +20,7 @@ async def agent_run(payload: AgentRunRequest, request: Request) -> AgentRunRespo
     return await run_agent(
         _runtime(request),
         user_id=payload.user_id,
-        conversation_id=payload.conversation_id,
+        agent_session_id=payload.agent_session_id,
         user_input=payload.input,
     )
 
@@ -34,7 +34,7 @@ async def agent_stream(payload: AgentRunRequest, request: Request) -> StreamingR
         async for event in stream_agent(
             _runtime(request),
             user_id=payload.user_id,
-            conversation_id=payload.conversation_id,
+            agent_session_id=payload.agent_session_id,
             user_input=payload.input,
         ):
             if await request.is_disconnected():
@@ -56,7 +56,7 @@ async def agent_resume_stream(payload: AgentResumeRequest, request: Request) -> 
         async for event in resume_agent(
             _runtime(request),
             user_id=payload.user_id,
-            conversation_id=payload.conversation_id,
+            agent_session_id=payload.agent_session_id,
             action=payload.action,
             content=payload.content,
         ):

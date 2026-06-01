@@ -35,7 +35,6 @@ MAX_CITATIONS = 20
 
 class ToolExecutor(Protocol):
     """Minimal protocol implemented by the async Go RPC client and test fakes."""
-
     async def execute(self, request: WindToolExecuteRequest) -> WindToolExecuteResult: ...
 
 
@@ -44,7 +43,7 @@ class WindAgentState(TypedDict, total=False):
     """Serializable state persisted by the LangGraph checkpointer."""
 
     user_id: int
-    conversation_id: str
+    agent_session_id: str
     trace_id: str
     input: str
     messages: list[dict[str, str]]
@@ -65,15 +64,15 @@ class WindAgentState(TypedDict, total=False):
 def initial_agent_state(
     *,
     user_id: int,
-    conversation_id: str,
+    agent_session_id: str,
     user_input: str,
     max_steps: int,
 ) -> WindAgentState:
-    """Create a fresh turn while keeping conversation_id stable across turns."""
+    """Create a fresh turn while keeping agent_session_id stable across turns."""
 
     return {
         "user_id": user_id,
-        "conversation_id": conversation_id,
+        "agent_session_id": agent_session_id,
         "trace_id": f"wind-agent-{uuid.uuid4()}",
         "input": user_input.strip(),
         "messages": [
@@ -104,6 +103,7 @@ def build_wind_agent_graph(
     """Compile the Wind ReAct graph with injected infrastructure dependencies."""
 
     async def prepare_turn(state: WindAgentState) -> WindAgentState:
+        # 会判断是不是恢复之前等待确认的状态。
         if state.get("resume_action"):
             return _resume_waiting_state(state, state["resume_action"])
         return {**state, "route": "plan", "events": [_event_payload(state, "start", content="Wind Agent 已开始分析。")]}
@@ -112,6 +112,7 @@ def build_wind_agent_graph(
         if state.get("step", 0) >= state.get("max_steps", 6):
             return {**state, "route": "degraded"}
         try:
+            # 让大模型根据当前对话和工具列表，决定下一步要干什么。
             action = await planner(state.get("messages", []), AGENT_TOOL_SCHEMAS, state["trace_id"])
         except Exception as exc:
             logger.exception("wind agent planner failed trace_id=%s", state.get("trace_id"))
@@ -173,7 +174,7 @@ def build_wind_agent_graph(
         pending = ToolCall(
             tool_name=action["name"],
             status="running",
-            arguments_json=_json_dumps(action.get("arguments", {})),
+            arguments_json=_json_dumps(action.get("arguments", {})),   # 构造请求方法的参数
         )
         return {**state, "events": [_event_payload(state, "tool_start", tool_call=pending)]}
 
@@ -187,14 +188,14 @@ def build_wind_agent_graph(
                 WindToolExecuteRequest(
                     user_id=state["user_id"],
                     trace_id=state["trace_id"],
-                    conversation_id=state["conversation_id"],
+                    conversation_id=state["agent_session_id"],
                     tool_name=tool_name,
                     arguments_json=arguments_json,
                     step=step,
                 )
             )
             tool_call = result.tool_call.model_copy(update={"result_json": _clip_json(result.tool_call.result_json)})
-        except Exception as exc:
+        except Exception as exc:   # 如果工具调用失败，构造失败结果
             logger.exception("Go tool execution failed trace_id=%s tool=%s", state.get("trace_id"), tool_name)
             result = WindToolExecuteResult(
                 tool_call=ToolCall(
@@ -208,17 +209,18 @@ def build_wind_agent_graph(
             )
             tool_call = result.tool_call
 
+        # 把这次工具调用追加到历史记录里
         tool_calls = [*state.get("tool_calls", []), tool_call.model_dump()]
-        evidence = _append_evidence(state.get("evidence", []), result.evidence_json)
+        evidence = _append_evidence(state.get("evidence", []), result.evidence_json) # 把工具返回的 evidence_json 追加到证据列表
         citations = _merge_citations(state.get("citations", []), result.citations)
-        draft = _draft_from_result(tool_call.result_json) or state.get("draft", {})
-        messages = _append_message(
+        draft = _draft_from_result(tool_call.result_json) or state.get("draft", {}) # 如果本次工具结果里包含草稿信息，就取出来放到 state["draft"]；否则沿用原来的 draft。
+        messages = _append_message(   # 把工具结果写进对话上下文，让下一次 planner 能看到。
             state,
             "assistant",
             f"工具结果 {tool_name}: status={tool_call.status}; message={tool_call.message}; "
             f"result={tool_call.result_json}",
         )
-        events = [_event_payload(state, "tool_result", tool_call=tool_call)]
+        events = [_event_payload(state, "tool_result", tool_call=tool_call)] # 生成事件，给前端流式展示
         if result.evidence_json:
             events.append(_event_payload(state, "evidence", content=_clip_json(result.evidence_json)))
 
@@ -230,6 +232,7 @@ def build_wind_agent_graph(
             failures[failure_key] = failures.get(failure_key, 0) + 1
 
         route = "plan"
+        # 如果工具被拒绝执行、同一个工具同一组参数失败 2 次、工具调用步数超过最大限制
         if tool_call.status == "denied" or failures.get(failure_key, 0) >= 2 or step >= state.get("max_steps", 6):
             route = "degraded"
         return {
@@ -305,11 +308,11 @@ def build_wind_agent_graph(
     )
     graph.add_conditional_edges(
         "plan_next_action",
-        lambda state: state["route"],
+        lambda state: state["route"],  # 看 state["route"] 的值。如果是 execute，就去执行工具；如果是 approval，就等待用户确认；如果是 clarify，就让用户补充信息；如果是 degraded，就生成降级回答。
         {
             "execute": "announce_tool_start",
             "approval": "approval_gate",
-            "clarify": "clarification_gate",
+            "clarify": "clarification_gate",    #   需要用户补充信息
             "assess": "assess_evidence",
             "degraded": "build_degraded_answer",
         },
@@ -320,6 +323,7 @@ def build_wind_agent_graph(
         {"waiting_approval": END},
     )
     graph.add_edge("announce_tool_start", "execute_tool")
+    # 需要用户确认时暂停，返回一个事件confirmation_required，然后走到 END，等待用户确认。
     graph.add_conditional_edges(
         "clarification_gate",
         lambda state: state["route"],
@@ -463,7 +467,7 @@ def _event_payload(
     return AgentStreamEvent(
         type=event_type,
         trace_id=state.get("trace_id", ""),
-        conversation_id=state.get("conversation_id", ""),
+        agent_session_id=state.get("agent_session_id", ""),
         content=content,
         tool_call=tool_call,
     ).model_dump(exclude_none=True)
@@ -475,7 +479,7 @@ def build_done_event(state: WindAgentState) -> AgentStreamEvent:
     return AgentStreamEvent(
         type="done",
         trace_id=state.get("trace_id", ""),
-        conversation_id=state.get("conversation_id", ""),
+        agent_session_id=state.get("agent_session_id", ""),
         content=state.get("answer", ""),
         tool_calls=[ToolCall.model_validate(item) for item in state.get("tool_calls", [])],
         citations=[Citation.model_validate(item) for item in state.get("citations", [])],

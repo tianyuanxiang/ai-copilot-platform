@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"ai-copilot-platform/ai-rpc/pb"
+	"ai-copilot-platform/gateway/internal/logic/ai_wind_tool"
 
 	_ "github.com/taosdata/driver-go/v3/taosWS"
 )
 
 func TestStreamCitationsFromRPCAddsReferenceLabels(t *testing.T) {
-	citations := streamCitationsFromRPC([]*pb.Citation{
+	citations := ai_wind_tool.StreamCitationsFromRPC([]*pb.Citation{
 		{
 			DocumentId: 10,
 			ChunkId:    20,
@@ -42,12 +43,12 @@ func TestStreamCitationsFromRPCAddsReferenceLabels(t *testing.T) {
 }
 
 func TestStreamReferencesFromAnswerMapsMarkersToCitations(t *testing.T) {
-	citations := []streamCitation{
+	citations := []ai_wind_tool.StreamCitation{
 		{RefIndex: 1, RefText: "[1]", DocumentId: 10, ChunkId: 20, Title: "deploy.md"},
 		{RefIndex: 2, RefText: "[2]", DocumentId: 11, ChunkId: 21, Title: "ops.md"},
 	}
 
-	references := streamReferencesFromAnswer("命令用于查看 Pod[1]，也可检查启动状态[2]。", citations)
+	references := ai_wind_tool.StreamReferencesFromAnswer("命令用于查看 Pod[1]，也可检查启动状态[2]。", citations)
 	if len(references) != 2 {
 		t.Fatalf("len(references) = %d, want 2", len(references))
 	}

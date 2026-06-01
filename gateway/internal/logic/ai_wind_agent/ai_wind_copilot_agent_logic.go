@@ -46,7 +46,7 @@ func (l *AiWindCopilotAgentLogic) AiWindCopilotAgent(req *types.AiWindAgentRunRe
 
 	rpcStream, err := l.svcCtx.AiWindAgentClient.RunAgentStream(l.ctx, &pb.WindAgentRunReq{
 		UserId:         userID,
-		ConversationId: req.ConversationId,
+		AgentSessionId: req.AgentSessionId,
 		Input:          req.Input,
 	})
 	if err != nil {
@@ -54,12 +54,19 @@ func (l *AiWindCopilotAgentLogic) AiWindCopilotAgent(req *types.AiWindAgentRunRe
 	}
 
 	// 流式处理
+	return forwardWindAgentStream(w, rpcStream, req.AgentSessionId)
+}
+
+type windAgentStreamReceiver interface {
+	Recv() (*pb.WindAgentStreamEvent, error)
+}
+
+func forwardWindAgentStream(w http.ResponseWriter, rpcStream windAgentStreamReceiver, fallbackAgentSessionID string) error {
 	w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 	flusher, _ := w.(http.Flusher)
-	var answer strings.Builder
 
 	for {
 		event, err := rpcStream.Recv()
@@ -68,32 +75,29 @@ func (l *AiWindCopilotAgentLogic) AiWindCopilotAgent(req *types.AiWindAgentRunRe
 		}
 		if err != nil {
 			_ = writeChatSSE(w, types.WindAgentStreamEvent{
-				MessageType: "error",
-				Content:     err.Error(),
+				MessageType:    "error",
+				AgentSessionId: fallbackAgentSessionID,
+				Content:        err.Error(),
 			})
 			if flusher != nil {
 				flusher.Flush()
 			}
-			l.Errorf("receive rag chat stream failed: %v", err)
 			return nil
 		}
 
+		agentSessionID := event.AgentSessionId
+		if agentSessionID == "" {
+			agentSessionID = fallbackAgentSessionID
+		}
 		content := event.Content
 		citations := ai_wind_tool.CitationsFromRPC(event.Citations)
-		references := []ai_wind_tool.StreamReference(nil)
-		if event.Type == "token" {
-			answer.WriteString(content)
-		}
 		if event.Type == "done" {
-			content = ""
-			finalAnswer := answer.String()
-			references = ai_wind_tool.StreamReferencesFromAnswer(finalAnswer, citations)
 			if err := writeChatSSE(w, types.WindAgentStreamEvent{
 				MessageType:    event.Type,
 				Content:        content,
-				ToolCalls:      event.ToolCalls,
+				ToolCalls:      ai_wind_tool.ToolCallsFromRPC(event.ToolCalls),
 				TraceId:        event.TraceId,
-				ConversationId: event.ConversationId,
+				AgentSessionId: agentSessionID,
 				Citations:      citations,
 			}); err != nil {
 				return err
@@ -105,9 +109,10 @@ func (l *AiWindCopilotAgentLogic) AiWindCopilotAgent(req *types.AiWindAgentRunRe
 		}
 
 		if err := writeChatSSE(w, types.WindAgentStreamEvent{
-			MessageType: event.Type,
-			Content:     content,
-			TraceId:     event.TraceId,
+			MessageType:    event.Type,
+			Content:        content,
+			TraceId:        event.TraceId,
+			AgentSessionId: agentSessionID,
 		}); err != nil {
 			return err
 		}

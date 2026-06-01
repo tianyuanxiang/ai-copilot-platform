@@ -18,7 +18,7 @@ func windAgentStreamEventToPB(event engine.WindAgentStreamEvent) *pb.WindAgentSt
 	return &pb.WindAgentStreamEvent{
 		Type:           event.Type,
 		TraceId:        event.TraceID,
-		ConversationId: event.ConversationID,
+		AgentSessionId: event.AgentSessionId,
 		Content:        event.Content,
 		ToolCall:       windAgentToolCallToPB(event.ToolCall),
 		ToolCalls:      windAgentToolCallsToPB(event.ToolCalls),

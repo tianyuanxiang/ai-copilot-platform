@@ -14,17 +14,16 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func AiWindCopilotAgentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func AiWindResumeAgentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.AiWindAgentRunReq
+		var req types.AiWindAgentResumeReq
 		if err := httpx.Parse(r, &req); err != nil {
 			response.FailWithMsg(w, r, err.Error())
 			return
 		}
 
-		l := ai_wind_agent.NewAiWindCopilotAgentLogic(r.Context(), svcCtx)
-		err := l.AiWindCopilotAgent(&req, w)
-		if err != nil {
+		l := ai_wind_agent.NewAiWindResumeAgentLogic(r.Context(), svcCtx)
+		if err := l.AiWindResumeAgent(&req, w); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		}
 	}

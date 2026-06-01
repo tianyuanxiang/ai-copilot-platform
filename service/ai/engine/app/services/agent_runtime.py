@@ -28,10 +28,14 @@ class AgentRuntime:
         answer_streamer: Any = llm.stream_agent_answer,
     ) -> None:
         self.settings = settings
-        self.tool_client = tool_client or WindToolRPCClient(
-            settings.agent_go_rpc_target,
-            settings.agent_go_rpc_timeout_seconds,
-        )
+        # 如果外部传了 tool_client，就用外部传进来的；如果没传，就默认创建一个 WindToolRPCClient。
+        if tool_client is None:
+            self.tool_client = WindToolRPCClient(
+                settings.agent_go_rpc_target,
+                settings.agent_go_rpc_timeout_seconds,
+            )
+        else:
+            self.tool_client = tool_client
         self.checkpointer = checkpointer
         self.planner = planner
         self.answer_streamer = answer_streamer
@@ -54,6 +58,7 @@ class AgentRuntime:
                     raise RuntimeError("agent checkpoint DSN is empty")
                 self._checkpointer_context = AsyncPostgresSaver.from_conn_string(dsn)
                 self.checkpointer = await self._checkpointer_context.__aenter__()
+        #搭建LangGraph 流程图。
         self.graph = build_wind_agent_graph(self.tool_client, checkpointer=self.checkpointer, planner=self.planner)
 
     async def close(self) -> None:
@@ -64,46 +69,46 @@ class AgentRuntime:
         if self._checkpointer_context is not None:
             await self._checkpointer_context.__aexit__(None, None, None)
 
-    async def stream_new_turn(self, *, user_id: int, conversation_id: str, user_input: str):
+    async def stream_new_turn(self, *, user_id: int, agent_session_id: str, user_input: str):
         """Start one Agent turn and stream custom events."""
 
         self._require_started()
-        config = self._config(conversation_id)
+        config = self._config(agent_session_id)
         snapshot = await self.graph.aget_state(config)
         if _is_waiting(snapshot):
             yield AgentStreamEvent(
                 type="error",
-                conversation_id=conversation_id,
+                agent_session_id=agent_session_id,
                 error_msg="当前会话仍在等待澄清或人工确认，请调用 /v1/agent/resume/stream。",
             )
             return
         state = initial_agent_state(
             user_id=user_id,
-            conversation_id=conversation_id,
+            agent_session_id=agent_session_id,
             user_input=user_input,
             max_steps=self.settings.agent_max_steps,
         )
         async for event in self._stream_graph(state, config):
             yield event
 
-    async def stream_resume(self, *, user_id: int, conversation_id: str, action: str, content: str):
+    async def stream_resume(self, *, user_id: int, agent_session_id: str, action: str, content: str):
         """Resume the currently interrupted node for a conversation."""
 
         self._require_started()
-        config = self._config(conversation_id)
+        config = self._config(agent_session_id)
         snapshot = await self.graph.aget_state(config)
         values = snapshot.values or {}
         if not _is_waiting(snapshot):
             yield AgentStreamEvent(
                 type="error",
-                conversation_id=conversation_id,
+                agent_session_id=agent_session_id,
                 error_msg="当前会话没有等待恢复的 Agent 节点。",
             )
             return
         if int(values.get("user_id", 0)) != user_id:
             yield AgentStreamEvent(
                 type="error",
-                conversation_id=conversation_id,
+                agent_session_id=agent_session_id,
                 error_msg="当前用户无权恢复该会话。",
             )
             return
@@ -133,14 +138,14 @@ class AgentRuntime:
                 async for token in self.answer_streamer(
                     build_answer_prompt(values),
                     user_id=values["user_id"],
-                    conversation_id=values["conversation_id"],
+                    conversation_id=values["agent_session_id"],
                     trace_id=values["trace_id"],
                 ):
                     parts.append(token)
                     yield AgentStreamEvent(
                         type="token",
                         trace_id=values["trace_id"],
-                        conversation_id=values["conversation_id"],
+                        agent_session_id=values["agent_session_id"],
                         content=token,
                     )
             except Exception as exc:
@@ -148,7 +153,7 @@ class AgentRuntime:
                 yield AgentStreamEvent(
                     type="token",
                     trace_id=values["trace_id"],
-                    conversation_id=values["conversation_id"],
+                    agent_session_id=values["agent_session_id"],
                     content=parts[0],
                 )
             answer = "".join(parts).strip()
@@ -160,8 +165,8 @@ class AgentRuntime:
             await self.graph.aupdate_state(config, {"answer": answer, "events": []})
             yield build_done_event(values)
 
-    def _config(self, conversation_id: str) -> dict[str, Any]:
-        return {"configurable": {"thread_id": conversation_id}, "recursion_limit": 48}
+    def _config(self, agent_session_id: str) -> dict[str, Any]:
+        return {"configurable": {"thread_id": agent_session_id}, "recursion_limit": 48}
 
     def _require_started(self) -> None:
         if self.graph is None:

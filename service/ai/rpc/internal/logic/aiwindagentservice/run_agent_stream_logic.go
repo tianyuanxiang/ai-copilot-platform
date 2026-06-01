@@ -40,7 +40,7 @@ func (l *RunAgentStreamLogic) RunAgentStream(in *pb.WindAgentRunReq, stream pb.A
 
 	req := engine.WindAgentRunRequest{
 		UserID:         in.UserId,
-		ConversationID: strings.TrimSpace(in.ConversationId),
+		AgentSessionId: strings.TrimSpace(in.AgentSessionId),
 		Input:          input,
 	}
 

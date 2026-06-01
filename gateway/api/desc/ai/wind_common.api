@@ -73,7 +73,7 @@ type AiWindToolCallItem {
 type WindAgentStreamEvent{
     messageType           string  `json:"type"`
     traceId        string `json:"traceId"`
-    conversationId string `json:"conversationId"`
+    agentSessionId string `json:"agentSessionId"`
     content        string `json:"content"`
     toolCalls      []AiWindToolCallItem `json:"toolCalls"`
     citations      []AiCitation `json:"citations"`

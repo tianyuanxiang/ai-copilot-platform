@@ -15,13 +15,13 @@ const windAgentSSEMaxEventBytes = 1024 * 1024
 
 type WindAgentRunRequest struct {
 	UserID         int64  `json:"user_id"`
-	ConversationID string `json:"conversation_id,omitempty"`
+	AgentSessionId string `json:"agent_session_id,omitempty"`
 	Input          string `json:"input"`
 }
 
 type WindAgentResumeRequest struct {
 	UserID         int64  `json:"user_id"`
-	ConversationID string `json:"conversation_id"`
+	AgentSessionId string `json:"agent_session_id"`
 	Action         string `json:"action"`
 	Content        string `json:"content,omitempty"`
 }
@@ -53,7 +53,7 @@ type WindAgentDraftRef struct {
 type WindAgentStreamEvent struct {
 	Type           string              `json:"type"`
 	TraceID        string              `json:"trace_id"`
-	ConversationID string              `json:"conversation_id"`
+	AgentSessionId string              `json:"agent_session_id"`
 	Content        string              `json:"content"`
 	ToolCall       *WindAgentToolCall  `json:"tool_call,omitempty"`
 	ToolCalls      []WindAgentToolCall `json:"tool_calls,omitempty"`

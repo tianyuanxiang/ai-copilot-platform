@@ -36,7 +36,7 @@ func (l *AiWindRunAgentLogic) AiWindRunAgent(req *types.AiWindAgentRunReq) (resp
 	}
 
 	result, err := l.svcCtx.AiWindAgentClient.RunAgent(l.ctx, &pb.WindAgentRunReq{
-		ConversationId: req.ConversationId,
+		AgentSessionId: req.AgentSessionId,
 		Input:          req.Input,
 		UserId:         userID,
 	})

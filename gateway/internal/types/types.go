@@ -418,8 +418,14 @@ type AiUpdatePublicKbReq struct {
 	Status      int    `json:"status,optional"`
 }
 
+type AiWindAgentResumeReq struct {
+	AgentSessionId string `json:"agentSessionId"`
+	Action         string `json:"action"`
+	Content        string `json:"content,optional"`
+}
+
 type AiWindAgentRunReq struct {
-	ConversationId string `json:"conversationId,optional"`
+	AgentSessionId string `json:"agentSessionId,optional"`
 	Input          string `json:"input"`
 }
 
@@ -639,7 +645,7 @@ type AiWindTurbineItem struct {
 type WindAgentStreamEvent struct {
 	MessageType    string               `json:"type"`
 	TraceId        string               `json:"traceId"`
-	ConversationId string               `json:"conversationId"`
+	AgentSessionId string               `json:"agentSessionId"`
 	Content        string               `json:"content"`
 	ToolCalls      []AiWindToolCallItem `json:"toolCalls"`
 	Citations      []AiCitation         `json:"citations"`

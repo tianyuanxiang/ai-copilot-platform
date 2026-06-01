@@ -1,6 +1,9 @@
 import logging
 import time
 import uuid
+import sys
+import asyncio
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -15,7 +18,6 @@ from app.core.config import get_settings
 from app.core.logging import setup_logging
 from app.services.agent_runtime import AgentRuntime
 
-
 logger = logging.getLogger("app.request")
 
 
@@ -29,8 +31,8 @@ def create_app() -> FastAPI:
         await runtime.start()
         app.state.agent_runtime = runtime
         try:
-            yield
-        finally:
+            yield  # 接口服务开始之前执行
+        finally:   # 程序关闭后执行finally里的清理代码
             await runtime.close()
 
     app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)

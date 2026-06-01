@@ -795,13 +795,13 @@ message WindTicketDraftReq {
 
 message WindAgentRunReq {
   int64 user_id = 1;
-  string conversation_id = 2;
+  string agent_session_id = 2;
   string input = 3;
 }
 
 message WindAgentResumeReq {
   int64 user_id = 1;
-  string conversation_id = 2;
+  string agent_session_id = 2;
   string action = 3;             // approve/reject/clarify
   string content = 4;            // clarify 时必填
 }
@@ -830,7 +830,7 @@ message WindListToolCallLogResp {
 message WindAgentStreamEvent {
   string type = 1;              // start/intent/tool_start/tool_result/evidence/token/done/error
   string trace_id = 2;
-  string conversation_id = 3;
+  string agent_session_id = 3;
   string content = 4;           // 给前端展示的文本
   ToolCall tool_call = 5;        // 单次工具事件
   repeated ToolCall tool_calls = 6;

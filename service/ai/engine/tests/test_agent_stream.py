@@ -28,7 +28,7 @@ def test_agent_stream_returns_start_tokens_and_done():
     events = parse_sse(body)
     assert response.status_code == 200
     assert events[0]["type"] == "start"
-    assert events[0]["conversation_id"]
+    assert events[0]["agent_session_id"]
     assert any(item["type"] == "token" for item in events)
     assert events[-1]["type"] == "done"
     assert "data: [DONE]" in body
@@ -40,7 +40,7 @@ def test_agent_run_aggregates_same_graph():
 
     assert response.status_code == 200
     assert response.json()["status"] == "done"
-    assert response.json()["conversation_id"]
+    assert response.json()["agent_session_id"]
     assert response.json()["answer"]
 
 
@@ -49,7 +49,7 @@ def test_agent_resume_without_waiting_node_returns_error_event():
         with client.stream(
             "POST",
             "/v1/agent/resume/stream",
-            json={"user_id": 123, "conversation_id": "missing", "action": "approve"},
+            json={"user_id": 123, "agent_session_id": "missing", "action": "approve"},
         ) as response:
             body = "".join(response.iter_text())
 

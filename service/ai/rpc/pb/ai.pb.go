@@ -6632,7 +6632,7 @@ func (x *WindTicketDraftReq) GetUserId() int64 {
 type WindAgentRunReq struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	AgentSessionId string                 `protobuf:"bytes,2,opt,name=agent_session_id,json=agentSessionId,proto3" json:"agent_session_id,omitempty"`
 	Input          string                 `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -6675,9 +6675,9 @@ func (x *WindAgentRunReq) GetUserId() int64 {
 	return 0
 }
 
-func (x *WindAgentRunReq) GetConversationId() string {
+func (x *WindAgentRunReq) GetAgentSessionId() string {
 	if x != nil {
-		return x.ConversationId
+		return x.AgentSessionId
 	}
 	return ""
 }
@@ -6692,7 +6692,7 @@ func (x *WindAgentRunReq) GetInput() string {
 type WindAgentResumeReq struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserId         int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	AgentSessionId string                 `protobuf:"bytes,2,opt,name=agent_session_id,json=agentSessionId,proto3" json:"agent_session_id,omitempty"`
 	Action         string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`   // approve/reject/clarify
 	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"` // clarify 时必填
 	unknownFields  protoimpl.UnknownFields
@@ -6736,9 +6736,9 @@ func (x *WindAgentResumeReq) GetUserId() int64 {
 	return 0
 }
 
-func (x *WindAgentResumeReq) GetConversationId() string {
+func (x *WindAgentResumeReq) GetAgentSessionId() string {
 	if x != nil {
-		return x.ConversationId
+		return x.AgentSessionId
 	}
 	return ""
 }
@@ -6957,7 +6957,7 @@ type WindAgentStreamEvent struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Type           string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // start/intent/tool_start/tool_result/evidence/token/done/error
 	TraceId        string                 `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	ConversationId string                 `protobuf:"bytes,3,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	AgentSessionId string                 `protobuf:"bytes,3,opt,name=agent_session_id,json=agentSessionId,proto3" json:"agent_session_id,omitempty"`
 	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                   // 给前端展示的文本
 	ToolCall       *ToolCall              `protobuf:"bytes,5,opt,name=tool_call,json=toolCall,proto3" json:"tool_call,omitempty"` // 单次工具事件
 	ToolCalls      []*ToolCall            `protobuf:"bytes,6,rep,name=tool_calls,json=toolCalls,proto3" json:"tool_calls,omitempty"`
@@ -7012,9 +7012,9 @@ func (x *WindAgentStreamEvent) GetTraceId() string {
 	return ""
 }
 
-func (x *WindAgentStreamEvent) GetConversationId() string {
+func (x *WindAgentStreamEvent) GetAgentSessionId() string {
 	if x != nil {
-		return x.ConversationId
+		return x.AgentSessionId
 	}
 	return ""
 }
@@ -7940,14 +7940,14 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\n" +
 	"alarm_code\x18\x03 \x01(\tR\talarmCode\x12#\n" +
 	"\revidence_json\x18\x04 \x01(\tR\fevidenceJson\x12\x17\n" +
-	"\auser_id\x18\x14 \x01(\x03R\x06userId\"i\n" +
+	"\auser_id\x18\x14 \x01(\x03R\x06userId\"j\n" +
 	"\x0fWindAgentRunReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
-	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x14\n" +
-	"\x05input\x18\x03 \x01(\tR\x05input\"\x88\x01\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12(\n" +
+	"\x10agent_session_id\x18\x02 \x01(\tR\x0eagentSessionId\x12\x14\n" +
+	"\x05input\x18\x03 \x01(\tR\x05input\"\x89\x01\n" +
 	"\x12WindAgentResumeReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12'\n" +
-	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x16\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12(\n" +
+	"\x10agent_session_id\x18\x02 \x01(\tR\x0eagentSessionId\x12\x16\n" +
 	"\x06action\x18\x03 \x01(\tR\x06action\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\"r\n" +
 	"\x10WindAgentRunResp\x12\x16\n" +
@@ -7964,11 +7964,11 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x06status\x18\x06 \x01(\tR\x06status\"Q\n" +
 	"\x17WindListToolCallLogResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12 \n" +
-	"\x04list\x18\x02 \x03(\v2\f.ai.ToolCallR\x04list\"\xd1\x02\n" +
+	"\x04list\x18\x02 \x03(\v2\f.ai.ToolCallR\x04list\"\xd2\x02\n" +
 	"\x14WindAgentStreamEvent\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x19\n" +
-	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12'\n" +
-	"\x0fconversation_id\x18\x03 \x01(\tR\x0econversationId\x12\x18\n" +
+	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12(\n" +
+	"\x10agent_session_id\x18\x03 \x01(\tR\x0eagentSessionId\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12)\n" +
 	"\ttool_call\x18\x05 \x01(\v2\f.ai.ToolCallR\btoolCall\x12+\n" +
 	"\n" +

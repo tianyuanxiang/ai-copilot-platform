@@ -38,12 +38,12 @@ class WindDraftRef(BaseModel):
 class AgentRunRequest(BaseModel):
     """Starts a new Agent turn.
 
-    conversation_id may be omitted for the first turn. The engine returns the
+    agent_session_id may be omitted for the first turn. The engine returns the
     generated id in the first SSE event and reuses it for resume requests.
     """
 
     user_id: int = Field(gt=0)
-    conversation_id: str = ""
+    agent_session_id: str = ""
     input: str = Field(min_length=1, max_length=10000)
 
 
@@ -51,7 +51,7 @@ class AgentResumeRequest(BaseModel):
     """Resumes an interrupted clarification or draft-approval node."""
 
     user_id: int = Field(gt=0)
-    conversation_id: str = Field(min_length=1, max_length=128)
+    agent_session_id: str = Field(min_length=1, max_length=128)
     action: Literal["approve", "reject", "clarify"]
     content: str = Field(default="", max_length=10000)
 
@@ -67,7 +67,7 @@ class AgentStreamEvent(BaseModel):
 
     type: str
     trace_id: str = ""
-    conversation_id: str = ""
+    agent_session_id: str = ""
     content: str = ""
     tool_call: ToolCall | None = None
     tool_calls: list[ToolCall] = Field(default_factory=list)
@@ -82,7 +82,7 @@ class AgentRunResponse(BaseModel):
     answer: str
     tool_calls: list[ToolCall] = Field(default_factory=list)
     trace_id: str
-    conversation_id: str
+    agent_session_id: str
     citations: list[Citation] = Field(default_factory=list)
     draft: WindDraftRef | None = None
     status: str = "done"

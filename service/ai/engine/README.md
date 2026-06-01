@@ -10,7 +10,7 @@ python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
 copy config.example.yaml config.yaml
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+python app\run_engine.py
 ```
 
 ## Smoke test

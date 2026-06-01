@@ -47,10 +47,10 @@ async def collect(graph, graph_input, conversation_id: str):
     return events, await graph.aget_state(config)
 
 
-def new_state(conversation_id: str, *, max_steps: int = 6):
+def new_state(agent_session_id: str, *, max_steps: int = 6):
     return initial_agent_state(
         user_id=123,
-        conversation_id=conversation_id,
+        agent_session_id=agent_session_id,
         user_input="分析 FY 风场告警并查询 SOP",
         max_steps=max_steps,
     )
@@ -189,4 +189,3 @@ async def test_max_steps_builds_degraded_answer():
 
     assert len(tool.calls) == 1
     assert snapshot.values["route"] == "done"
-
