@@ -10,6 +10,8 @@ import (
 
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 const (
@@ -22,11 +24,12 @@ const (
 // 它只持有现有 ServiceContext，不创建新的业务依赖。
 type Executor struct {
 	svcCtx *svc.ServiceContext
+	logx.Logger
 }
 
 // NewExecutor 创建一个 Wind Agent 工具执行器。
 func NewExecutor(svcCtx *svc.ServiceContext) *Executor {
-	return &Executor{svcCtx: svcCtx}
+	return &Executor{svcCtx: svcCtx, Logger: logx.WithContext(context.Background())}
 }
 
 // Execute 校验 RPC 请求、分发白名单工具、记录最终审计日志，并返回结构化结果。
@@ -50,7 +53,7 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 	if !IsAllowedTool(normalizedReq.ToolName) {
 		return e.finish(ctx, &normalizedReq, statusDenied, nil, fmt.Sprintf("工具 %q 不在白名单中", normalizedReq.ToolName), startedAt), nil
 	}
-
+	e.Logger.Infof("开始执行工具: [%s]", normalizedReq.ToolName)
 	var (
 		result *toolResult
 		err    error
@@ -74,6 +77,7 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 		result, err = e.executeCreateMaintenanceTicketDraft(ctx, &normalizedReq)
 	}
 	if err != nil {
+		e.Logger.Errorf("execute err:%v", err)
 		return e.finish(ctx, &normalizedReq, statusFailed, result, err.Error(), startedAt), nil
 	}
 	return e.finish(ctx, &normalizedReq, statusSuccess, result, result.Message, startedAt), nil

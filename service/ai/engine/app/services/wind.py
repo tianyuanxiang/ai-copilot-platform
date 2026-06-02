@@ -17,7 +17,7 @@ from app.schemas.wind import (
 from app.services import llm
 
 """
-从零写一个 LangGraph 流程，思维框架是
+从零写一个 LangGraph 流程，思维框架:
   第一步：定义 State
       → 想清楚每个步骤需要读什么、写什么
   第二步：定义节点（流程分几步？每步干什么？）
@@ -30,6 +30,7 @@ from app.services import llm
   第五步：compile + invoke
       → 把初始数据塞进 state，启动图
 """
+
 logger = logging.getLogger(__name__)
 
 

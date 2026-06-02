@@ -70,7 +70,7 @@ AGENT_TOOL_SCHEMAS = [
     ),
     _function(
         "query_alarm_events",
-        "查询 TDengine 告警聚合、时间桶和抽样 evidence。",
+        "查询 TDengine 告警聚合、时间桶和抽样 evidence。如果是扶余风场farmCode参数为FY，榆树风场为YS，不存在其他选项",
         {
             "farmCode": {"type": "string"},
             "towerCode": {"type": "string"},
@@ -176,7 +176,8 @@ AGENT_TOOL_SCHEMAS = [
 PLANNER_SYSTEM_PROMPT = """你是风机混塔智能运维 AI Copilot 的工具规划器。
 你只能选择提供的一个工具或控制动作，不得自行编造数据库、告警、测点或 SOP 事实。
 事实查询、RAG 检索和草稿保存必须调用工具。优先使用已有工具结果，避免重复调用。
-缺少继续分析所需的关键参数时调用 request_clarification。
+缺少继续分析所需的关键参数时调用 request_clarification。已有足够证据时及时选择 finish_answer，
+避免重复调用同一工具，草稿参数齐全后选择草稿工具，不要继续无关检索。
 证据足够形成回答时调用 finish_answer，并正确选择 evidenceRequirement：
 - none：通用解释，不依赖运维事实；
 - sop：回答引用了维护 SOP，必须已有 citation；

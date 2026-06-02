@@ -28,7 +28,7 @@ from app.services.wind_agent_tools import (
 
 logger = logging.getLogger(__name__)
 
-MAX_TOOL_RESULT_CHARS = 12000
+MAX_TOOL_RESULT_CHARS = 20000
 MAX_EVIDENCE_ITEMS = 12
 MAX_CITATIONS = 20
 
@@ -340,6 +340,7 @@ def build_wind_agent_graph(
         {"answer": END, "clarify": "clarification_gate"},
     )
     graph.add_edge("build_degraded_answer", END)
+
     return graph.compile(checkpointer=checkpointer)
 
 
@@ -359,6 +360,7 @@ def _resume_waiting_state(state: WindAgentState, resume_action: dict[str, str]) 
     The wait state itself is checkpointed before this function runs. Approving
     a draft is therefore the only branch that can reach the Go write tool.
     """
+    # state["route"] = waiting_clarification
 
     action = str(resume_action.get("action") or "").strip()
     if state.get("route") == "waiting_approval":

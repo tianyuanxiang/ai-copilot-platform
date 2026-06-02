@@ -35,7 +35,10 @@ async def plan_agent_action(
         "stream": False,
         "messages": messages,
         "tools": tools,
-        "tool_choice": "auto",
+        "tool_choice": "required",
+        # DeepSeek V4 默认启用思考模式，但思考模式不接受 tool_choice。
+        # Planner 只负责选择受控动作，因此这里显式关闭思考模式。
+        "thinking": {"type": "disabled"},
     }
     headers = {
         "Authorization": f"Bearer {settings.llm_api_key}",
@@ -46,7 +49,10 @@ async def plan_agent_action(
         timeout = httpx.Timeout(float(settings.llm_timeout_seconds))
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(settings.deepseek_chat_url, headers=headers, json=body)
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                raise RuntimeError(f"deepseek planner rejected request: {response.text}") from exc
             payload = response.json()
     except Exception as exc:
         raise RuntimeError(f"deepseek planner failed: {exc}") from exc
@@ -63,15 +69,9 @@ async def plan_agent_action(
             "arguments": _parse_tool_arguments(function.get("arguments")),
         }
 
-    # A provider may occasionally answer in plain text despite tool_choice=auto.
-    # Treat that text as answer focus instead of losing the otherwise useful turn.
-    return {
-        "name": "finish_answer",
-        "arguments": {
-            "evidenceRequirement": "none",
-            "answerFocus": str(message.get("content") or ""),
-        },
-    }
+    # Planner 必须明确选择受控动作。不能把普通文本伪装成 finish_answer，
+    # 否则本应等待用户澄清的会话会被错误标记为 done，后续无法 resume。
+    raise RuntimeError("planner returned no controlled action")
 
 
 async def stream_agent_answer(

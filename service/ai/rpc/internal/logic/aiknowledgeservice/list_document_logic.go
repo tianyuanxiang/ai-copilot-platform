@@ -53,7 +53,8 @@ func (l *ListDocumentLogic) ListDocument(in *pb.ListDocumentReq) (*pb.ListDocume
 		Status:   status,
 	})
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("获取知识库列表错误 %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "获取知识库列表错误")
 	}
 
 	items := make([]*pb.DocumentItem, 0, len(docs))

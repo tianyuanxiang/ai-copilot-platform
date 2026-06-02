@@ -14,6 +14,7 @@ import (
 func (e *Executor) executeGetTurbineMetadata(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args GetTurbineMetadataArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
+		e.Logger.Errorf("decode args err:%v", err)
 		return nil, err
 	}
 
@@ -28,6 +29,7 @@ func (e *Executor) executeGetTurbineMetadata(ctx context.Context, req *pb.WindTo
 	if farmCode == "" {
 		rows, err := e.svcCtx.WindFarmModel.ListFarms(ctx, "")
 		if err != nil {
+			e.Logger.Errorf("list farms err:%v", err)
 			return nil, err
 		}
 		for _, row := range rows {
@@ -44,6 +46,7 @@ func (e *Executor) executeGetTurbineMetadata(ctx context.Context, req *pb.WindTo
 	} else {
 		rows, err := e.svcCtx.WindTowerModel.ListTurbines(ctx, farmCode, "")
 		if err != nil {
+			e.Logger.Errorf("list tower err:%v", err)
 			return nil, err
 		}
 		for _, row := range rows {
@@ -63,6 +66,7 @@ func (e *Executor) executeGetTurbineMetadata(ctx context.Context, req *pb.WindTo
 	if farmCode != "" && towerCode != "" {
 		rows, err := e.svcCtx.WindDeviceModel.ListDevices(ctx, farmCode, towerCode, deviceTypeCode, "")
 		if err != nil {
+			e.Logger.Errorf("list devices err:%v", err)
 			return nil, err
 		}
 		for _, row := range rows {

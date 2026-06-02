@@ -44,6 +44,7 @@ func (l *AiWindCopilotAgentLogic) AiWindCopilotAgent(req *types.AiWindAgentRunRe
 		return xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "输入不能为空")
 	}
 
+	// rpcStream自带Recv方法，并且返回值也是*pb.WindAgentStreamEvent
 	rpcStream, err := l.svcCtx.AiWindAgentClient.RunAgentStream(l.ctx, &pb.WindAgentRunReq{
 		UserId:         userID,
 		AgentSessionId: req.AgentSessionId,

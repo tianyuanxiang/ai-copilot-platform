@@ -31,8 +31,8 @@ class AgentRuntime:
         # 如果外部传了 tool_client，就用外部传进来的；如果没传，就默认创建一个 WindToolRPCClient。
         if tool_client is None:
             self.tool_client = WindToolRPCClient(
-                settings.agent_go_rpc_target,
-                settings.agent_go_rpc_timeout_seconds,
+                target=settings.agent_go_rpc_target,
+                timeout_seconds=settings.agent_go_rpc_timeout_seconds,
             )
         else:
             self.tool_client = tool_client
@@ -69,12 +69,13 @@ class AgentRuntime:
         if self._checkpointer_context is not None:
             await self._checkpointer_context.__aexit__(None, None, None)
 
+    # 查询 checkpoint
     async def stream_new_turn(self, *, user_id: int, agent_session_id: str, user_input: str):
         """Start one Agent turn and stream custom events."""
 
         self._require_started()
         config = self._config(agent_session_id)
-        snapshot = await self.graph.aget_state(config)
+        snapshot = await self.graph.aget_state(config)   # 读取该会话以前保存的状态
         if _is_waiting(snapshot):
             yield AgentStreamEvent(
                 type="error",
@@ -120,14 +121,17 @@ class AgentRuntime:
         async for event in self._stream_graph(resumed_state, config):
             yield event
 
+    # 真正运行 LangGraph
     async def _stream_graph(self, graph_input: Any, config: dict[str, Any]):
-        async for update in self.graph.astream(graph_input, config=config, stream_mode="updates"):
+
+        # stream_mode="updates":每执行完一个节点，LangGraph 就返回该节点产生的新状态。
+        async for update in self.graph.astream(graph_input, config=config, stream_mode="updates"):  # 正式启动状态机,执行节点 prepare_turn
             for node_update in update.values():
                 if not isinstance(node_update, dict):
                     continue
                 for raw_event in node_update.get("events", []):
                     yield AgentStreamEvent.model_validate(raw_event)
-        snapshot = await self.graph.aget_state(config)
+        snapshot = await self.graph.aget_state(config)   # 跑着跑着停了，主动去数据库/内存中抓取该任务当前的完整快照
         pending = _pending_interrupts(snapshot)
         for payload in pending:
             yield AgentStreamEvent.model_validate(payload)
@@ -135,6 +139,7 @@ class AgentRuntime:
         if not pending and values.get("route") == "answer" and not values.get("answer"):
             parts: list[str] = []
             try:
+                # 手动调用了一个外部的 LLM 流式接口
                 async for token in self.answer_streamer(
                     build_answer_prompt(values),
                     user_id=values["user_id"],

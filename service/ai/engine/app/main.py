@@ -25,6 +25,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     setup_logging()
 
+    # 创建一个全局agent运行容器
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         runtime = AgentRuntime(settings)

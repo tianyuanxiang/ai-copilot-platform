@@ -23,6 +23,7 @@ async def stream_agent(
     """Start a fresh Agent turn and expose LangGraph custom events."""
 
     resolved_agent_session_id = agent_session_id.strip() or str(uuid.uuid4())
+    # 准备langgraph状态机输入
     async for event in runtime.stream_new_turn(
         user_id=user_id,
         agent_session_id=resolved_agent_session_id,
