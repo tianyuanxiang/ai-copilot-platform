@@ -127,25 +127,26 @@ var AiStatusService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AiKnowledgeService_CreateDomain_FullMethodName         = "/ai.AiKnowledgeService/CreateDomain"
-	AiKnowledgeService_UpdateDomain_FullMethodName         = "/ai.AiKnowledgeService/UpdateDomain"
-	AiKnowledgeService_DeleteDomain_FullMethodName         = "/ai.AiKnowledgeService/DeleteDomain"
-	AiKnowledgeService_ListDomain_FullMethodName           = "/ai.AiKnowledgeService/ListDomain"
-	AiKnowledgeService_CreateKnowledgeBase_FullMethodName  = "/ai.AiKnowledgeService/CreateKnowledgeBase"
-	AiKnowledgeService_UpdateKnowledgeBase_FullMethodName  = "/ai.AiKnowledgeService/UpdateKnowledgeBase"
-	AiKnowledgeService_DeleteKnowledgeBase_FullMethodName  = "/ai.AiKnowledgeService/DeleteKnowledgeBase"
-	AiKnowledgeService_GetKnowledgeBase_FullMethodName     = "/ai.AiKnowledgeService/GetKnowledgeBase"
-	AiKnowledgeService_ListKnowledgeBase_FullMethodName    = "/ai.AiKnowledgeService/ListKnowledgeBase"
-	AiKnowledgeService_ListKbMember_FullMethodName         = "/ai.AiKnowledgeService/ListKbMember"
-	AiKnowledgeService_AddKbMember_FullMethodName          = "/ai.AiKnowledgeService/AddKbMember"
-	AiKnowledgeService_UpdateKbMember_FullMethodName       = "/ai.AiKnowledgeService/UpdateKbMember"
-	AiKnowledgeService_RemoveKbMember_FullMethodName       = "/ai.AiKnowledgeService/RemoveKbMember"
-	AiKnowledgeService_IngestDocument_FullMethodName       = "/ai.AiKnowledgeService/IngestDocument"
-	AiKnowledgeService_ListDocument_FullMethodName         = "/ai.AiKnowledgeService/ListDocument"
-	AiKnowledgeService_GetDocument_FullMethodName          = "/ai.AiKnowledgeService/GetDocument"
-	AiKnowledgeService_DeleteDocument_FullMethodName       = "/ai.AiKnowledgeService/DeleteDocument"
-	AiKnowledgeService_RebuildDocumentIndex_FullMethodName = "/ai.AiKnowledgeService/RebuildDocumentIndex"
-	AiKnowledgeService_SearchKnowledge_FullMethodName      = "/ai.AiKnowledgeService/SearchKnowledge"
+	AiKnowledgeService_CreateDomain_FullMethodName                  = "/ai.AiKnowledgeService/CreateDomain"
+	AiKnowledgeService_UpdateDomain_FullMethodName                  = "/ai.AiKnowledgeService/UpdateDomain"
+	AiKnowledgeService_DeleteDomain_FullMethodName                  = "/ai.AiKnowledgeService/DeleteDomain"
+	AiKnowledgeService_ListDomain_FullMethodName                    = "/ai.AiKnowledgeService/ListDomain"
+	AiKnowledgeService_CreateKnowledgeBase_FullMethodName           = "/ai.AiKnowledgeService/CreateKnowledgeBase"
+	AiKnowledgeService_UpdateKnowledgeBase_FullMethodName           = "/ai.AiKnowledgeService/UpdateKnowledgeBase"
+	AiKnowledgeService_DeleteKnowledgeBase_FullMethodName           = "/ai.AiKnowledgeService/DeleteKnowledgeBase"
+	AiKnowledgeService_GetKnowledgeBase_FullMethodName              = "/ai.AiKnowledgeService/GetKnowledgeBase"
+	AiKnowledgeService_ListKnowledgeBase_FullMethodName             = "/ai.AiKnowledgeService/ListKnowledgeBase"
+	AiKnowledgeService_ListKbMember_FullMethodName                  = "/ai.AiKnowledgeService/ListKbMember"
+	AiKnowledgeService_AddKbMember_FullMethodName                   = "/ai.AiKnowledgeService/AddKbMember"
+	AiKnowledgeService_UpdateKbMember_FullMethodName                = "/ai.AiKnowledgeService/UpdateKbMember"
+	AiKnowledgeService_RemoveKbMember_FullMethodName                = "/ai.AiKnowledgeService/RemoveKbMember"
+	AiKnowledgeService_IngestDocument_FullMethodName                = "/ai.AiKnowledgeService/IngestDocument"
+	AiKnowledgeService_ListDocument_FullMethodName                  = "/ai.AiKnowledgeService/ListDocument"
+	AiKnowledgeService_CheckDocumentImportCandidates_FullMethodName = "/ai.AiKnowledgeService/CheckDocumentImportCandidates"
+	AiKnowledgeService_GetDocument_FullMethodName                   = "/ai.AiKnowledgeService/GetDocument"
+	AiKnowledgeService_DeleteDocument_FullMethodName                = "/ai.AiKnowledgeService/DeleteDocument"
+	AiKnowledgeService_RebuildDocumentIndex_FullMethodName          = "/ai.AiKnowledgeService/RebuildDocumentIndex"
+	AiKnowledgeService_SearchKnowledge_FullMethodName               = "/ai.AiKnowledgeService/SearchKnowledge"
 )
 
 // AiKnowledgeServiceClient is the client API for AiKnowledgeService service.
@@ -184,6 +185,7 @@ type AiKnowledgeServiceClient interface {
 	IngestDocument(ctx context.Context, in *IngestDocumentReq, opts ...grpc.CallOption) (*TaskResp, error)
 	// 查询知识库文档列表。
 	ListDocument(ctx context.Context, in *ListDocumentReq, opts ...grpc.CallOption) (*ListDocumentResp, error)
+	CheckDocumentImportCandidates(ctx context.Context, in *CheckDocumentImportCandidatesReq, opts ...grpc.CallOption) (*CheckDocumentImportCandidatesResp, error)
 	// 查询文档元数据和入库状态。
 	GetDocument(ctx context.Context, in *GetDocumentReq, opts ...grpc.CallOption) (*DocumentItem, error)
 	// 删除知识库文档，并由实现层清理 chunk、向量和 ES 索引。
@@ -352,6 +354,16 @@ func (c *aiKnowledgeServiceClient) ListDocument(ctx context.Context, in *ListDoc
 	return out, nil
 }
 
+func (c *aiKnowledgeServiceClient) CheckDocumentImportCandidates(ctx context.Context, in *CheckDocumentImportCandidatesReq, opts ...grpc.CallOption) (*CheckDocumentImportCandidatesResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckDocumentImportCandidatesResp)
+	err := c.cc.Invoke(ctx, AiKnowledgeService_CheckDocumentImportCandidates_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aiKnowledgeServiceClient) GetDocument(ctx context.Context, in *GetDocumentReq, opts ...grpc.CallOption) (*DocumentItem, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DocumentItem)
@@ -428,6 +440,7 @@ type AiKnowledgeServiceServer interface {
 	IngestDocument(context.Context, *IngestDocumentReq) (*TaskResp, error)
 	// 查询知识库文档列表。
 	ListDocument(context.Context, *ListDocumentReq) (*ListDocumentResp, error)
+	CheckDocumentImportCandidates(context.Context, *CheckDocumentImportCandidatesReq) (*CheckDocumentImportCandidatesResp, error)
 	// 查询文档元数据和入库状态。
 	GetDocument(context.Context, *GetDocumentReq) (*DocumentItem, error)
 	// 删除知识库文档，并由实现层清理 chunk、向量和 ES 索引。
@@ -490,6 +503,9 @@ func (UnimplementedAiKnowledgeServiceServer) IngestDocument(context.Context, *In
 }
 func (UnimplementedAiKnowledgeServiceServer) ListDocument(context.Context, *ListDocumentReq) (*ListDocumentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDocument not implemented")
+}
+func (UnimplementedAiKnowledgeServiceServer) CheckDocumentImportCandidates(context.Context, *CheckDocumentImportCandidatesReq) (*CheckDocumentImportCandidatesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckDocumentImportCandidates not implemented")
 }
 func (UnimplementedAiKnowledgeServiceServer) GetDocument(context.Context, *GetDocumentReq) (*DocumentItem, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDocument not implemented")
@@ -794,6 +810,24 @@ func _AiKnowledgeService_ListDocument_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiKnowledgeService_CheckDocumentImportCandidates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckDocumentImportCandidatesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiKnowledgeServiceServer).CheckDocumentImportCandidates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiKnowledgeService_CheckDocumentImportCandidates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiKnowledgeServiceServer).CheckDocumentImportCandidates(ctx, req.(*CheckDocumentImportCandidatesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AiKnowledgeService_GetDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetDocumentReq)
 	if err := dec(in); err != nil {
@@ -932,6 +966,10 @@ var AiKnowledgeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListDocument",
 			Handler:    _AiKnowledgeService_ListDocument_Handler,
+		},
+		{
+			MethodName: "CheckDocumentImportCandidates",
+			Handler:    _AiKnowledgeService_CheckDocumentImportCandidates_Handler,
 		},
 		{
 			MethodName: "GetDocument",

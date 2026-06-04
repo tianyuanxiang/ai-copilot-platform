@@ -58,7 +58,7 @@ class AgentRuntime:
                     raise RuntimeError("agent checkpoint DSN is empty")
                 self._checkpointer_context = AsyncPostgresSaver.from_conn_string(dsn)
                 self.checkpointer = await self._checkpointer_context.__aenter__()
-        #搭建LangGraph 流程图。
+        # 编译LangGraph 流程图。
         self.graph = build_wind_agent_graph(self.tool_client, checkpointer=self.checkpointer, planner=self.planner)
 
     async def close(self) -> None:
@@ -131,7 +131,7 @@ class AgentRuntime:
                     continue
                 for raw_event in node_update.get("events", []):
                     yield AgentStreamEvent.model_validate(raw_event)
-        snapshot = await self.graph.aget_state(config)   # 跑着跑着停了，主动去数据库/内存中抓取该任务当前的完整快照
+        snapshot = await self.graph.aget_state(config)   # 跑到END了，主动去数据库/内存中抓取该任务当前的完整快照
         pending = _pending_interrupts(snapshot)
         for payload in pending:
             yield AgentStreamEvent.model_validate(payload)
@@ -139,7 +139,7 @@ class AgentRuntime:
         if not pending and values.get("route") == "answer" and not values.get("answer"):
             parts: list[str] = []
             try:
-                # 手动调用了一个外部的 LLM 流式接口
+                # 开始回答：手动调用了一个外部的 LLM 流式接口，结合交互的结果，生成最终的回答
                 async for token in self.answer_streamer(
                     build_answer_prompt(values),
                     user_id=values["user_id"],
@@ -162,6 +162,7 @@ class AgentRuntime:
                     content=parts[0],
                 )
             answer = "".join(parts).strip()
+            # 把 answer 写回 checkpoint
             values = {**values, "answer": answer, "route": "done", "events": []}
             # The graph has already exited through the assess_evidence -> END
             # branch. Persist only the generated answer here: feeding a new

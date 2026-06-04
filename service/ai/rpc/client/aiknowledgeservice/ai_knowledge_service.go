@@ -14,36 +14,38 @@ import (
 )
 
 type (
-	AddKbMemberReq          = pb.AddKbMemberReq
-	CreateDomainReq         = pb.CreateDomainReq
-	CreateDomainResp        = pb.CreateDomainResp
-	CreateKnowledgeBaseReq  = pb.CreateKnowledgeBaseReq
-	CreateKnowledgeBaseResp = pb.CreateKnowledgeBaseResp
-	DeleteDocumentReq       = pb.DeleteDocumentReq
-	DeleteDomainReq         = pb.DeleteDomainReq
-	DeleteKnowledgeBaseReq  = pb.DeleteKnowledgeBaseReq
-	DocumentItem            = pb.DocumentItem
-	Empty                   = pb.Empty
-	GetDocumentReq          = pb.GetDocumentReq
-	GetKnowledgeBaseReq     = pb.GetKnowledgeBaseReq
-	IngestDocumentReq       = pb.IngestDocumentReq
-	KnowledgeBaseItem       = pb.KnowledgeBaseItem
-	ListDocumentReq         = pb.ListDocumentReq
-	ListDocumentResp        = pb.ListDocumentResp
-	ListDomainReq           = pb.ListDomainReq
-	ListDomainResp          = pb.ListDomainResp
-	ListKbMemberReq         = pb.ListKbMemberReq
-	ListKbMemberResp        = pb.ListKbMemberResp
-	ListKnowledgeBaseReq    = pb.ListKnowledgeBaseReq
-	ListKnowledgeBaseResp   = pb.ListKnowledgeBaseResp
-	RebuildDocumentIndexReq = pb.RebuildDocumentIndexReq
-	RemoveKbMemberReq       = pb.RemoveKbMemberReq
-	SearchKnowledgeReq      = pb.SearchKnowledgeReq
-	SearchKnowledgeResp     = pb.SearchKnowledgeResp
-	TaskResp                = pb.TaskResp
-	UpdateDomainReq         = pb.UpdateDomainReq
-	UpdateKbMemberReq       = pb.UpdateKbMemberReq
-	UpdateKnowledgeBaseReq  = pb.UpdateKnowledgeBaseReq
+	AddKbMemberReq                    = pb.AddKbMemberReq
+	CheckDocumentImportCandidatesReq  = pb.CheckDocumentImportCandidatesReq
+	CheckDocumentImportCandidatesResp = pb.CheckDocumentImportCandidatesResp
+	CreateDomainReq                   = pb.CreateDomainReq
+	CreateDomainResp                  = pb.CreateDomainResp
+	CreateKnowledgeBaseReq            = pb.CreateKnowledgeBaseReq
+	CreateKnowledgeBaseResp           = pb.CreateKnowledgeBaseResp
+	DeleteDocumentReq                 = pb.DeleteDocumentReq
+	DeleteDomainReq                   = pb.DeleteDomainReq
+	DeleteKnowledgeBaseReq            = pb.DeleteKnowledgeBaseReq
+	DocumentItem                      = pb.DocumentItem
+	Empty                             = pb.Empty
+	GetDocumentReq                    = pb.GetDocumentReq
+	GetKnowledgeBaseReq               = pb.GetKnowledgeBaseReq
+	IngestDocumentReq                 = pb.IngestDocumentReq
+	KnowledgeBaseItem                 = pb.KnowledgeBaseItem
+	ListDocumentReq                   = pb.ListDocumentReq
+	ListDocumentResp                  = pb.ListDocumentResp
+	ListDomainReq                     = pb.ListDomainReq
+	ListDomainResp                    = pb.ListDomainResp
+	ListKbMemberReq                   = pb.ListKbMemberReq
+	ListKbMemberResp                  = pb.ListKbMemberResp
+	ListKnowledgeBaseReq              = pb.ListKnowledgeBaseReq
+	ListKnowledgeBaseResp             = pb.ListKnowledgeBaseResp
+	RebuildDocumentIndexReq           = pb.RebuildDocumentIndexReq
+	RemoveKbMemberReq                 = pb.RemoveKbMemberReq
+	SearchKnowledgeReq                = pb.SearchKnowledgeReq
+	SearchKnowledgeResp               = pb.SearchKnowledgeResp
+	TaskResp                          = pb.TaskResp
+	UpdateDomainReq                   = pb.UpdateDomainReq
+	UpdateKbMemberReq                 = pb.UpdateKbMemberReq
+	UpdateKnowledgeBaseReq            = pb.UpdateKnowledgeBaseReq
 
 	AiKnowledgeService interface {
 		// 创建公共知识库领域。
@@ -76,6 +78,7 @@ type (
 		IngestDocument(ctx context.Context, in *IngestDocumentReq, opts ...grpc.CallOption) (*TaskResp, error)
 		// 查询知识库文档列表。
 		ListDocument(ctx context.Context, in *ListDocumentReq, opts ...grpc.CallOption) (*ListDocumentResp, error)
+		CheckDocumentImportCandidates(ctx context.Context, in *CheckDocumentImportCandidatesReq, opts ...grpc.CallOption) (*CheckDocumentImportCandidatesResp, error)
 		// 查询文档元数据和入库状态。
 		GetDocument(ctx context.Context, in *GetDocumentReq, opts ...grpc.CallOption) (*DocumentItem, error)
 		// 删除知识库文档，并由实现层清理 chunk、向量和 ES 索引。
@@ -185,6 +188,11 @@ func (m *defaultAiKnowledgeService) IngestDocument(ctx context.Context, in *Inge
 func (m *defaultAiKnowledgeService) ListDocument(ctx context.Context, in *ListDocumentReq, opts ...grpc.CallOption) (*ListDocumentResp, error) {
 	client := pb.NewAiKnowledgeServiceClient(m.cli.Conn())
 	return client.ListDocument(ctx, in, opts...)
+}
+
+func (m *defaultAiKnowledgeService) CheckDocumentImportCandidates(ctx context.Context, in *CheckDocumentImportCandidatesReq, opts ...grpc.CallOption) (*CheckDocumentImportCandidatesResp, error) {
+	client := pb.NewAiKnowledgeServiceClient(m.cli.Conn())
+	return client.CheckDocumentImportCandidates(ctx, in, opts...)
 }
 
 // 查询文档元数据和入库状态。

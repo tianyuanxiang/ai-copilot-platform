@@ -192,6 +192,11 @@ class AiKnowledgeServiceStub(object):
                 request_serializer=ai__pb2.ListDocumentReq.SerializeToString,
                 response_deserializer=ai__pb2.ListDocumentResp.FromString,
                 _registered_method=True)
+        self.CheckDocumentImportCandidates = channel.unary_unary(
+                '/ai.AiKnowledgeService/CheckDocumentImportCandidates',
+                request_serializer=ai__pb2.CheckDocumentImportCandidatesReq.SerializeToString,
+                response_deserializer=ai__pb2.CheckDocumentImportCandidatesResp.FromString,
+                _registered_method=True)
         self.GetDocument = channel.unary_unary(
                 '/ai.AiKnowledgeService/GetDocument',
                 request_serializer=ai__pb2.GetDocumentReq.SerializeToString,
@@ -323,6 +328,12 @@ class AiKnowledgeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CheckDocumentImportCandidates(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetDocument(self, request, context):
         """查询文档元数据和入库状态。
         """
@@ -428,6 +439,11 @@ def add_AiKnowledgeServiceServicer_to_server(servicer, server):
                     servicer.ListDocument,
                     request_deserializer=ai__pb2.ListDocumentReq.FromString,
                     response_serializer=ai__pb2.ListDocumentResp.SerializeToString,
+            ),
+            'CheckDocumentImportCandidates': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckDocumentImportCandidates,
+                    request_deserializer=ai__pb2.CheckDocumentImportCandidatesReq.FromString,
+                    response_serializer=ai__pb2.CheckDocumentImportCandidatesResp.SerializeToString,
             ),
             'GetDocument': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDocument,
@@ -856,6 +872,33 @@ class AiKnowledgeService(object):
             '/ai.AiKnowledgeService/ListDocument',
             ai__pb2.ListDocumentReq.SerializeToString,
             ai__pb2.ListDocumentResp.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CheckDocumentImportCandidates(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/ai.AiKnowledgeService/CheckDocumentImportCandidates',
+            ai__pb2.CheckDocumentImportCandidatesReq.SerializeToString,
+            ai__pb2.CheckDocumentImportCandidatesResp.FromString,
             options,
             channel_credentials,
             insecure,
@@ -2013,6 +2056,11 @@ class AiWindAgentServiceStub(object):
                 request_serializer=ai__pb2.WindAgentRunReq.SerializeToString,
                 response_deserializer=ai__pb2.WindAgentStreamEvent.FromString,
                 _registered_method=True)
+        self.ResumeAgentStream = channel.unary_stream(
+                '/ai.AiWindAgentService/ResumeAgentStream',
+                request_serializer=ai__pb2.WindAgentResumeReq.SerializeToString,
+                response_deserializer=ai__pb2.WindAgentStreamEvent.FromString,
+                _registered_method=True)
 
 
 class AiWindAgentServiceServicer(object):
@@ -2048,6 +2096,12 @@ class AiWindAgentServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ResumeAgentStream(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_AiWindAgentServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -2074,6 +2128,11 @@ def add_AiWindAgentServiceServicer_to_server(servicer, server):
             'RunAgentStream': grpc.unary_stream_rpc_method_handler(
                     servicer.RunAgentStream,
                     request_deserializer=ai__pb2.WindAgentRunReq.FromString,
+                    response_serializer=ai__pb2.WindAgentStreamEvent.SerializeToString,
+            ),
+            'ResumeAgentStream': grpc.unary_stream_rpc_method_handler(
+                    servicer.ResumeAgentStream,
+                    request_deserializer=ai__pb2.WindAgentResumeReq.FromString,
                     response_serializer=ai__pb2.WindAgentStreamEvent.SerializeToString,
             ),
     }
@@ -2211,6 +2270,33 @@ class AiWindAgentService(object):
             target,
             '/ai.AiWindAgentService/RunAgentStream',
             ai__pb2.WindAgentRunReq.SerializeToString,
+            ai__pb2.WindAgentStreamEvent.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ResumeAgentStream(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/ai.AiWindAgentService/ResumeAgentStream',
+            ai__pb2.WindAgentResumeReq.SerializeToString,
             ai__pb2.WindAgentStreamEvent.FromString,
             options,
             channel_credentials,

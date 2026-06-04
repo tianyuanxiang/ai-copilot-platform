@@ -42,7 +42,7 @@ async def agent_stream(payload: AgentRunRequest, request: Request) -> StreamingR
                 break
             yield _sse(event)
         if not disconnected:
-            yield "data: [DONE]\n\n"
+            yield "data: [DONE]\n"
 
     return _streaming_response(event_generator())
 
@@ -78,7 +78,7 @@ def _runtime(request: Request) -> AgentRuntime:
 
 
 def _sse(event: AgentStreamEvent) -> str:
-    return "data: " + json.dumps(event.model_dump(exclude_none=True), ensure_ascii=False) + "\n\n"
+    return "data: " + json.dumps(event.model_dump(exclude_none=True), ensure_ascii=False) + "\n"
 
 
 def _streaming_response(events) -> StreamingResponse:

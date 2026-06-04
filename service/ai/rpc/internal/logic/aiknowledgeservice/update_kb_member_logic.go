@@ -48,12 +48,12 @@ func (l *UpdateKbMemberLogic) UpdateKbMember(in *pb.UpdateKbMemberReq) (*pb.Empt
 		return nil, err
 	}
 
-	// 操作者必须有 manager 权限
-	canMaintain, err := canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.OperatorId)
+	// 操作者必须是知识库 owner 或 manager。
+	canManage, err := canManageKnowledgeBaseMembers(l.ctx, l.svcCtx, kb, in.OperatorId)
 	if err != nil {
 		return nil, err
 	}
-	if !canMaintain {
+	if !canManage {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "只有 manager 才能修改成员角色")
 	}
 

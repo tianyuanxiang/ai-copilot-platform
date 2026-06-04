@@ -476,6 +476,10 @@ func isTextFileType(fileType string) bool {
 	return fileType == "md" || fileType == "markdown" || fileType == "txt"
 }
 
+func isSupportedUploadedFileType(fileType string) bool {
+	return isTextFileType(fileType) || fileType == "docx"
+}
+
 func sha256Hex(data []byte) string {
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])

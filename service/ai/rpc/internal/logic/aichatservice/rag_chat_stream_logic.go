@@ -35,6 +35,7 @@ func (l *RagChatStreamLogic) RagChatStream(in *pb.RagChatReq, stream pb.AiChatSe
 	if err != nil {
 		return err
 	}
+	conversationID := strconv.FormatInt(run.ConversationID, 10)
 
 	answer := insufficientEvidence
 	status := "success"
@@ -53,17 +54,19 @@ func (l *RagChatStreamLogic) RagChatStream(in *pb.RagChatReq, stream pb.AiChatSe
 			case "token":
 				builder.WriteString(event.Content)
 				return stream.Send(&pb.RagChatStreamEvent{
-					Type:    "token",
-					Content: event.Content,
-					TraceId: run.TraceID,
+					Type:           "token",
+					Content:        event.Content,
+					TraceId:        run.TraceID,
+					ConversationId: conversationID,
 				})
 			case "error":
 				status = "failed"
 				errorMsg = event.Content
 				return stream.Send(&pb.RagChatStreamEvent{
-					Type:    "error",
-					Content: event.Content,
-					TraceId: run.TraceID,
+					Type:           "error",
+					Content:        event.Content,
+					TraceId:        run.TraceID,
+					ConversationId: conversationID,
 				})
 			default:
 				return nil
@@ -74,21 +77,24 @@ func (l *RagChatStreamLogic) RagChatStream(in *pb.RagChatReq, stream pb.AiChatSe
 			errorMsg = err.Error()
 			chatLogic.writeLlmCallLog(run.TraceID, in.UserId, "chat-stream", run.Prompt, builder.String(), startedAt, status, errorMsg)
 			_ = stream.Send(&pb.RagChatStreamEvent{
-				Type:    "error",
-				Content: err.Error(),
-				TraceId: run.TraceID,
+				Type:           "error",
+				Content:        err.Error(),
+				TraceId:        run.TraceID,
+				ConversationId: conversationID,
 			})
 			_ = stream.Send(&pb.RagChatStreamEvent{
-				Type:    "done",
-				TraceId: run.TraceID,
+				Type:           "done",
+				TraceId:        run.TraceID,
+				ConversationId: conversationID,
 			})
 			return nil
 		}
 		if status == "failed" {
 			chatLogic.writeLlmCallLog(run.TraceID, in.UserId, "chat-stream", run.Prompt, builder.String(), startedAt, status, errorMsg)
 			_ = stream.Send(&pb.RagChatStreamEvent{
-				Type:    "done",
-				TraceId: run.TraceID,
+				Type:           "done",
+				TraceId:        run.TraceID,
+				ConversationId: conversationID,
 			})
 			return nil
 		}
@@ -101,9 +107,10 @@ func (l *RagChatStreamLogic) RagChatStream(in *pb.RagChatReq, stream pb.AiChatSe
 			}
 		}
 	} else if err := stream.Send(&pb.RagChatStreamEvent{
-		Type:    "token",
-		Content: answer,
-		TraceId: run.TraceID,
+		Type:           "token",
+		Content:        answer,
+		TraceId:        run.TraceID,
+		ConversationId: conversationID,
 	}); err != nil {
 		return err
 	}
@@ -112,8 +119,9 @@ func (l *RagChatStreamLogic) RagChatStream(in *pb.RagChatReq, stream pb.AiChatSe
 		return err
 	}
 	return stream.Send(&pb.RagChatStreamEvent{
-		Type:      "done",
-		TraceId:   run.TraceID,
-		Citations: run.Citations,
+		Type:           "done",
+		TraceId:        run.TraceID,
+		ConversationId: conversationID,
+		Citations:      run.Citations,
 	})
 }

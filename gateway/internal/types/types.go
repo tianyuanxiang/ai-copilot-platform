@@ -32,6 +32,15 @@ type AiChatResp struct {
 	Citations      []AiCitation `json:"citations"`
 }
 
+type AiCheckDocumentImportCandidatesReq struct {
+	KbId       int64                          `path:"kbId"`
+	Candidates []AiDocumentImportCandidateReq `json:"candidates"`
+}
+
+type AiCheckDocumentImportCandidatesResp struct {
+	List []AiDocumentImportCandidateItem `json:"list"`
+}
+
 type AiChunkItem struct {
 	DocumentId int64   `json:"documentId"`
 	ChunkId    int64   `json:"chunkId"`
@@ -114,6 +123,23 @@ type AiCreatePublicKbResp struct {
 type AiDeleteMessageReq struct {
 	ConversationId string `path:"conversationId"`
 	MessageId      int64  `path:"messageId"`
+}
+
+type AiDocumentImportCandidateItem struct {
+	FileId         int64  `json:"fileId"`
+	FileName       string `json:"fileName"`
+	StoredPath     string `json:"storedPath"`
+	FileType       string `json:"fileType"`
+	Status         string `json:"status"`
+	DocumentId     int64  `json:"documentId"`
+	DocumentStatus string `json:"documentStatus"`
+	Message        string `json:"message"`
+}
+
+type AiDocumentImportCandidateReq struct {
+	FileId     int64  `json:"fileId"`
+	FileName   string `json:"fileName"`
+	StoredPath string `json:"storedPath"`
 }
 
 type AiDocumentItem struct {
@@ -647,7 +673,15 @@ type WindAgentStreamEvent struct {
 	TraceId        string               `json:"traceId"`
 	AgentSessionId string               `json:"agentSessionId"`
 	Content        string               `json:"content"`
+	ToolCall       *AiWindToolCallItem  `json:"toolCall,omitempty"`
 	ToolCalls      []AiWindToolCallItem `json:"toolCalls"`
 	Citations      []AiCitation         `json:"citations"`
-	Draft          string               `json:"draft"`
+	Draft          *AiWindDraftRef      `json:"draft,omitempty"`
+	ErrorMsg       string               `json:"errorMsg,omitempty"`
+}
+
+type AiWindDraftRef struct {
+	DraftType string `json:"draftType"`
+	DraftId   int64  `json:"draftId"`
+	Title     string `json:"title"`
 }

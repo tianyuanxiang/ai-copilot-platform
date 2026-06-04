@@ -79,6 +79,7 @@ func forwardWindAgentStream(w http.ResponseWriter, rpcStream windAgentStreamRece
 				MessageType:    "error",
 				AgentSessionId: fallbackAgentSessionID,
 				Content:        err.Error(),
+				ErrorMsg:       err.Error(),
 			})
 			if flusher != nil {
 				flusher.Flush()
@@ -92,28 +93,16 @@ func forwardWindAgentStream(w http.ResponseWriter, rpcStream windAgentStreamRece
 		}
 		content := event.Content
 		citations := ai_wind_tool.CitationsFromRPC(event.Citations)
-		if event.Type == "done" {
-			if err := writeChatSSE(w, types.WindAgentStreamEvent{
-				MessageType:    event.Type,
-				Content:        content,
-				ToolCalls:      ai_wind_tool.ToolCallsFromRPC(event.ToolCalls),
-				TraceId:        event.TraceId,
-				AgentSessionId: agentSessionID,
-				Citations:      citations,
-			}); err != nil {
-				return err
-			}
-			if flusher != nil {
-				flusher.Flush()
-			}
-			continue
-		}
-
 		if err := writeChatSSE(w, types.WindAgentStreamEvent{
 			MessageType:    event.Type,
 			Content:        content,
+			ToolCall:       ai_wind_tool.ToolCallFromRPC(event.ToolCall),
+			ToolCalls:      ai_wind_tool.ToolCallsFromRPC(event.ToolCalls),
 			TraceId:        event.TraceId,
 			AgentSessionId: agentSessionID,
+			Citations:      citations,
+			Draft:          ai_wind_tool.DraftFromRPC(event.Draft),
+			ErrorMsg:       event.ErrorMsg,
 		}); err != nil {
 			return err
 		}

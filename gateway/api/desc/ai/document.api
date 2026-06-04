@@ -37,6 +37,32 @@ type AiListDocumentResp {
 	list []AiDocumentItem `json:"list"`
 }
 
+type AiDocumentImportCandidateReq {
+	fileId int64 `json:"fileId"`
+	fileName string `json:"fileName"`
+	storedPath string `json:"storedPath"`
+}
+
+type AiCheckDocumentImportCandidatesReq {
+	kbId int64 `path:"kbId"`
+	candidates []AiDocumentImportCandidateReq `json:"candidates"`
+}
+
+type AiDocumentImportCandidateItem {
+	fileId int64 `json:"fileId"`
+	fileName string `json:"fileName"`
+	storedPath string `json:"storedPath"`
+	fileType string `json:"fileType"`
+	status string `json:"status"`
+	documentId int64 `json:"documentId"`
+	documentStatus string `json:"documentStatus"`
+	message string `json:"message"`
+}
+
+type AiCheckDocumentImportCandidatesResp {
+	list []AiDocumentImportCandidateItem `json:"list"`
+}
+
 // 文档路径参数，限定在指定知识库下操作文档。
 type AiDocumentPathReq {
 	kbId int64 `path:"kbId"`
@@ -56,6 +82,9 @@ service gateway {
 	// 查询指定知识库下的文档列表。
 	@handler aiListDocument
 	get /kb/:kbId/documents (AiListDocumentReq) returns (AiListDocumentResp)
+
+	@handler aiCheckDocumentImportCandidates
+	post /kb/:kbId/documents/import-candidates/check (AiCheckDocumentImportCandidatesReq) returns (AiCheckDocumentImportCandidatesResp)
 
 	// 查询指定文档的元数据和入库状态。
 	@handler aiGetDocument

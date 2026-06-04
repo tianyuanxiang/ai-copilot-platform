@@ -29,10 +29,16 @@ type flatChunk struct {
 func canMaintainKnowledgeBase(ctx context.Context, svcCtx *svc.ServiceContext, kb *model.AiKnowledgeBase, userID int64) (bool, error) {
 	switch strings.ToLower(kb.KbType) {
 	case "personal":
-		return kb.OwnerUserId.Valid && kb.OwnerUserId.Int64 == userID, nil
+		return isKnowledgeBaseOwner(kb, userID), nil
 	case "public":
+		if isKnowledgeBaseOwner(kb, userID) {
+			return true, nil
+		}
 		member, err := svcCtx.AiKbMemberModel.FindByKbIDUserID(ctx, kb.Id, userID)
 		if err != nil {
+			if err == model.ErrNotFound {
+				return false, nil
+			}
 			return false, err
 		}
 		return member.Role == "editor" || member.Role == "manager", nil
@@ -41,11 +47,41 @@ func canMaintainKnowledgeBase(ctx context.Context, svcCtx *svc.ServiceContext, k
 	}
 }
 
+func canManageKnowledgeBaseMembers(ctx context.Context, svcCtx *svc.ServiceContext, kb *model.AiKnowledgeBase, userID int64) (bool, error) {
+	if isKnowledgeBaseOwner(kb, userID) {
+		return true, nil
+	}
+	if strings.ToLower(kb.KbType) != "public" {
+		return false, nil
+	}
+	member, err := svcCtx.AiKbMemberModel.FindByKbIDUserID(ctx, kb.Id, userID)
+	if err != nil {
+		if err == model.ErrNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return member.Role == "manager", nil
+}
+
+func isKnowledgeBaseOwner(kb *model.AiKnowledgeBase, userID int64) bool {
+	if kb == nil || userID <= 0 {
+		return false
+	}
+	if kb.OwnerUserId.Valid && kb.OwnerUserId.Int64 == userID {
+		return true
+	}
+	return kb.CreatedBy > 0 && kb.CreatedBy == userID
+}
+
 func canAccessKnowledgeBase(ctx context.Context, svcCtx *svc.ServiceContext, kb *model.AiKnowledgeBase, userID int64) bool {
 	switch strings.ToLower(kb.KbType) {
 	case "personal":
-		return kb.OwnerUserId.Valid && kb.OwnerUserId.Int64 == userID
+		return isKnowledgeBaseOwner(kb, userID)
 	case "public":
+		if isKnowledgeBaseOwner(kb, userID) {
+			return true
+		}
 		if strings.ToLower(strings.TrimSpace(kb.Visibility)) == "public" {
 			return true
 		}

@@ -113,6 +113,11 @@ func (s *AiKnowledgeServiceServer) ListDocument(ctx context.Context, in *pb.List
 	return l.ListDocument(in)
 }
 
+func (s *AiKnowledgeServiceServer) CheckDocumentImportCandidates(ctx context.Context, in *pb.CheckDocumentImportCandidatesReq) (*pb.CheckDocumentImportCandidatesResp, error) {
+	l := aiknowledgeservicelogic.NewCheckDocumentImportCandidatesLogic(ctx, s.svcCtx)
+	return l.CheckDocumentImportCandidates(in)
+}
+
 // 查询文档元数据和入库状态。
 func (s *AiKnowledgeServiceServer) GetDocument(ctx context.Context, in *pb.GetDocumentReq) (*pb.DocumentItem, error) {
 	l := aiknowledgeservicelogic.NewGetDocumentLogic(ctx, s.svcCtx)

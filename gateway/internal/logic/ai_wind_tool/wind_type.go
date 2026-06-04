@@ -1,12 +1,13 @@
 package ai_wind_tool
 
 type StreamEvent struct {
-	Type       string            `json:"type"`
-	Content    string            `json:"content,omitempty"`
-	Answer     string            `json:"answer,omitempty"`
-	TraceID    string            `json:"traceId,omitempty"`
-	Citations  []StreamCitation  `json:"citations,omitempty"`
-	References []StreamReference `json:"references,omitempty"`
+	Type           string            `json:"type"`
+	Content        string            `json:"content,omitempty"`
+	Answer         string            `json:"answer,omitempty"`
+	TraceID        string            `json:"traceId,omitempty"`
+	ConversationID string            `json:"conversationId,omitempty"`
+	Citations      []StreamCitation  `json:"citations,omitempty"`
+	References     []StreamReference `json:"references,omitempty"`
 }
 
 type StreamReference struct {

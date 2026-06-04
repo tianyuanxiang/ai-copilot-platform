@@ -109,6 +109,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/kb/:kbId/documents/:documentId/rebuild",
 					Handler: ai_document.AiRebuildDocumentIndexHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kbId/documents/import-candidates/check",
+					Handler: ai_document.AiCheckDocumentImportCandidatesHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/api/v1/ai"),

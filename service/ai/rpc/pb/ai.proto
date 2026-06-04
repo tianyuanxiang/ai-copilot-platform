@@ -298,6 +298,33 @@ message ListDocumentResp {
   repeated DocumentItem list = 2;
 }
 
+message DocumentImportCandidateReq {
+  int64 file_id = 1;
+  string file_name = 2;
+  string stored_path = 3;
+}
+
+message DocumentImportCandidateItem {
+  int64 file_id = 1;
+  string file_name = 2;
+  string stored_path = 3;
+  string file_type = 4;
+  string status = 5;
+  int64 document_id = 6;
+  string document_status = 7;
+  string message = 8;
+}
+
+message CheckDocumentImportCandidatesReq {
+  int64 user_id = 1;
+  int64 kb_id = 2;
+  repeated DocumentImportCandidateReq candidates = 3;
+}
+
+message CheckDocumentImportCandidatesResp {
+  repeated DocumentImportCandidateItem list = 1;
+}
+
 message GetDocumentReq {
   int64 document_id = 1;
   int64 kb_id = 2;
@@ -371,6 +398,7 @@ message RagChatStreamEvent {
   string content = 2;
   string trace_id = 3;
   repeated Citation citations = 4;
+  string conversation_id = 5;
 }
 
 message ConversationItem {
@@ -565,6 +593,7 @@ service AiKnowledgeService {
   rpc IngestDocument(IngestDocumentReq) returns (TaskResp);
   // 查询知识库文档列表。
   rpc ListDocument(ListDocumentReq) returns (ListDocumentResp);
+  rpc CheckDocumentImportCandidates(CheckDocumentImportCandidatesReq) returns (CheckDocumentImportCandidatesResp);
   // 查询文档元数据和入库状态。
   rpc GetDocument(GetDocumentReq) returns (DocumentItem);
   // 删除知识库文档，并由实现层清理 chunk、向量和 ES 索引。

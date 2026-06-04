@@ -304,6 +304,7 @@ def build_wind_agent_graph(
             "plan": "plan_next_action",
             "execute": "announce_tool_start",
             "degraded": "build_degraded_answer",
+            "waiting_clarification": END,
         },
     )
     graph.add_conditional_edges(
@@ -355,28 +356,55 @@ def _route_planned_action(name: str) -> str:
 
 
 def _resume_waiting_state(state: WindAgentState, resume_action: dict[str, str]) -> WindAgentState:
-    """Translate an API resume action into the next graph route.
-
-    The wait state itself is checkpointed before this function runs. Approving
-    a draft is therefore the only branch that can reach the Go write tool.
-    """
     # state["route"] = waiting_clarification
-
     action = str(resume_action.get("action") or "").strip()
     if state.get("route") == "waiting_approval":
         if action == "approve":
             return {**state, "route": "execute", "resume_action": {}, "events": []}
-        messages = _append_message(state, "user", "用户拒绝执行草稿工具，请不要创建草稿。")
-        return {**state, "messages": messages, "next_action": {}, "route": "plan", "resume_action": {}, "events": []}
 
+        if action == "reject":
+            messages = _append_message(
+                state,
+                "user",
+                "用户拒绝执行草稿工具，请不要创建草稿。"
+            )
+            question = (
+                "已取消该草稿操作，未执行任何写入。"
+                "你希望我接下来怎么处理？可以选择："
+                "1）仅基于当前证据给出分析建议；"
+                "2）重新补充条件后再分析；"
+                "3）结束本次任务。"
+            )
+            return {
+                **state,
+                "messages": messages,
+                "next_action": {
+                    "name": "request_clarification",
+                    "arguments": {
+                        "question": question,
+                        "reason": "user_rejected_draft_tool",
+                    },
+                },
+                "route": "waiting_clarification",
+                "resume_action": {},
+                "events": [
+                    _event_payload(
+                        state,
+                        "clarification_required",
+                        content=question,
+                    )
+                ],
+            }
     if state.get("route") == "waiting_clarification" and action == "clarify":
         content = str(resume_action.get("content") or "").strip()
         if content:
             messages = _append_message(state, "user", f"用户补充信息：{content}")
-            return {**state, "messages": messages, "next_action": {}, "route": "plan", "resume_action": {}, "events": []}
+            return {**state, "messages": messages, "next_action": {}, "route": "plan", "resume_action": {},
+                    "events": []}
 
     failed = _with_failure(state, "恢复动作与当前等待节点不匹配，无法继续分析。", route="degraded")
     return {**failed, "resume_action": {}}
+
 
 
 def _append_message(state: WindAgentState, role: str, content: str) -> list[dict[str, str]]:

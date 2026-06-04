@@ -48,12 +48,12 @@ func (l *AddKbMemberLogic) AddKbMember(in *pb.AddKbMemberReq) (*pb.Empty, error)
 		return nil, err
 	}
 
-	// 操作者必须有 manager 权限
-	canMaintain, err := canMaintainKnowledgeBase(l.ctx, l.svcCtx, kb, in.OperatorId)
+	// 操作者必须是知识库 owner 或 manager；被添加用户不需要预先在成员表中。
+	canManage, err := canManageKnowledgeBaseMembers(l.ctx, l.svcCtx, kb, in.OperatorId)
 	if err != nil {
 		return nil, err
 	}
-	if !canMaintain {
+	if !canManage {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrForbidden, "只有 manager 才能添加成员")
 	}
 
@@ -73,7 +73,8 @@ func (l *AddKbMemberLogic) AddKbMember(in *pb.AddKbMemberReq) (*pb.Empty, error)
 		CreatedBy: in.OperatorId,
 	})
 	if err != nil {
-		return nil, err
+		l.Logger.Errorf("add kb member err:%v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "插入成员失败")
 	}
 
 	return &pb.Empty{}, nil

@@ -2757,6 +2757,270 @@ func (x *ListDocumentResp) GetList() []*DocumentItem {
 	return nil
 }
 
+type DocumentImportCandidateReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FileId        int64                  `protobuf:"varint,1,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	StoredPath    string                 `protobuf:"bytes,3,opt,name=stored_path,json=storedPath,proto3" json:"stored_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DocumentImportCandidateReq) Reset() {
+	*x = DocumentImportCandidateReq{}
+	mi := &file_pb_ai_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DocumentImportCandidateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DocumentImportCandidateReq) ProtoMessage() {}
+
+func (x *DocumentImportCandidateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DocumentImportCandidateReq.ProtoReflect.Descriptor instead.
+func (*DocumentImportCandidateReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *DocumentImportCandidateReq) GetFileId() int64 {
+	if x != nil {
+		return x.FileId
+	}
+	return 0
+}
+
+func (x *DocumentImportCandidateReq) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateReq) GetStoredPath() string {
+	if x != nil {
+		return x.StoredPath
+	}
+	return ""
+}
+
+type DocumentImportCandidateItem struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FileId         int64                  `protobuf:"varint,1,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
+	FileName       string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	StoredPath     string                 `protobuf:"bytes,3,opt,name=stored_path,json=storedPath,proto3" json:"stored_path,omitempty"`
+	FileType       string                 `protobuf:"bytes,4,opt,name=file_type,json=fileType,proto3" json:"file_type,omitempty"`
+	Status         string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	DocumentId     int64                  `protobuf:"varint,6,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`
+	DocumentStatus string                 `protobuf:"bytes,7,opt,name=document_status,json=documentStatus,proto3" json:"document_status,omitempty"`
+	Message        string                 `protobuf:"bytes,8,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DocumentImportCandidateItem) Reset() {
+	*x = DocumentImportCandidateItem{}
+	mi := &file_pb_ai_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DocumentImportCandidateItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DocumentImportCandidateItem) ProtoMessage() {}
+
+func (x *DocumentImportCandidateItem) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DocumentImportCandidateItem.ProtoReflect.Descriptor instead.
+func (*DocumentImportCandidateItem) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *DocumentImportCandidateItem) GetFileId() int64 {
+	if x != nil {
+		return x.FileId
+	}
+	return 0
+}
+
+func (x *DocumentImportCandidateItem) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateItem) GetStoredPath() string {
+	if x != nil {
+		return x.StoredPath
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateItem) GetFileType() string {
+	if x != nil {
+		return x.FileType
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateItem) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateItem) GetDocumentId() int64 {
+	if x != nil {
+		return x.DocumentId
+	}
+	return 0
+}
+
+func (x *DocumentImportCandidateItem) GetDocumentStatus() string {
+	if x != nil {
+		return x.DocumentStatus
+	}
+	return ""
+}
+
+func (x *DocumentImportCandidateItem) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type CheckDocumentImportCandidatesReq struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	UserId        int64                         `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	KbId          int64                         `protobuf:"varint,2,opt,name=kb_id,json=kbId,proto3" json:"kb_id,omitempty"`
+	Candidates    []*DocumentImportCandidateReq `protobuf:"bytes,3,rep,name=candidates,proto3" json:"candidates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckDocumentImportCandidatesReq) Reset() {
+	*x = CheckDocumentImportCandidatesReq{}
+	mi := &file_pb_ai_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckDocumentImportCandidatesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckDocumentImportCandidatesReq) ProtoMessage() {}
+
+func (x *CheckDocumentImportCandidatesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckDocumentImportCandidatesReq.ProtoReflect.Descriptor instead.
+func (*CheckDocumentImportCandidatesReq) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *CheckDocumentImportCandidatesReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *CheckDocumentImportCandidatesReq) GetKbId() int64 {
+	if x != nil {
+		return x.KbId
+	}
+	return 0
+}
+
+func (x *CheckDocumentImportCandidatesReq) GetCandidates() []*DocumentImportCandidateReq {
+	if x != nil {
+		return x.Candidates
+	}
+	return nil
+}
+
+type CheckDocumentImportCandidatesResp struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	List          []*DocumentImportCandidateItem `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckDocumentImportCandidatesResp) Reset() {
+	*x = CheckDocumentImportCandidatesResp{}
+	mi := &file_pb_ai_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckDocumentImportCandidatesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckDocumentImportCandidatesResp) ProtoMessage() {}
+
+func (x *CheckDocumentImportCandidatesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_ai_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckDocumentImportCandidatesResp.ProtoReflect.Descriptor instead.
+func (*CheckDocumentImportCandidatesResp) Descriptor() ([]byte, []int) {
+	return file_pb_ai_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *CheckDocumentImportCandidatesResp) GetList() []*DocumentImportCandidateItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
 type GetDocumentReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DocumentId    int64                  `protobuf:"varint,1,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`
@@ -2768,7 +3032,7 @@ type GetDocumentReq struct {
 
 func (x *GetDocumentReq) Reset() {
 	*x = GetDocumentReq{}
-	mi := &file_pb_ai_proto_msgTypes[38]
+	mi := &file_pb_ai_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2780,7 +3044,7 @@ func (x *GetDocumentReq) String() string {
 func (*GetDocumentReq) ProtoMessage() {}
 
 func (x *GetDocumentReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[38]
+	mi := &file_pb_ai_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2793,7 +3057,7 @@ func (x *GetDocumentReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDocumentReq.ProtoReflect.Descriptor instead.
 func (*GetDocumentReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{38}
+	return file_pb_ai_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetDocumentReq) GetDocumentId() int64 {
@@ -2829,7 +3093,7 @@ type DeleteDocumentReq struct {
 
 func (x *DeleteDocumentReq) Reset() {
 	*x = DeleteDocumentReq{}
-	mi := &file_pb_ai_proto_msgTypes[39]
+	mi := &file_pb_ai_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2841,7 +3105,7 @@ func (x *DeleteDocumentReq) String() string {
 func (*DeleteDocumentReq) ProtoMessage() {}
 
 func (x *DeleteDocumentReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[39]
+	mi := &file_pb_ai_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2854,7 +3118,7 @@ func (x *DeleteDocumentReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDocumentReq.ProtoReflect.Descriptor instead.
 func (*DeleteDocumentReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{39}
+	return file_pb_ai_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *DeleteDocumentReq) GetDocumentId() int64 {
@@ -2897,7 +3161,7 @@ type RebuildDocumentIndexReq struct {
 
 func (x *RebuildDocumentIndexReq) Reset() {
 	*x = RebuildDocumentIndexReq{}
-	mi := &file_pb_ai_proto_msgTypes[40]
+	mi := &file_pb_ai_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2909,7 +3173,7 @@ func (x *RebuildDocumentIndexReq) String() string {
 func (*RebuildDocumentIndexReq) ProtoMessage() {}
 
 func (x *RebuildDocumentIndexReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[40]
+	mi := &file_pb_ai_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2922,7 +3186,7 @@ func (x *RebuildDocumentIndexReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RebuildDocumentIndexReq.ProtoReflect.Descriptor instead.
 func (*RebuildDocumentIndexReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{40}
+	return file_pb_ai_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *RebuildDocumentIndexReq) GetDocumentId() int64 {
@@ -2971,7 +3235,7 @@ type SearchKnowledgeReq struct {
 
 func (x *SearchKnowledgeReq) Reset() {
 	*x = SearchKnowledgeReq{}
-	mi := &file_pb_ai_proto_msgTypes[41]
+	mi := &file_pb_ai_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2983,7 +3247,7 @@ func (x *SearchKnowledgeReq) String() string {
 func (*SearchKnowledgeReq) ProtoMessage() {}
 
 func (x *SearchKnowledgeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[41]
+	mi := &file_pb_ai_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2996,7 +3260,7 @@ func (x *SearchKnowledgeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchKnowledgeReq.ProtoReflect.Descriptor instead.
 func (*SearchKnowledgeReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{41}
+	return file_pb_ai_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *SearchKnowledgeReq) GetUserId() int64 {
@@ -3080,7 +3344,7 @@ type SearchKnowledgeResp struct {
 
 func (x *SearchKnowledgeResp) Reset() {
 	*x = SearchKnowledgeResp{}
-	mi := &file_pb_ai_proto_msgTypes[42]
+	mi := &file_pb_ai_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3092,7 +3356,7 @@ func (x *SearchKnowledgeResp) String() string {
 func (*SearchKnowledgeResp) ProtoMessage() {}
 
 func (x *SearchKnowledgeResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[42]
+	mi := &file_pb_ai_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3105,7 +3369,7 @@ func (x *SearchKnowledgeResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchKnowledgeResp.ProtoReflect.Descriptor instead.
 func (*SearchKnowledgeResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{42}
+	return file_pb_ai_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *SearchKnowledgeResp) GetChunks() []*ChunkItem {
@@ -3139,7 +3403,7 @@ type ChatMessage struct {
 
 func (x *ChatMessage) Reset() {
 	*x = ChatMessage{}
-	mi := &file_pb_ai_proto_msgTypes[43]
+	mi := &file_pb_ai_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3151,7 +3415,7 @@ func (x *ChatMessage) String() string {
 func (*ChatMessage) ProtoMessage() {}
 
 func (x *ChatMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[43]
+	mi := &file_pb_ai_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3164,7 +3428,7 @@ func (x *ChatMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessage.ProtoReflect.Descriptor instead.
 func (*ChatMessage) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{43}
+	return file_pb_ai_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ChatMessage) GetRole() string {
@@ -3200,7 +3464,7 @@ type RagChatReq struct {
 
 func (x *RagChatReq) Reset() {
 	*x = RagChatReq{}
-	mi := &file_pb_ai_proto_msgTypes[44]
+	mi := &file_pb_ai_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3212,7 +3476,7 @@ func (x *RagChatReq) String() string {
 func (*RagChatReq) ProtoMessage() {}
 
 func (x *RagChatReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[44]
+	mi := &file_pb_ai_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3225,7 +3489,7 @@ func (x *RagChatReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RagChatReq.ProtoReflect.Descriptor instead.
 func (*RagChatReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{44}
+	return file_pb_ai_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *RagChatReq) GetUserId() int64 {
@@ -3318,7 +3582,7 @@ type RagChatResp struct {
 
 func (x *RagChatResp) Reset() {
 	*x = RagChatResp{}
-	mi := &file_pb_ai_proto_msgTypes[45]
+	mi := &file_pb_ai_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3330,7 +3594,7 @@ func (x *RagChatResp) String() string {
 func (*RagChatResp) ProtoMessage() {}
 
 func (x *RagChatResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[45]
+	mi := &file_pb_ai_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3343,7 +3607,7 @@ func (x *RagChatResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RagChatResp.ProtoReflect.Descriptor instead.
 func (*RagChatResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{45}
+	return file_pb_ai_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *RagChatResp) GetAnswer() string {
@@ -3382,18 +3646,19 @@ func (x *RagChatResp) GetConversationId() string {
 }
 
 type RagChatStreamEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	TraceId       string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	Citations     []*Citation            `protobuf:"bytes,4,rep,name=citations,proto3" json:"citations,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Type           string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Content        string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	TraceId        string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	Citations      []*Citation            `protobuf:"bytes,4,rep,name=citations,proto3" json:"citations,omitempty"`
+	ConversationId string                 `protobuf:"bytes,5,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RagChatStreamEvent) Reset() {
 	*x = RagChatStreamEvent{}
-	mi := &file_pb_ai_proto_msgTypes[46]
+	mi := &file_pb_ai_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3405,7 +3670,7 @@ func (x *RagChatStreamEvent) String() string {
 func (*RagChatStreamEvent) ProtoMessage() {}
 
 func (x *RagChatStreamEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[46]
+	mi := &file_pb_ai_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3418,7 +3683,7 @@ func (x *RagChatStreamEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RagChatStreamEvent.ProtoReflect.Descriptor instead.
 func (*RagChatStreamEvent) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{46}
+	return file_pb_ai_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *RagChatStreamEvent) GetType() string {
@@ -3449,6 +3714,13 @@ func (x *RagChatStreamEvent) GetCitations() []*Citation {
 	return nil
 }
 
+func (x *RagChatStreamEvent) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
 type ConversationItem struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
@@ -3463,7 +3735,7 @@ type ConversationItem struct {
 
 func (x *ConversationItem) Reset() {
 	*x = ConversationItem{}
-	mi := &file_pb_ai_proto_msgTypes[47]
+	mi := &file_pb_ai_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3475,7 +3747,7 @@ func (x *ConversationItem) String() string {
 func (*ConversationItem) ProtoMessage() {}
 
 func (x *ConversationItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[47]
+	mi := &file_pb_ai_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3488,7 +3760,7 @@ func (x *ConversationItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConversationItem.ProtoReflect.Descriptor instead.
 func (*ConversationItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{47}
+	return file_pb_ai_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ConversationItem) GetConversationId() string {
@@ -3547,7 +3819,7 @@ type ListConversationReq struct {
 
 func (x *ListConversationReq) Reset() {
 	*x = ListConversationReq{}
-	mi := &file_pb_ai_proto_msgTypes[48]
+	mi := &file_pb_ai_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3559,7 +3831,7 @@ func (x *ListConversationReq) String() string {
 func (*ListConversationReq) ProtoMessage() {}
 
 func (x *ListConversationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[48]
+	mi := &file_pb_ai_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3572,7 +3844,7 @@ func (x *ListConversationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationReq.ProtoReflect.Descriptor instead.
 func (*ListConversationReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{48}
+	return file_pb_ai_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *ListConversationReq) GetPage() int64 {
@@ -3627,7 +3899,7 @@ type ListConversationResp struct {
 
 func (x *ListConversationResp) Reset() {
 	*x = ListConversationResp{}
-	mi := &file_pb_ai_proto_msgTypes[49]
+	mi := &file_pb_ai_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3639,7 +3911,7 @@ func (x *ListConversationResp) String() string {
 func (*ListConversationResp) ProtoMessage() {}
 
 func (x *ListConversationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[49]
+	mi := &file_pb_ai_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3652,7 +3924,7 @@ func (x *ListConversationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationResp.ProtoReflect.Descriptor instead.
 func (*ListConversationResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{49}
+	return file_pb_ai_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ListConversationResp) GetTotal() int64 {
@@ -3684,7 +3956,7 @@ type MessageItem struct {
 
 func (x *MessageItem) Reset() {
 	*x = MessageItem{}
-	mi := &file_pb_ai_proto_msgTypes[50]
+	mi := &file_pb_ai_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3696,7 +3968,7 @@ func (x *MessageItem) String() string {
 func (*MessageItem) ProtoMessage() {}
 
 func (x *MessageItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[50]
+	mi := &file_pb_ai_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3709,7 +3981,7 @@ func (x *MessageItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageItem.ProtoReflect.Descriptor instead.
 func (*MessageItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{50}
+	return file_pb_ai_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *MessageItem) GetMessageId() int64 {
@@ -3773,7 +4045,7 @@ type GetConversationMessagesReq struct {
 
 func (x *GetConversationMessagesReq) Reset() {
 	*x = GetConversationMessagesReq{}
-	mi := &file_pb_ai_proto_msgTypes[51]
+	mi := &file_pb_ai_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3785,7 +4057,7 @@ func (x *GetConversationMessagesReq) String() string {
 func (*GetConversationMessagesReq) ProtoMessage() {}
 
 func (x *GetConversationMessagesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[51]
+	mi := &file_pb_ai_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3798,7 +4070,7 @@ func (x *GetConversationMessagesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationMessagesReq.ProtoReflect.Descriptor instead.
 func (*GetConversationMessagesReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{51}
+	return file_pb_ai_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *GetConversationMessagesReq) GetPage() int64 {
@@ -3839,7 +4111,7 @@ type GetConversationMessagesResp struct {
 
 func (x *GetConversationMessagesResp) Reset() {
 	*x = GetConversationMessagesResp{}
-	mi := &file_pb_ai_proto_msgTypes[52]
+	mi := &file_pb_ai_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3851,7 +4123,7 @@ func (x *GetConversationMessagesResp) String() string {
 func (*GetConversationMessagesResp) ProtoMessage() {}
 
 func (x *GetConversationMessagesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[52]
+	mi := &file_pb_ai_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3864,7 +4136,7 @@ func (x *GetConversationMessagesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationMessagesResp.ProtoReflect.Descriptor instead.
 func (*GetConversationMessagesResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{52}
+	return file_pb_ai_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *GetConversationMessagesResp) GetTotal() int64 {
@@ -3892,7 +4164,7 @@ type UpdateConversationTitleReq struct {
 
 func (x *UpdateConversationTitleReq) Reset() {
 	*x = UpdateConversationTitleReq{}
-	mi := &file_pb_ai_proto_msgTypes[53]
+	mi := &file_pb_ai_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3904,7 +4176,7 @@ func (x *UpdateConversationTitleReq) String() string {
 func (*UpdateConversationTitleReq) ProtoMessage() {}
 
 func (x *UpdateConversationTitleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[53]
+	mi := &file_pb_ai_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3917,7 +4189,7 @@ func (x *UpdateConversationTitleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateConversationTitleReq.ProtoReflect.Descriptor instead.
 func (*UpdateConversationTitleReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{53}
+	return file_pb_ai_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UpdateConversationTitleReq) GetUserId() int64 {
@@ -3951,7 +4223,7 @@ type DeleteConversationReq struct {
 
 func (x *DeleteConversationReq) Reset() {
 	*x = DeleteConversationReq{}
-	mi := &file_pb_ai_proto_msgTypes[54]
+	mi := &file_pb_ai_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3963,7 +4235,7 @@ func (x *DeleteConversationReq) String() string {
 func (*DeleteConversationReq) ProtoMessage() {}
 
 func (x *DeleteConversationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[54]
+	mi := &file_pb_ai_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3976,7 +4248,7 @@ func (x *DeleteConversationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteConversationReq.ProtoReflect.Descriptor instead.
 func (*DeleteConversationReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{54}
+	return file_pb_ai_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *DeleteConversationReq) GetUserId() int64 {
@@ -4004,7 +4276,7 @@ type DeleteMessageReq struct {
 
 func (x *DeleteMessageReq) Reset() {
 	*x = DeleteMessageReq{}
-	mi := &file_pb_ai_proto_msgTypes[55]
+	mi := &file_pb_ai_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4016,7 +4288,7 @@ func (x *DeleteMessageReq) String() string {
 func (*DeleteMessageReq) ProtoMessage() {}
 
 func (x *DeleteMessageReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[55]
+	mi := &file_pb_ai_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4029,7 +4301,7 @@ func (x *DeleteMessageReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteMessageReq.ProtoReflect.Descriptor instead.
 func (*DeleteMessageReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{55}
+	return file_pb_ai_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *DeleteMessageReq) GetUserId() int64 {
@@ -4069,7 +4341,7 @@ type ToolCall struct {
 
 func (x *ToolCall) Reset() {
 	*x = ToolCall{}
-	mi := &file_pb_ai_proto_msgTypes[56]
+	mi := &file_pb_ai_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4081,7 +4353,7 @@ func (x *ToolCall) String() string {
 func (*ToolCall) ProtoMessage() {}
 
 func (x *ToolCall) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[56]
+	mi := &file_pb_ai_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4094,7 +4366,7 @@ func (x *ToolCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToolCall.ProtoReflect.Descriptor instead.
 func (*ToolCall) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{56}
+	return file_pb_ai_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *ToolCall) GetToolCallId() int64 {
@@ -4170,7 +4442,7 @@ type ListToolCallLogReq struct {
 
 func (x *ListToolCallLogReq) Reset() {
 	*x = ListToolCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[57]
+	mi := &file_pb_ai_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4182,7 +4454,7 @@ func (x *ListToolCallLogReq) String() string {
 func (*ListToolCallLogReq) ProtoMessage() {}
 
 func (x *ListToolCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[57]
+	mi := &file_pb_ai_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4195,7 +4467,7 @@ func (x *ListToolCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListToolCallLogReq.ProtoReflect.Descriptor instead.
 func (*ListToolCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{57}
+	return file_pb_ai_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *ListToolCallLogReq) GetPage() int64 {
@@ -4271,7 +4543,7 @@ type ListToolCallLogResp struct {
 
 func (x *ListToolCallLogResp) Reset() {
 	*x = ListToolCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[58]
+	mi := &file_pb_ai_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4283,7 +4555,7 @@ func (x *ListToolCallLogResp) String() string {
 func (*ListToolCallLogResp) ProtoMessage() {}
 
 func (x *ListToolCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[58]
+	mi := &file_pb_ai_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4296,7 +4568,7 @@ func (x *ListToolCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListToolCallLogResp.ProtoReflect.Descriptor instead.
 func (*ListToolCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{58}
+	return file_pb_ai_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *ListToolCallLogResp) GetTotal() int64 {
@@ -4330,7 +4602,7 @@ type LlmCallItem struct {
 
 func (x *LlmCallItem) Reset() {
 	*x = LlmCallItem{}
-	mi := &file_pb_ai_proto_msgTypes[59]
+	mi := &file_pb_ai_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4342,7 +4614,7 @@ func (x *LlmCallItem) String() string {
 func (*LlmCallItem) ProtoMessage() {}
 
 func (x *LlmCallItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[59]
+	mi := &file_pb_ai_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4355,7 +4627,7 @@ func (x *LlmCallItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LlmCallItem.ProtoReflect.Descriptor instead.
 func (*LlmCallItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{59}
+	return file_pb_ai_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *LlmCallItem) GetTraceId() string {
@@ -4431,7 +4703,7 @@ type GetLlmTraceReq struct {
 
 func (x *GetLlmTraceReq) Reset() {
 	*x = GetLlmTraceReq{}
-	mi := &file_pb_ai_proto_msgTypes[60]
+	mi := &file_pb_ai_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4443,7 +4715,7 @@ func (x *GetLlmTraceReq) String() string {
 func (*GetLlmTraceReq) ProtoMessage() {}
 
 func (x *GetLlmTraceReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[60]
+	mi := &file_pb_ai_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4456,7 +4728,7 @@ func (x *GetLlmTraceReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLlmTraceReq.ProtoReflect.Descriptor instead.
 func (*GetLlmTraceReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{60}
+	return file_pb_ai_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *GetLlmTraceReq) GetTraceId() string {
@@ -4483,7 +4755,7 @@ type LlmTraceResp struct {
 
 func (x *LlmTraceResp) Reset() {
 	*x = LlmTraceResp{}
-	mi := &file_pb_ai_proto_msgTypes[61]
+	mi := &file_pb_ai_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4495,7 +4767,7 @@ func (x *LlmTraceResp) String() string {
 func (*LlmTraceResp) ProtoMessage() {}
 
 func (x *LlmTraceResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[61]
+	mi := &file_pb_ai_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4508,7 +4780,7 @@ func (x *LlmTraceResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LlmTraceResp.ProtoReflect.Descriptor instead.
 func (*LlmTraceResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{61}
+	return file_pb_ai_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *LlmTraceResp) GetTraceId() string {
@@ -4543,7 +4815,7 @@ type ListLlmCallLogReq struct {
 
 func (x *ListLlmCallLogReq) Reset() {
 	*x = ListLlmCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[62]
+	mi := &file_pb_ai_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4555,7 +4827,7 @@ func (x *ListLlmCallLogReq) String() string {
 func (*ListLlmCallLogReq) ProtoMessage() {}
 
 func (x *ListLlmCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[62]
+	mi := &file_pb_ai_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4568,7 +4840,7 @@ func (x *ListLlmCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLlmCallLogReq.ProtoReflect.Descriptor instead.
 func (*ListLlmCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{62}
+	return file_pb_ai_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *ListLlmCallLogReq) GetPage() int64 {
@@ -4651,7 +4923,7 @@ type ListLlmCallLogResp struct {
 
 func (x *ListLlmCallLogResp) Reset() {
 	*x = ListLlmCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[63]
+	mi := &file_pb_ai_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4663,7 +4935,7 @@ func (x *ListLlmCallLogResp) String() string {
 func (*ListLlmCallLogResp) ProtoMessage() {}
 
 func (x *ListLlmCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[63]
+	mi := &file_pb_ai_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4676,7 +4948,7 @@ func (x *ListLlmCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLlmCallLogResp.ProtoReflect.Descriptor instead.
 func (*ListLlmCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{63}
+	return file_pb_ai_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *ListLlmCallLogResp) GetTotal() int64 {
@@ -4706,7 +4978,7 @@ type GetTokenStatsReq struct {
 
 func (x *GetTokenStatsReq) Reset() {
 	*x = GetTokenStatsReq{}
-	mi := &file_pb_ai_proto_msgTypes[64]
+	mi := &file_pb_ai_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4718,7 +4990,7 @@ func (x *GetTokenStatsReq) String() string {
 func (*GetTokenStatsReq) ProtoMessage() {}
 
 func (x *GetTokenStatsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[64]
+	mi := &file_pb_ai_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4731,7 +5003,7 @@ func (x *GetTokenStatsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTokenStatsReq.ProtoReflect.Descriptor instead.
 func (*GetTokenStatsReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{64}
+	return file_pb_ai_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *GetTokenStatsReq) GetUserId() int64 {
@@ -4781,7 +5053,7 @@ type TokenStatsResp struct {
 
 func (x *TokenStatsResp) Reset() {
 	*x = TokenStatsResp{}
-	mi := &file_pb_ai_proto_msgTypes[65]
+	mi := &file_pb_ai_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4793,7 +5065,7 @@ func (x *TokenStatsResp) String() string {
 func (*TokenStatsResp) ProtoMessage() {}
 
 func (x *TokenStatsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[65]
+	mi := &file_pb_ai_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4806,7 +5078,7 @@ func (x *TokenStatsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenStatsResp.ProtoReflect.Descriptor instead.
 func (*TokenStatsResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{65}
+	return file_pb_ai_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *TokenStatsResp) GetPromptTokens() int64 {
@@ -4852,7 +5124,7 @@ type WindFarmItem struct {
 
 func (x *WindFarmItem) Reset() {
 	*x = WindFarmItem{}
-	mi := &file_pb_ai_proto_msgTypes[66]
+	mi := &file_pb_ai_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4864,7 +5136,7 @@ func (x *WindFarmItem) String() string {
 func (*WindFarmItem) ProtoMessage() {}
 
 func (x *WindFarmItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[66]
+	mi := &file_pb_ai_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4877,7 +5149,7 @@ func (x *WindFarmItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindFarmItem.ProtoReflect.Descriptor instead.
 func (*WindFarmItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{66}
+	return file_pb_ai_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *WindFarmItem) GetFarmId() int64 {
@@ -4938,7 +5210,7 @@ type ListWindFarmReq struct {
 
 func (x *ListWindFarmReq) Reset() {
 	*x = ListWindFarmReq{}
-	mi := &file_pb_ai_proto_msgTypes[67]
+	mi := &file_pb_ai_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4950,7 +5222,7 @@ func (x *ListWindFarmReq) String() string {
 func (*ListWindFarmReq) ProtoMessage() {}
 
 func (x *ListWindFarmReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[67]
+	mi := &file_pb_ai_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4963,7 +5235,7 @@ func (x *ListWindFarmReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindFarmReq.ProtoReflect.Descriptor instead.
 func (*ListWindFarmReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{67}
+	return file_pb_ai_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *ListWindFarmReq) GetKeyword() string {
@@ -4984,7 +5256,7 @@ type ListWindFarmResp struct {
 
 func (x *ListWindFarmResp) Reset() {
 	*x = ListWindFarmResp{}
-	mi := &file_pb_ai_proto_msgTypes[68]
+	mi := &file_pb_ai_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4996,7 +5268,7 @@ func (x *ListWindFarmResp) String() string {
 func (*ListWindFarmResp) ProtoMessage() {}
 
 func (x *ListWindFarmResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[68]
+	mi := &file_pb_ai_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5009,7 +5281,7 @@ func (x *ListWindFarmResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindFarmResp.ProtoReflect.Descriptor instead.
 func (*ListWindFarmResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{68}
+	return file_pb_ai_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *ListWindFarmResp) GetTotal() int64 {
@@ -5049,7 +5321,7 @@ type WindTurbineItem struct {
 
 func (x *WindTurbineItem) Reset() {
 	*x = WindTurbineItem{}
-	mi := &file_pb_ai_proto_msgTypes[69]
+	mi := &file_pb_ai_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5061,7 +5333,7 @@ func (x *WindTurbineItem) String() string {
 func (*WindTurbineItem) ProtoMessage() {}
 
 func (x *WindTurbineItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[69]
+	mi := &file_pb_ai_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5074,7 +5346,7 @@ func (x *WindTurbineItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTurbineItem.ProtoReflect.Descriptor instead.
 func (*WindTurbineItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{69}
+	return file_pb_ai_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *WindTurbineItem) GetTowerId() int64 {
@@ -5143,7 +5415,7 @@ type ListWindTurbineReq struct {
 
 func (x *ListWindTurbineReq) Reset() {
 	*x = ListWindTurbineReq{}
-	mi := &file_pb_ai_proto_msgTypes[70]
+	mi := &file_pb_ai_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5155,7 +5427,7 @@ func (x *ListWindTurbineReq) String() string {
 func (*ListWindTurbineReq) ProtoMessage() {}
 
 func (x *ListWindTurbineReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[70]
+	mi := &file_pb_ai_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5168,7 +5440,7 @@ func (x *ListWindTurbineReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindTurbineReq.ProtoReflect.Descriptor instead.
 func (*ListWindTurbineReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{70}
+	return file_pb_ai_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *ListWindTurbineReq) GetFarmCode() string {
@@ -5196,7 +5468,7 @@ type ListWindTurbineResp struct {
 
 func (x *ListWindTurbineResp) Reset() {
 	*x = ListWindTurbineResp{}
-	mi := &file_pb_ai_proto_msgTypes[71]
+	mi := &file_pb_ai_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5208,7 +5480,7 @@ func (x *ListWindTurbineResp) String() string {
 func (*ListWindTurbineResp) ProtoMessage() {}
 
 func (x *ListWindTurbineResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[71]
+	mi := &file_pb_ai_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5221,7 +5493,7 @@ func (x *ListWindTurbineResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindTurbineResp.ProtoReflect.Descriptor instead.
 func (*ListWindTurbineResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{71}
+	return file_pb_ai_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *ListWindTurbineResp) GetTotal() int64 {
@@ -5262,7 +5534,7 @@ type WindDeviceItem struct {
 
 func (x *WindDeviceItem) Reset() {
 	*x = WindDeviceItem{}
-	mi := &file_pb_ai_proto_msgTypes[72]
+	mi := &file_pb_ai_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5274,7 +5546,7 @@ func (x *WindDeviceItem) String() string {
 func (*WindDeviceItem) ProtoMessage() {}
 
 func (x *WindDeviceItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[72]
+	mi := &file_pb_ai_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5287,7 +5559,7 @@ func (x *WindDeviceItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindDeviceItem.ProtoReflect.Descriptor instead.
 func (*WindDeviceItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{72}
+	return file_pb_ai_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *WindDeviceItem) GetDeviceId() int64 {
@@ -5365,7 +5637,7 @@ type ListWindDeviceReq struct {
 
 func (x *ListWindDeviceReq) Reset() {
 	*x = ListWindDeviceReq{}
-	mi := &file_pb_ai_proto_msgTypes[73]
+	mi := &file_pb_ai_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5377,7 +5649,7 @@ func (x *ListWindDeviceReq) String() string {
 func (*ListWindDeviceReq) ProtoMessage() {}
 
 func (x *ListWindDeviceReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[73]
+	mi := &file_pb_ai_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5390,7 +5662,7 @@ func (x *ListWindDeviceReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindDeviceReq.ProtoReflect.Descriptor instead.
 func (*ListWindDeviceReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{73}
+	return file_pb_ai_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ListWindDeviceReq) GetFarmCode() string {
@@ -5432,7 +5704,7 @@ type ListWindDeviceResp struct {
 
 func (x *ListWindDeviceResp) Reset() {
 	*x = ListWindDeviceResp{}
-	mi := &file_pb_ai_proto_msgTypes[74]
+	mi := &file_pb_ai_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5444,7 +5716,7 @@ func (x *ListWindDeviceResp) String() string {
 func (*ListWindDeviceResp) ProtoMessage() {}
 
 func (x *ListWindDeviceResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[74]
+	mi := &file_pb_ai_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5457,7 +5729,7 @@ func (x *ListWindDeviceResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWindDeviceResp.ProtoReflect.Descriptor instead.
 func (*ListWindDeviceResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{74}
+	return file_pb_ai_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ListWindDeviceResp) GetTotal() int64 {
@@ -5500,7 +5772,7 @@ type WindTimeseriesQueryReq struct {
 
 func (x *WindTimeseriesQueryReq) Reset() {
 	*x = WindTimeseriesQueryReq{}
-	mi := &file_pb_ai_proto_msgTypes[75]
+	mi := &file_pb_ai_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5512,7 +5784,7 @@ func (x *WindTimeseriesQueryReq) String() string {
 func (*WindTimeseriesQueryReq) ProtoMessage() {}
 
 func (x *WindTimeseriesQueryReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[75]
+	mi := &file_pb_ai_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5525,7 +5797,7 @@ func (x *WindTimeseriesQueryReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTimeseriesQueryReq.ProtoReflect.Descriptor instead.
 func (*WindTimeseriesQueryReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{75}
+	return file_pb_ai_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *WindTimeseriesQueryReq) GetFarmCode() string {
@@ -5615,7 +5887,7 @@ type WindDataPoint struct {
 
 func (x *WindDataPoint) Reset() {
 	*x = WindDataPoint{}
-	mi := &file_pb_ai_proto_msgTypes[76]
+	mi := &file_pb_ai_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5627,7 +5899,7 @@ func (x *WindDataPoint) String() string {
 func (*WindDataPoint) ProtoMessage() {}
 
 func (x *WindDataPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[76]
+	mi := &file_pb_ai_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5640,7 +5912,7 @@ func (x *WindDataPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindDataPoint.ProtoReflect.Descriptor instead.
 func (*WindDataPoint) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{76}
+	return file_pb_ai_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *WindDataPoint) GetTs() string {
@@ -5672,7 +5944,7 @@ type WindTimeseriesQueryResp struct {
 
 func (x *WindTimeseriesQueryResp) Reset() {
 	*x = WindTimeseriesQueryResp{}
-	mi := &file_pb_ai_proto_msgTypes[77]
+	mi := &file_pb_ai_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5684,7 +5956,7 @@ func (x *WindTimeseriesQueryResp) String() string {
 func (*WindTimeseriesQueryResp) ProtoMessage() {}
 
 func (x *WindTimeseriesQueryResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[77]
+	mi := &file_pb_ai_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5697,7 +5969,7 @@ func (x *WindTimeseriesQueryResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTimeseriesQueryResp.ProtoReflect.Descriptor instead.
 func (*WindTimeseriesQueryResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{77}
+	return file_pb_ai_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *WindTimeseriesQueryResp) GetTotal() int64 {
@@ -5766,7 +6038,7 @@ type WindTrendCompareReq struct {
 
 func (x *WindTrendCompareReq) Reset() {
 	*x = WindTrendCompareReq{}
-	mi := &file_pb_ai_proto_msgTypes[78]
+	mi := &file_pb_ai_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5778,7 +6050,7 @@ func (x *WindTrendCompareReq) String() string {
 func (*WindTrendCompareReq) ProtoMessage() {}
 
 func (x *WindTrendCompareReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[78]
+	mi := &file_pb_ai_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5791,7 +6063,7 @@ func (x *WindTrendCompareReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTrendCompareReq.ProtoReflect.Descriptor instead.
 func (*WindTrendCompareReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{78}
+	return file_pb_ai_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *WindTrendCompareReq) GetFarmCode() string {
@@ -5868,7 +6140,7 @@ type WindTrendCompareResp struct {
 
 func (x *WindTrendCompareResp) Reset() {
 	*x = WindTrendCompareResp{}
-	mi := &file_pb_ai_proto_msgTypes[79]
+	mi := &file_pb_ai_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5880,7 +6152,7 @@ func (x *WindTrendCompareResp) String() string {
 func (*WindTrendCompareResp) ProtoMessage() {}
 
 func (x *WindTrendCompareResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[79]
+	mi := &file_pb_ai_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5893,7 +6165,7 @@ func (x *WindTrendCompareResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTrendCompareResp.ProtoReflect.Descriptor instead.
 func (*WindTrendCompareResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{79}
+	return file_pb_ai_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *WindTrendCompareResp) GetSummary() string {
@@ -5937,7 +6209,7 @@ type WindAlarmQueryReq struct {
 
 func (x *WindAlarmQueryReq) Reset() {
 	*x = WindAlarmQueryReq{}
-	mi := &file_pb_ai_proto_msgTypes[80]
+	mi := &file_pb_ai_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5949,7 +6221,7 @@ func (x *WindAlarmQueryReq) String() string {
 func (*WindAlarmQueryReq) ProtoMessage() {}
 
 func (x *WindAlarmQueryReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[80]
+	mi := &file_pb_ai_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5962,7 +6234,7 @@ func (x *WindAlarmQueryReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAlarmQueryReq.ProtoReflect.Descriptor instead.
 func (*WindAlarmQueryReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{80}
+	return file_pb_ai_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *WindAlarmQueryReq) GetFarmCode() string {
@@ -6067,7 +6339,7 @@ type WindAlarmItem struct {
 
 func (x *WindAlarmItem) Reset() {
 	*x = WindAlarmItem{}
-	mi := &file_pb_ai_proto_msgTypes[81]
+	mi := &file_pb_ai_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6079,7 +6351,7 @@ func (x *WindAlarmItem) String() string {
 func (*WindAlarmItem) ProtoMessage() {}
 
 func (x *WindAlarmItem) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[81]
+	mi := &file_pb_ai_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6092,7 +6364,7 @@ func (x *WindAlarmItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAlarmItem.ProtoReflect.Descriptor instead.
 func (*WindAlarmItem) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{81}
+	return file_pb_ai_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *WindAlarmItem) GetTs() string {
@@ -6177,7 +6449,7 @@ type WindAlarmQueryResp struct {
 
 func (x *WindAlarmQueryResp) Reset() {
 	*x = WindAlarmQueryResp{}
-	mi := &file_pb_ai_proto_msgTypes[82]
+	mi := &file_pb_ai_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6189,7 +6461,7 @@ func (x *WindAlarmQueryResp) String() string {
 func (*WindAlarmQueryResp) ProtoMessage() {}
 
 func (x *WindAlarmQueryResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[82]
+	mi := &file_pb_ai_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6202,7 +6474,7 @@ func (x *WindAlarmQueryResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAlarmQueryResp.ProtoReflect.Descriptor instead.
 func (*WindAlarmQueryResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{82}
+	return file_pb_ai_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *WindAlarmQueryResp) GetTotal() int64 {
@@ -6248,7 +6520,7 @@ type WindAlarmAnalyzeReq struct {
 
 func (x *WindAlarmAnalyzeReq) Reset() {
 	*x = WindAlarmAnalyzeReq{}
-	mi := &file_pb_ai_proto_msgTypes[83]
+	mi := &file_pb_ai_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6260,7 +6532,7 @@ func (x *WindAlarmAnalyzeReq) String() string {
 func (*WindAlarmAnalyzeReq) ProtoMessage() {}
 
 func (x *WindAlarmAnalyzeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[83]
+	mi := &file_pb_ai_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6273,7 +6545,7 @@ func (x *WindAlarmAnalyzeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAlarmAnalyzeReq.ProtoReflect.Descriptor instead.
 func (*WindAlarmAnalyzeReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{83}
+	return file_pb_ai_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *WindAlarmAnalyzeReq) GetFarmCode() string {
@@ -6339,7 +6611,7 @@ type WindScaffoldResp struct {
 
 func (x *WindScaffoldResp) Reset() {
 	*x = WindScaffoldResp{}
-	mi := &file_pb_ai_proto_msgTypes[84]
+	mi := &file_pb_ai_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6351,7 +6623,7 @@ func (x *WindScaffoldResp) String() string {
 func (*WindScaffoldResp) ProtoMessage() {}
 
 func (x *WindScaffoldResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[84]
+	mi := &file_pb_ai_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6364,7 +6636,7 @@ func (x *WindScaffoldResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindScaffoldResp.ProtoReflect.Descriptor instead.
 func (*WindScaffoldResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{84}
+	return file_pb_ai_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *WindScaffoldResp) GetId() int64 {
@@ -6424,7 +6696,7 @@ type WindHealthReportReq struct {
 
 func (x *WindHealthReportReq) Reset() {
 	*x = WindHealthReportReq{}
-	mi := &file_pb_ai_proto_msgTypes[85]
+	mi := &file_pb_ai_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6436,7 +6708,7 @@ func (x *WindHealthReportReq) String() string {
 func (*WindHealthReportReq) ProtoMessage() {}
 
 func (x *WindHealthReportReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[85]
+	mi := &file_pb_ai_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6449,7 +6721,7 @@ func (x *WindHealthReportReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindHealthReportReq.ProtoReflect.Descriptor instead.
 func (*WindHealthReportReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{85}
+	return file_pb_ai_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *WindHealthReportReq) GetReportType() string {
@@ -6511,7 +6783,7 @@ type WindHealthReportGetReq struct {
 
 func (x *WindHealthReportGetReq) Reset() {
 	*x = WindHealthReportGetReq{}
-	mi := &file_pb_ai_proto_msgTypes[86]
+	mi := &file_pb_ai_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6523,7 +6795,7 @@ func (x *WindHealthReportGetReq) String() string {
 func (*WindHealthReportGetReq) ProtoMessage() {}
 
 func (x *WindHealthReportGetReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[86]
+	mi := &file_pb_ai_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6536,7 +6808,7 @@ func (x *WindHealthReportGetReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindHealthReportGetReq.ProtoReflect.Descriptor instead.
 func (*WindHealthReportGetReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{86}
+	return file_pb_ai_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *WindHealthReportGetReq) GetReportId() int64 {
@@ -6566,7 +6838,7 @@ type WindTicketDraftReq struct {
 
 func (x *WindTicketDraftReq) Reset() {
 	*x = WindTicketDraftReq{}
-	mi := &file_pb_ai_proto_msgTypes[87]
+	mi := &file_pb_ai_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6578,7 +6850,7 @@ func (x *WindTicketDraftReq) String() string {
 func (*WindTicketDraftReq) ProtoMessage() {}
 
 func (x *WindTicketDraftReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[87]
+	mi := &file_pb_ai_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6591,7 +6863,7 @@ func (x *WindTicketDraftReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindTicketDraftReq.ProtoReflect.Descriptor instead.
 func (*WindTicketDraftReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{87}
+	return file_pb_ai_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *WindTicketDraftReq) GetFarmCode() string {
@@ -6640,7 +6912,7 @@ type WindAgentRunReq struct {
 
 func (x *WindAgentRunReq) Reset() {
 	*x = WindAgentRunReq{}
-	mi := &file_pb_ai_proto_msgTypes[88]
+	mi := &file_pb_ai_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6652,7 +6924,7 @@ func (x *WindAgentRunReq) String() string {
 func (*WindAgentRunReq) ProtoMessage() {}
 
 func (x *WindAgentRunReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[88]
+	mi := &file_pb_ai_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6665,7 +6937,7 @@ func (x *WindAgentRunReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAgentRunReq.ProtoReflect.Descriptor instead.
 func (*WindAgentRunReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{88}
+	return file_pb_ai_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *WindAgentRunReq) GetUserId() int64 {
@@ -6701,7 +6973,7 @@ type WindAgentResumeReq struct {
 
 func (x *WindAgentResumeReq) Reset() {
 	*x = WindAgentResumeReq{}
-	mi := &file_pb_ai_proto_msgTypes[89]
+	mi := &file_pb_ai_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6713,7 +6985,7 @@ func (x *WindAgentResumeReq) String() string {
 func (*WindAgentResumeReq) ProtoMessage() {}
 
 func (x *WindAgentResumeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[89]
+	mi := &file_pb_ai_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6726,7 +6998,7 @@ func (x *WindAgentResumeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAgentResumeReq.ProtoReflect.Descriptor instead.
 func (*WindAgentResumeReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{89}
+	return file_pb_ai_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *WindAgentResumeReq) GetUserId() int64 {
@@ -6768,7 +7040,7 @@ type WindAgentRunResp struct {
 
 func (x *WindAgentRunResp) Reset() {
 	*x = WindAgentRunResp{}
-	mi := &file_pb_ai_proto_msgTypes[90]
+	mi := &file_pb_ai_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6780,7 +7052,7 @@ func (x *WindAgentRunResp) String() string {
 func (*WindAgentRunResp) ProtoMessage() {}
 
 func (x *WindAgentRunResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[90]
+	mi := &file_pb_ai_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6793,7 +7065,7 @@ func (x *WindAgentRunResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAgentRunResp.ProtoReflect.Descriptor instead.
 func (*WindAgentRunResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{90}
+	return file_pb_ai_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *WindAgentRunResp) GetAnswer() string {
@@ -6831,7 +7103,7 @@ type WindListToolCallLogReq struct {
 
 func (x *WindListToolCallLogReq) Reset() {
 	*x = WindListToolCallLogReq{}
-	mi := &file_pb_ai_proto_msgTypes[91]
+	mi := &file_pb_ai_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6843,7 +7115,7 @@ func (x *WindListToolCallLogReq) String() string {
 func (*WindListToolCallLogReq) ProtoMessage() {}
 
 func (x *WindListToolCallLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[91]
+	mi := &file_pb_ai_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6856,7 +7128,7 @@ func (x *WindListToolCallLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindListToolCallLogReq.ProtoReflect.Descriptor instead.
 func (*WindListToolCallLogReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{91}
+	return file_pb_ai_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *WindListToolCallLogReq) GetPage() int64 {
@@ -6911,7 +7183,7 @@ type WindListToolCallLogResp struct {
 
 func (x *WindListToolCallLogResp) Reset() {
 	*x = WindListToolCallLogResp{}
-	mi := &file_pb_ai_proto_msgTypes[92]
+	mi := &file_pb_ai_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6923,7 +7195,7 @@ func (x *WindListToolCallLogResp) String() string {
 func (*WindListToolCallLogResp) ProtoMessage() {}
 
 func (x *WindListToolCallLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[92]
+	mi := &file_pb_ai_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6936,7 +7208,7 @@ func (x *WindListToolCallLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindListToolCallLogResp.ProtoReflect.Descriptor instead.
 func (*WindListToolCallLogResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{92}
+	return file_pb_ai_proto_rawDescGZIP(), []int{96}
 }
 
 func (x *WindListToolCallLogResp) GetTotal() int64 {
@@ -6970,7 +7242,7 @@ type WindAgentStreamEvent struct {
 
 func (x *WindAgentStreamEvent) Reset() {
 	*x = WindAgentStreamEvent{}
-	mi := &file_pb_ai_proto_msgTypes[93]
+	mi := &file_pb_ai_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6982,7 +7254,7 @@ func (x *WindAgentStreamEvent) String() string {
 func (*WindAgentStreamEvent) ProtoMessage() {}
 
 func (x *WindAgentStreamEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[93]
+	mi := &file_pb_ai_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6995,7 +7267,7 @@ func (x *WindAgentStreamEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindAgentStreamEvent.ProtoReflect.Descriptor instead.
 func (*WindAgentStreamEvent) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{93}
+	return file_pb_ai_proto_rawDescGZIP(), []int{97}
 }
 
 func (x *WindAgentStreamEvent) GetType() string {
@@ -7072,7 +7344,7 @@ type WindDraftRef struct {
 
 func (x *WindDraftRef) Reset() {
 	*x = WindDraftRef{}
-	mi := &file_pb_ai_proto_msgTypes[94]
+	mi := &file_pb_ai_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7084,7 +7356,7 @@ func (x *WindDraftRef) String() string {
 func (*WindDraftRef) ProtoMessage() {}
 
 func (x *WindDraftRef) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[94]
+	mi := &file_pb_ai_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7097,7 +7369,7 @@ func (x *WindDraftRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindDraftRef.ProtoReflect.Descriptor instead.
 func (*WindDraftRef) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{94}
+	return file_pb_ai_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *WindDraftRef) GetDraftType() string {
@@ -7135,7 +7407,7 @@ type WindToolExecuteReq struct {
 
 func (x *WindToolExecuteReq) Reset() {
 	*x = WindToolExecuteReq{}
-	mi := &file_pb_ai_proto_msgTypes[95]
+	mi := &file_pb_ai_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7147,7 +7419,7 @@ func (x *WindToolExecuteReq) String() string {
 func (*WindToolExecuteReq) ProtoMessage() {}
 
 func (x *WindToolExecuteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[95]
+	mi := &file_pb_ai_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7160,7 +7432,7 @@ func (x *WindToolExecuteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindToolExecuteReq.ProtoReflect.Descriptor instead.
 func (*WindToolExecuteReq) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{95}
+	return file_pb_ai_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *WindToolExecuteReq) GetUserId() int64 {
@@ -7221,7 +7493,7 @@ type WindToolExecuteResp struct {
 
 func (x *WindToolExecuteResp) Reset() {
 	*x = WindToolExecuteResp{}
-	mi := &file_pb_ai_proto_msgTypes[96]
+	mi := &file_pb_ai_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7233,7 +7505,7 @@ func (x *WindToolExecuteResp) String() string {
 func (*WindToolExecuteResp) ProtoMessage() {}
 
 func (x *WindToolExecuteResp) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_ai_proto_msgTypes[96]
+	mi := &file_pb_ai_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7246,7 +7518,7 @@ func (x *WindToolExecuteResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindToolExecuteResp.ProtoReflect.Descriptor instead.
 func (*WindToolExecuteResp) Descriptor() ([]byte, []int) {
-	return file_pb_ai_proto_rawDescGZIP(), []int{96}
+	return file_pb_ai_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *WindToolExecuteResp) GetToolCallId() int64 {
@@ -7565,7 +7837,31 @@ const file_pb_ai_proto_rawDesc = "" +
 	"has_status\x18\a \x01(\bR\thasStatus\"N\n" +
 	"\x10ListDocumentResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12$\n" +
-	"\x04list\x18\x02 \x03(\v2\x10.ai.DocumentItemR\x04list\"_\n" +
+	"\x04list\x18\x02 \x03(\v2\x10.ai.DocumentItemR\x04list\"s\n" +
+	"\x1aDocumentImportCandidateReq\x12\x17\n" +
+	"\afile_id\x18\x01 \x01(\x03R\x06fileId\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1f\n" +
+	"\vstored_path\x18\x03 \x01(\tR\n" +
+	"storedPath\"\x8d\x02\n" +
+	"\x1bDocumentImportCandidateItem\x12\x17\n" +
+	"\afile_id\x18\x01 \x01(\x03R\x06fileId\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1f\n" +
+	"\vstored_path\x18\x03 \x01(\tR\n" +
+	"storedPath\x12\x1b\n" +
+	"\tfile_type\x18\x04 \x01(\tR\bfileType\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1f\n" +
+	"\vdocument_id\x18\x06 \x01(\x03R\n" +
+	"documentId\x12'\n" +
+	"\x0fdocument_status\x18\a \x01(\tR\x0edocumentStatus\x12\x18\n" +
+	"\amessage\x18\b \x01(\tR\amessage\"\x90\x01\n" +
+	" CheckDocumentImportCandidatesReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x13\n" +
+	"\x05kb_id\x18\x02 \x01(\x03R\x04kbId\x12>\n" +
+	"\n" +
+	"candidates\x18\x03 \x03(\v2\x1e.ai.DocumentImportCandidateReqR\n" +
+	"candidates\"X\n" +
+	"!CheckDocumentImportCandidatesResp\x123\n" +
+	"\x04list\x18\x01 \x03(\v2\x1f.ai.DocumentImportCandidateItemR\x04list\"_\n" +
 	"\x0eGetDocumentReq\x12\x1f\n" +
 	"\vdocument_id\x18\x01 \x01(\x03R\n" +
 	"documentId\x12\x13\n" +
@@ -7625,12 +7921,13 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\tcitations\x18\x02 \x03(\v2\f.ai.CitationR\tcitations\x12\x19\n" +
 	"\btrace_id\x18\x03 \x01(\tR\atraceId\x12\x12\n" +
 	"\x04mode\x18\x04 \x01(\tR\x04mode\x12'\n" +
-	"\x0fconversation_id\x18\x05 \x01(\tR\x0econversationId\"\x89\x01\n" +
+	"\x0fconversation_id\x18\x05 \x01(\tR\x0econversationId\"\xb2\x01\n" +
 	"\x12RagChatStreamEvent\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12\x19\n" +
 	"\btrace_id\x18\x03 \x01(\tR\atraceId\x12*\n" +
-	"\tcitations\x18\x04 \x03(\v2\f.ai.CitationR\tcitations\"\xcb\x01\n" +
+	"\tcitations\x18\x04 \x03(\v2\f.ai.CitationR\tcitations\x12'\n" +
+	"\x0fconversation_id\x18\x05 \x01(\tR\x0econversationId\"\xcb\x01\n" +
 	"\x10ConversationItem\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x13\n" +
 	"\x05kb_id\x18\x02 \x01(\x03R\x04kbId\x12\x14\n" +
@@ -8001,7 +8298,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\n" +
 	"latency_ms\x18\b \x01(\x03R\tlatencyMs2:\n" +
 	"\x0fAiStatusService\x12'\n" +
-	"\x06Health\x12\r.ai.HealthReq\x1a\x0e.ai.HealthResp2\xf1\b\n" +
+	"\x06Health\x12\r.ai.HealthReq\x1a\x0e.ai.HealthResp2\xdf\t\n" +
 	"\x12AiKnowledgeService\x129\n" +
 	"\fCreateDomain\x12\x13.ai.CreateDomainReq\x1a\x14.ai.CreateDomainResp\x12.\n" +
 	"\fUpdateDomain\x12\x13.ai.UpdateDomainReq\x1a\t.ai.Empty\x12.\n" +
@@ -8018,7 +8315,8 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x0eUpdateKbMember\x12\x15.ai.UpdateKbMemberReq\x1a\t.ai.Empty\x122\n" +
 	"\x0eRemoveKbMember\x12\x15.ai.RemoveKbMemberReq\x1a\t.ai.Empty\x125\n" +
 	"\x0eIngestDocument\x12\x15.ai.IngestDocumentReq\x1a\f.ai.TaskResp\x129\n" +
-	"\fListDocument\x12\x13.ai.ListDocumentReq\x1a\x14.ai.ListDocumentResp\x123\n" +
+	"\fListDocument\x12\x13.ai.ListDocumentReq\x1a\x14.ai.ListDocumentResp\x12l\n" +
+	"\x1dCheckDocumentImportCandidates\x12$.ai.CheckDocumentImportCandidatesReq\x1a%.ai.CheckDocumentImportCandidatesResp\x123\n" +
 	"\vGetDocument\x12\x12.ai.GetDocumentReq\x1a\x10.ai.DocumentItem\x122\n" +
 	"\x0eDeleteDocument\x12\x15.ai.DeleteDocumentReq\x1a\t.ai.Empty\x12A\n" +
 	"\x14RebuildDocumentIndex\x12\x1b.ai.RebuildDocumentIndexReq\x1a\f.ai.TaskResp\x12B\n" +
@@ -8068,230 +8366,238 @@ func file_pb_ai_proto_rawDescGZIP() []byte {
 	return file_pb_ai_proto_rawDescData
 }
 
-var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 98)
+var file_pb_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 102)
 var file_pb_ai_proto_goTypes = []any{
-	(*Empty)(nil),                       // 0: ai.Empty
-	(*CommonResp)(nil),                  // 1: ai.CommonResp
-	(*IdReq)(nil),                       // 2: ai.IdReq
-	(*PageReq)(nil),                     // 3: ai.PageReq
-	(*PageResp)(nil),                    // 4: ai.PageResp
-	(*TimeRangeReq)(nil),                // 5: ai.TimeRangeReq
-	(*StringList)(nil),                  // 6: ai.StringList
-	(*Citation)(nil),                    // 7: ai.Citation
-	(*ChunkItem)(nil),                   // 8: ai.ChunkItem
-	(*TopCountItem)(nil),                // 9: ai.TopCountItem
-	(*TaskResp)(nil),                    // 10: ai.TaskResp
-	(*HealthReq)(nil),                   // 11: ai.HealthReq
-	(*HealthResp)(nil),                  // 12: ai.HealthResp
-	(*DomainItem)(nil),                  // 13: ai.DomainItem
-	(*CreateDomainReq)(nil),             // 14: ai.CreateDomainReq
-	(*CreateDomainResp)(nil),            // 15: ai.CreateDomainResp
-	(*UpdateDomainReq)(nil),             // 16: ai.UpdateDomainReq
-	(*DeleteDomainReq)(nil),             // 17: ai.DeleteDomainReq
-	(*ListDomainReq)(nil),               // 18: ai.ListDomainReq
-	(*ListDomainResp)(nil),              // 19: ai.ListDomainResp
-	(*KnowledgeBaseItem)(nil),           // 20: ai.KnowledgeBaseItem
-	(*CreateKnowledgeBaseReq)(nil),      // 21: ai.CreateKnowledgeBaseReq
-	(*CreateKnowledgeBaseResp)(nil),     // 22: ai.CreateKnowledgeBaseResp
-	(*UpdateKnowledgeBaseReq)(nil),      // 23: ai.UpdateKnowledgeBaseReq
-	(*DeleteKnowledgeBaseReq)(nil),      // 24: ai.DeleteKnowledgeBaseReq
-	(*GetKnowledgeBaseReq)(nil),         // 25: ai.GetKnowledgeBaseReq
-	(*ListKnowledgeBaseReq)(nil),        // 26: ai.ListKnowledgeBaseReq
-	(*ListKnowledgeBaseResp)(nil),       // 27: ai.ListKnowledgeBaseResp
-	(*KbMemberItem)(nil),                // 28: ai.KbMemberItem
-	(*ListKbMemberReq)(nil),             // 29: ai.ListKbMemberReq
-	(*ListKbMemberResp)(nil),            // 30: ai.ListKbMemberResp
-	(*AddKbMemberReq)(nil),              // 31: ai.AddKbMemberReq
-	(*UpdateKbMemberReq)(nil),           // 32: ai.UpdateKbMemberReq
-	(*RemoveKbMemberReq)(nil),           // 33: ai.RemoveKbMemberReq
-	(*DocumentItem)(nil),                // 34: ai.DocumentItem
-	(*IngestDocumentReq)(nil),           // 35: ai.IngestDocumentReq
-	(*ListDocumentReq)(nil),             // 36: ai.ListDocumentReq
-	(*ListDocumentResp)(nil),            // 37: ai.ListDocumentResp
-	(*GetDocumentReq)(nil),              // 38: ai.GetDocumentReq
-	(*DeleteDocumentReq)(nil),           // 39: ai.DeleteDocumentReq
-	(*RebuildDocumentIndexReq)(nil),     // 40: ai.RebuildDocumentIndexReq
-	(*SearchKnowledgeReq)(nil),          // 41: ai.SearchKnowledgeReq
-	(*SearchKnowledgeResp)(nil),         // 42: ai.SearchKnowledgeResp
-	(*ChatMessage)(nil),                 // 43: ai.ChatMessage
-	(*RagChatReq)(nil),                  // 44: ai.RagChatReq
-	(*RagChatResp)(nil),                 // 45: ai.RagChatResp
-	(*RagChatStreamEvent)(nil),          // 46: ai.RagChatStreamEvent
-	(*ConversationItem)(nil),            // 47: ai.ConversationItem
-	(*ListConversationReq)(nil),         // 48: ai.ListConversationReq
-	(*ListConversationResp)(nil),        // 49: ai.ListConversationResp
-	(*MessageItem)(nil),                 // 50: ai.MessageItem
-	(*GetConversationMessagesReq)(nil),  // 51: ai.GetConversationMessagesReq
-	(*GetConversationMessagesResp)(nil), // 52: ai.GetConversationMessagesResp
-	(*UpdateConversationTitleReq)(nil),  // 53: ai.UpdateConversationTitleReq
-	(*DeleteConversationReq)(nil),       // 54: ai.DeleteConversationReq
-	(*DeleteMessageReq)(nil),            // 55: ai.DeleteMessageReq
-	(*ToolCall)(nil),                    // 56: ai.ToolCall
-	(*ListToolCallLogReq)(nil),          // 57: ai.ListToolCallLogReq
-	(*ListToolCallLogResp)(nil),         // 58: ai.ListToolCallLogResp
-	(*LlmCallItem)(nil),                 // 59: ai.LlmCallItem
-	(*GetLlmTraceReq)(nil),              // 60: ai.GetLlmTraceReq
-	(*LlmTraceResp)(nil),                // 61: ai.LlmTraceResp
-	(*ListLlmCallLogReq)(nil),           // 62: ai.ListLlmCallLogReq
-	(*ListLlmCallLogResp)(nil),          // 63: ai.ListLlmCallLogResp
-	(*GetTokenStatsReq)(nil),            // 64: ai.GetTokenStatsReq
-	(*TokenStatsResp)(nil),              // 65: ai.TokenStatsResp
-	(*WindFarmItem)(nil),                // 66: ai.WindFarmItem
-	(*ListWindFarmReq)(nil),             // 67: ai.ListWindFarmReq
-	(*ListWindFarmResp)(nil),            // 68: ai.ListWindFarmResp
-	(*WindTurbineItem)(nil),             // 69: ai.WindTurbineItem
-	(*ListWindTurbineReq)(nil),          // 70: ai.ListWindTurbineReq
-	(*ListWindTurbineResp)(nil),         // 71: ai.ListWindTurbineResp
-	(*WindDeviceItem)(nil),              // 72: ai.WindDeviceItem
-	(*ListWindDeviceReq)(nil),           // 73: ai.ListWindDeviceReq
-	(*ListWindDeviceResp)(nil),          // 74: ai.ListWindDeviceResp
-	(*WindTimeseriesQueryReq)(nil),      // 75: ai.WindTimeseriesQueryReq
-	(*WindDataPoint)(nil),               // 76: ai.WindDataPoint
-	(*WindTimeseriesQueryResp)(nil),     // 77: ai.WindTimeseriesQueryResp
-	(*WindTrendCompareReq)(nil),         // 78: ai.WindTrendCompareReq
-	(*WindTrendCompareResp)(nil),        // 79: ai.WindTrendCompareResp
-	(*WindAlarmQueryReq)(nil),           // 80: ai.WindAlarmQueryReq
-	(*WindAlarmItem)(nil),               // 81: ai.WindAlarmItem
-	(*WindAlarmQueryResp)(nil),          // 82: ai.WindAlarmQueryResp
-	(*WindAlarmAnalyzeReq)(nil),         // 83: ai.WindAlarmAnalyzeReq
-	(*WindScaffoldResp)(nil),            // 84: ai.WindScaffoldResp
-	(*WindHealthReportReq)(nil),         // 85: ai.WindHealthReportReq
-	(*WindHealthReportGetReq)(nil),      // 86: ai.WindHealthReportGetReq
-	(*WindTicketDraftReq)(nil),          // 87: ai.WindTicketDraftReq
-	(*WindAgentRunReq)(nil),             // 88: ai.WindAgentRunReq
-	(*WindAgentResumeReq)(nil),          // 89: ai.WindAgentResumeReq
-	(*WindAgentRunResp)(nil),            // 90: ai.WindAgentRunResp
-	(*WindListToolCallLogReq)(nil),      // 91: ai.WindListToolCallLogReq
-	(*WindListToolCallLogResp)(nil),     // 92: ai.WindListToolCallLogResp
-	(*WindAgentStreamEvent)(nil),        // 93: ai.WindAgentStreamEvent
-	(*WindDraftRef)(nil),                // 94: ai.WindDraftRef
-	(*WindToolExecuteReq)(nil),          // 95: ai.WindToolExecuteReq
-	(*WindToolExecuteResp)(nil),         // 96: ai.WindToolExecuteResp
-	nil,                                 // 97: ai.WindDataPoint.ValuesEntry
+	(*Empty)(nil),                             // 0: ai.Empty
+	(*CommonResp)(nil),                        // 1: ai.CommonResp
+	(*IdReq)(nil),                             // 2: ai.IdReq
+	(*PageReq)(nil),                           // 3: ai.PageReq
+	(*PageResp)(nil),                          // 4: ai.PageResp
+	(*TimeRangeReq)(nil),                      // 5: ai.TimeRangeReq
+	(*StringList)(nil),                        // 6: ai.StringList
+	(*Citation)(nil),                          // 7: ai.Citation
+	(*ChunkItem)(nil),                         // 8: ai.ChunkItem
+	(*TopCountItem)(nil),                      // 9: ai.TopCountItem
+	(*TaskResp)(nil),                          // 10: ai.TaskResp
+	(*HealthReq)(nil),                         // 11: ai.HealthReq
+	(*HealthResp)(nil),                        // 12: ai.HealthResp
+	(*DomainItem)(nil),                        // 13: ai.DomainItem
+	(*CreateDomainReq)(nil),                   // 14: ai.CreateDomainReq
+	(*CreateDomainResp)(nil),                  // 15: ai.CreateDomainResp
+	(*UpdateDomainReq)(nil),                   // 16: ai.UpdateDomainReq
+	(*DeleteDomainReq)(nil),                   // 17: ai.DeleteDomainReq
+	(*ListDomainReq)(nil),                     // 18: ai.ListDomainReq
+	(*ListDomainResp)(nil),                    // 19: ai.ListDomainResp
+	(*KnowledgeBaseItem)(nil),                 // 20: ai.KnowledgeBaseItem
+	(*CreateKnowledgeBaseReq)(nil),            // 21: ai.CreateKnowledgeBaseReq
+	(*CreateKnowledgeBaseResp)(nil),           // 22: ai.CreateKnowledgeBaseResp
+	(*UpdateKnowledgeBaseReq)(nil),            // 23: ai.UpdateKnowledgeBaseReq
+	(*DeleteKnowledgeBaseReq)(nil),            // 24: ai.DeleteKnowledgeBaseReq
+	(*GetKnowledgeBaseReq)(nil),               // 25: ai.GetKnowledgeBaseReq
+	(*ListKnowledgeBaseReq)(nil),              // 26: ai.ListKnowledgeBaseReq
+	(*ListKnowledgeBaseResp)(nil),             // 27: ai.ListKnowledgeBaseResp
+	(*KbMemberItem)(nil),                      // 28: ai.KbMemberItem
+	(*ListKbMemberReq)(nil),                   // 29: ai.ListKbMemberReq
+	(*ListKbMemberResp)(nil),                  // 30: ai.ListKbMemberResp
+	(*AddKbMemberReq)(nil),                    // 31: ai.AddKbMemberReq
+	(*UpdateKbMemberReq)(nil),                 // 32: ai.UpdateKbMemberReq
+	(*RemoveKbMemberReq)(nil),                 // 33: ai.RemoveKbMemberReq
+	(*DocumentItem)(nil),                      // 34: ai.DocumentItem
+	(*IngestDocumentReq)(nil),                 // 35: ai.IngestDocumentReq
+	(*ListDocumentReq)(nil),                   // 36: ai.ListDocumentReq
+	(*ListDocumentResp)(nil),                  // 37: ai.ListDocumentResp
+	(*DocumentImportCandidateReq)(nil),        // 38: ai.DocumentImportCandidateReq
+	(*DocumentImportCandidateItem)(nil),       // 39: ai.DocumentImportCandidateItem
+	(*CheckDocumentImportCandidatesReq)(nil),  // 40: ai.CheckDocumentImportCandidatesReq
+	(*CheckDocumentImportCandidatesResp)(nil), // 41: ai.CheckDocumentImportCandidatesResp
+	(*GetDocumentReq)(nil),                    // 42: ai.GetDocumentReq
+	(*DeleteDocumentReq)(nil),                 // 43: ai.DeleteDocumentReq
+	(*RebuildDocumentIndexReq)(nil),           // 44: ai.RebuildDocumentIndexReq
+	(*SearchKnowledgeReq)(nil),                // 45: ai.SearchKnowledgeReq
+	(*SearchKnowledgeResp)(nil),               // 46: ai.SearchKnowledgeResp
+	(*ChatMessage)(nil),                       // 47: ai.ChatMessage
+	(*RagChatReq)(nil),                        // 48: ai.RagChatReq
+	(*RagChatResp)(nil),                       // 49: ai.RagChatResp
+	(*RagChatStreamEvent)(nil),                // 50: ai.RagChatStreamEvent
+	(*ConversationItem)(nil),                  // 51: ai.ConversationItem
+	(*ListConversationReq)(nil),               // 52: ai.ListConversationReq
+	(*ListConversationResp)(nil),              // 53: ai.ListConversationResp
+	(*MessageItem)(nil),                       // 54: ai.MessageItem
+	(*GetConversationMessagesReq)(nil),        // 55: ai.GetConversationMessagesReq
+	(*GetConversationMessagesResp)(nil),       // 56: ai.GetConversationMessagesResp
+	(*UpdateConversationTitleReq)(nil),        // 57: ai.UpdateConversationTitleReq
+	(*DeleteConversationReq)(nil),             // 58: ai.DeleteConversationReq
+	(*DeleteMessageReq)(nil),                  // 59: ai.DeleteMessageReq
+	(*ToolCall)(nil),                          // 60: ai.ToolCall
+	(*ListToolCallLogReq)(nil),                // 61: ai.ListToolCallLogReq
+	(*ListToolCallLogResp)(nil),               // 62: ai.ListToolCallLogResp
+	(*LlmCallItem)(nil),                       // 63: ai.LlmCallItem
+	(*GetLlmTraceReq)(nil),                    // 64: ai.GetLlmTraceReq
+	(*LlmTraceResp)(nil),                      // 65: ai.LlmTraceResp
+	(*ListLlmCallLogReq)(nil),                 // 66: ai.ListLlmCallLogReq
+	(*ListLlmCallLogResp)(nil),                // 67: ai.ListLlmCallLogResp
+	(*GetTokenStatsReq)(nil),                  // 68: ai.GetTokenStatsReq
+	(*TokenStatsResp)(nil),                    // 69: ai.TokenStatsResp
+	(*WindFarmItem)(nil),                      // 70: ai.WindFarmItem
+	(*ListWindFarmReq)(nil),                   // 71: ai.ListWindFarmReq
+	(*ListWindFarmResp)(nil),                  // 72: ai.ListWindFarmResp
+	(*WindTurbineItem)(nil),                   // 73: ai.WindTurbineItem
+	(*ListWindTurbineReq)(nil),                // 74: ai.ListWindTurbineReq
+	(*ListWindTurbineResp)(nil),               // 75: ai.ListWindTurbineResp
+	(*WindDeviceItem)(nil),                    // 76: ai.WindDeviceItem
+	(*ListWindDeviceReq)(nil),                 // 77: ai.ListWindDeviceReq
+	(*ListWindDeviceResp)(nil),                // 78: ai.ListWindDeviceResp
+	(*WindTimeseriesQueryReq)(nil),            // 79: ai.WindTimeseriesQueryReq
+	(*WindDataPoint)(nil),                     // 80: ai.WindDataPoint
+	(*WindTimeseriesQueryResp)(nil),           // 81: ai.WindTimeseriesQueryResp
+	(*WindTrendCompareReq)(nil),               // 82: ai.WindTrendCompareReq
+	(*WindTrendCompareResp)(nil),              // 83: ai.WindTrendCompareResp
+	(*WindAlarmQueryReq)(nil),                 // 84: ai.WindAlarmQueryReq
+	(*WindAlarmItem)(nil),                     // 85: ai.WindAlarmItem
+	(*WindAlarmQueryResp)(nil),                // 86: ai.WindAlarmQueryResp
+	(*WindAlarmAnalyzeReq)(nil),               // 87: ai.WindAlarmAnalyzeReq
+	(*WindScaffoldResp)(nil),                  // 88: ai.WindScaffoldResp
+	(*WindHealthReportReq)(nil),               // 89: ai.WindHealthReportReq
+	(*WindHealthReportGetReq)(nil),            // 90: ai.WindHealthReportGetReq
+	(*WindTicketDraftReq)(nil),                // 91: ai.WindTicketDraftReq
+	(*WindAgentRunReq)(nil),                   // 92: ai.WindAgentRunReq
+	(*WindAgentResumeReq)(nil),                // 93: ai.WindAgentResumeReq
+	(*WindAgentRunResp)(nil),                  // 94: ai.WindAgentRunResp
+	(*WindListToolCallLogReq)(nil),            // 95: ai.WindListToolCallLogReq
+	(*WindListToolCallLogResp)(nil),           // 96: ai.WindListToolCallLogResp
+	(*WindAgentStreamEvent)(nil),              // 97: ai.WindAgentStreamEvent
+	(*WindDraftRef)(nil),                      // 98: ai.WindDraftRef
+	(*WindToolExecuteReq)(nil),                // 99: ai.WindToolExecuteReq
+	(*WindToolExecuteResp)(nil),               // 100: ai.WindToolExecuteResp
+	nil,                                       // 101: ai.WindDataPoint.ValuesEntry
 }
 var file_pb_ai_proto_depIdxs = []int32{
-	13, // 0: ai.ListDomainResp.list:type_name -> ai.DomainItem
-	20, // 1: ai.ListKnowledgeBaseResp.list:type_name -> ai.KnowledgeBaseItem
-	28, // 2: ai.ListKbMemberResp.list:type_name -> ai.KbMemberItem
-	34, // 3: ai.ListDocumentResp.list:type_name -> ai.DocumentItem
-	8,  // 4: ai.SearchKnowledgeResp.chunks:type_name -> ai.ChunkItem
-	43, // 5: ai.RagChatReq.history:type_name -> ai.ChatMessage
-	7,  // 6: ai.RagChatResp.citations:type_name -> ai.Citation
-	7,  // 7: ai.RagChatStreamEvent.citations:type_name -> ai.Citation
-	47, // 8: ai.ListConversationResp.list:type_name -> ai.ConversationItem
-	7,  // 9: ai.MessageItem.citations:type_name -> ai.Citation
-	50, // 10: ai.GetConversationMessagesResp.list:type_name -> ai.MessageItem
-	56, // 11: ai.ListToolCallLogResp.list:type_name -> ai.ToolCall
-	59, // 12: ai.LlmTraceResp.calls:type_name -> ai.LlmCallItem
-	59, // 13: ai.ListLlmCallLogResp.list:type_name -> ai.LlmCallItem
-	66, // 14: ai.ListWindFarmResp.list:type_name -> ai.WindFarmItem
-	69, // 15: ai.ListWindTurbineResp.list:type_name -> ai.WindTurbineItem
-	72, // 16: ai.ListWindDeviceResp.list:type_name -> ai.WindDeviceItem
-	97, // 17: ai.WindDataPoint.values:type_name -> ai.WindDataPoint.ValuesEntry
-	76, // 18: ai.WindTimeseriesQueryResp.points:type_name -> ai.WindDataPoint
-	81, // 19: ai.WindAlarmQueryResp.list:type_name -> ai.WindAlarmItem
-	56, // 20: ai.WindAgentRunResp.tool_calls:type_name -> ai.ToolCall
-	56, // 21: ai.WindListToolCallLogResp.list:type_name -> ai.ToolCall
-	56, // 22: ai.WindAgentStreamEvent.tool_call:type_name -> ai.ToolCall
-	56, // 23: ai.WindAgentStreamEvent.tool_calls:type_name -> ai.ToolCall
-	7,  // 24: ai.WindAgentStreamEvent.citations:type_name -> ai.Citation
-	94, // 25: ai.WindAgentStreamEvent.draft:type_name -> ai.WindDraftRef
-	7,  // 26: ai.WindToolExecuteResp.citations:type_name -> ai.Citation
-	11, // 27: ai.AiStatusService.Health:input_type -> ai.HealthReq
-	14, // 28: ai.AiKnowledgeService.CreateDomain:input_type -> ai.CreateDomainReq
-	16, // 29: ai.AiKnowledgeService.UpdateDomain:input_type -> ai.UpdateDomainReq
-	17, // 30: ai.AiKnowledgeService.DeleteDomain:input_type -> ai.DeleteDomainReq
-	18, // 31: ai.AiKnowledgeService.ListDomain:input_type -> ai.ListDomainReq
-	21, // 32: ai.AiKnowledgeService.CreateKnowledgeBase:input_type -> ai.CreateKnowledgeBaseReq
-	23, // 33: ai.AiKnowledgeService.UpdateKnowledgeBase:input_type -> ai.UpdateKnowledgeBaseReq
-	24, // 34: ai.AiKnowledgeService.DeleteKnowledgeBase:input_type -> ai.DeleteKnowledgeBaseReq
-	25, // 35: ai.AiKnowledgeService.GetKnowledgeBase:input_type -> ai.GetKnowledgeBaseReq
-	26, // 36: ai.AiKnowledgeService.ListKnowledgeBase:input_type -> ai.ListKnowledgeBaseReq
-	29, // 37: ai.AiKnowledgeService.ListKbMember:input_type -> ai.ListKbMemberReq
-	31, // 38: ai.AiKnowledgeService.AddKbMember:input_type -> ai.AddKbMemberReq
-	32, // 39: ai.AiKnowledgeService.UpdateKbMember:input_type -> ai.UpdateKbMemberReq
-	33, // 40: ai.AiKnowledgeService.RemoveKbMember:input_type -> ai.RemoveKbMemberReq
-	35, // 41: ai.AiKnowledgeService.IngestDocument:input_type -> ai.IngestDocumentReq
-	36, // 42: ai.AiKnowledgeService.ListDocument:input_type -> ai.ListDocumentReq
-	38, // 43: ai.AiKnowledgeService.GetDocument:input_type -> ai.GetDocumentReq
-	39, // 44: ai.AiKnowledgeService.DeleteDocument:input_type -> ai.DeleteDocumentReq
-	40, // 45: ai.AiKnowledgeService.RebuildDocumentIndex:input_type -> ai.RebuildDocumentIndexReq
-	41, // 46: ai.AiKnowledgeService.SearchKnowledge:input_type -> ai.SearchKnowledgeReq
-	44, // 47: ai.AiChatService.RagChat:input_type -> ai.RagChatReq
-	44, // 48: ai.AiChatService.RagChatStream:input_type -> ai.RagChatReq
-	48, // 49: ai.AiChatService.ListConversation:input_type -> ai.ListConversationReq
-	51, // 50: ai.AiChatService.GetConversationMessages:input_type -> ai.GetConversationMessagesReq
-	53, // 51: ai.AiChatService.UpdateConversationTitle:input_type -> ai.UpdateConversationTitleReq
-	54, // 52: ai.AiChatService.DeleteConversation:input_type -> ai.DeleteConversationReq
-	55, // 53: ai.AiChatService.DeleteMessage:input_type -> ai.DeleteMessageReq
-	60, // 54: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
-	62, // 55: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
-	64, // 56: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
-	67, // 57: ai.AiWindMetadataService.ListFarms:input_type -> ai.ListWindFarmReq
-	70, // 58: ai.AiWindMetadataService.ListTurbines:input_type -> ai.ListWindTurbineReq
-	73, // 59: ai.AiWindMetadataService.ListDevices:input_type -> ai.ListWindDeviceReq
-	75, // 60: ai.AiWindTimeseriesService.QueryTimeseries:input_type -> ai.WindTimeseriesQueryReq
-	78, // 61: ai.AiWindTimeseriesService.CompareTrend:input_type -> ai.WindTrendCompareReq
-	80, // 62: ai.AiWindAlarmService.QueryAlarms:input_type -> ai.WindAlarmQueryReq
-	83, // 63: ai.AiWindAlarmService.AnalyzeAlarm:input_type -> ai.WindAlarmAnalyzeReq
-	85, // 64: ai.AiWindReportService.GenerateHealthReport:input_type -> ai.WindHealthReportReq
-	86, // 65: ai.AiWindReportService.GetHealthReport:input_type -> ai.WindHealthReportGetReq
-	87, // 66: ai.AiWindAgentService.CreateTicketDraft:input_type -> ai.WindTicketDraftReq
-	88, // 67: ai.AiWindAgentService.RunAgent:input_type -> ai.WindAgentRunReq
-	91, // 68: ai.AiWindAgentService.ListToolCallLog:input_type -> ai.WindListToolCallLogReq
-	95, // 69: ai.AiWindAgentService.ExecuteTool:input_type -> ai.WindToolExecuteReq
-	88, // 70: ai.AiWindAgentService.RunAgentStream:input_type -> ai.WindAgentRunReq
-	89, // 71: ai.AiWindAgentService.ResumeAgentStream:input_type -> ai.WindAgentResumeReq
-	12, // 72: ai.AiStatusService.Health:output_type -> ai.HealthResp
-	15, // 73: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
-	0,  // 74: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
-	0,  // 75: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
-	19, // 76: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
-	22, // 77: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
-	0,  // 78: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
-	0,  // 79: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
-	20, // 80: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
-	27, // 81: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
-	30, // 82: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
-	0,  // 83: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
-	0,  // 84: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
-	0,  // 85: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
-	10, // 86: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
-	37, // 87: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
-	34, // 88: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
-	0,  // 89: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
-	10, // 90: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
-	42, // 91: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
-	45, // 92: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
-	46, // 93: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
-	49, // 94: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
-	52, // 95: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
-	0,  // 96: ai.AiChatService.UpdateConversationTitle:output_type -> ai.Empty
-	0,  // 97: ai.AiChatService.DeleteConversation:output_type -> ai.Empty
-	0,  // 98: ai.AiChatService.DeleteMessage:output_type -> ai.Empty
-	61, // 99: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
-	63, // 100: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
-	65, // 101: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
-	68, // 102: ai.AiWindMetadataService.ListFarms:output_type -> ai.ListWindFarmResp
-	71, // 103: ai.AiWindMetadataService.ListTurbines:output_type -> ai.ListWindTurbineResp
-	74, // 104: ai.AiWindMetadataService.ListDevices:output_type -> ai.ListWindDeviceResp
-	77, // 105: ai.AiWindTimeseriesService.QueryTimeseries:output_type -> ai.WindTimeseriesQueryResp
-	79, // 106: ai.AiWindTimeseriesService.CompareTrend:output_type -> ai.WindTrendCompareResp
-	82, // 107: ai.AiWindAlarmService.QueryAlarms:output_type -> ai.WindAlarmQueryResp
-	84, // 108: ai.AiWindAlarmService.AnalyzeAlarm:output_type -> ai.WindScaffoldResp
-	84, // 109: ai.AiWindReportService.GenerateHealthReport:output_type -> ai.WindScaffoldResp
-	84, // 110: ai.AiWindReportService.GetHealthReport:output_type -> ai.WindScaffoldResp
-	84, // 111: ai.AiWindAgentService.CreateTicketDraft:output_type -> ai.WindScaffoldResp
-	90, // 112: ai.AiWindAgentService.RunAgent:output_type -> ai.WindAgentRunResp
-	92, // 113: ai.AiWindAgentService.ListToolCallLog:output_type -> ai.WindListToolCallLogResp
-	96, // 114: ai.AiWindAgentService.ExecuteTool:output_type -> ai.WindToolExecuteResp
-	93, // 115: ai.AiWindAgentService.RunAgentStream:output_type -> ai.WindAgentStreamEvent
-	93, // 116: ai.AiWindAgentService.ResumeAgentStream:output_type -> ai.WindAgentStreamEvent
-	72, // [72:117] is the sub-list for method output_type
-	27, // [27:72] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	13,  // 0: ai.ListDomainResp.list:type_name -> ai.DomainItem
+	20,  // 1: ai.ListKnowledgeBaseResp.list:type_name -> ai.KnowledgeBaseItem
+	28,  // 2: ai.ListKbMemberResp.list:type_name -> ai.KbMemberItem
+	34,  // 3: ai.ListDocumentResp.list:type_name -> ai.DocumentItem
+	38,  // 4: ai.CheckDocumentImportCandidatesReq.candidates:type_name -> ai.DocumentImportCandidateReq
+	39,  // 5: ai.CheckDocumentImportCandidatesResp.list:type_name -> ai.DocumentImportCandidateItem
+	8,   // 6: ai.SearchKnowledgeResp.chunks:type_name -> ai.ChunkItem
+	47,  // 7: ai.RagChatReq.history:type_name -> ai.ChatMessage
+	7,   // 8: ai.RagChatResp.citations:type_name -> ai.Citation
+	7,   // 9: ai.RagChatStreamEvent.citations:type_name -> ai.Citation
+	51,  // 10: ai.ListConversationResp.list:type_name -> ai.ConversationItem
+	7,   // 11: ai.MessageItem.citations:type_name -> ai.Citation
+	54,  // 12: ai.GetConversationMessagesResp.list:type_name -> ai.MessageItem
+	60,  // 13: ai.ListToolCallLogResp.list:type_name -> ai.ToolCall
+	63,  // 14: ai.LlmTraceResp.calls:type_name -> ai.LlmCallItem
+	63,  // 15: ai.ListLlmCallLogResp.list:type_name -> ai.LlmCallItem
+	70,  // 16: ai.ListWindFarmResp.list:type_name -> ai.WindFarmItem
+	73,  // 17: ai.ListWindTurbineResp.list:type_name -> ai.WindTurbineItem
+	76,  // 18: ai.ListWindDeviceResp.list:type_name -> ai.WindDeviceItem
+	101, // 19: ai.WindDataPoint.values:type_name -> ai.WindDataPoint.ValuesEntry
+	80,  // 20: ai.WindTimeseriesQueryResp.points:type_name -> ai.WindDataPoint
+	85,  // 21: ai.WindAlarmQueryResp.list:type_name -> ai.WindAlarmItem
+	60,  // 22: ai.WindAgentRunResp.tool_calls:type_name -> ai.ToolCall
+	60,  // 23: ai.WindListToolCallLogResp.list:type_name -> ai.ToolCall
+	60,  // 24: ai.WindAgentStreamEvent.tool_call:type_name -> ai.ToolCall
+	60,  // 25: ai.WindAgentStreamEvent.tool_calls:type_name -> ai.ToolCall
+	7,   // 26: ai.WindAgentStreamEvent.citations:type_name -> ai.Citation
+	98,  // 27: ai.WindAgentStreamEvent.draft:type_name -> ai.WindDraftRef
+	7,   // 28: ai.WindToolExecuteResp.citations:type_name -> ai.Citation
+	11,  // 29: ai.AiStatusService.Health:input_type -> ai.HealthReq
+	14,  // 30: ai.AiKnowledgeService.CreateDomain:input_type -> ai.CreateDomainReq
+	16,  // 31: ai.AiKnowledgeService.UpdateDomain:input_type -> ai.UpdateDomainReq
+	17,  // 32: ai.AiKnowledgeService.DeleteDomain:input_type -> ai.DeleteDomainReq
+	18,  // 33: ai.AiKnowledgeService.ListDomain:input_type -> ai.ListDomainReq
+	21,  // 34: ai.AiKnowledgeService.CreateKnowledgeBase:input_type -> ai.CreateKnowledgeBaseReq
+	23,  // 35: ai.AiKnowledgeService.UpdateKnowledgeBase:input_type -> ai.UpdateKnowledgeBaseReq
+	24,  // 36: ai.AiKnowledgeService.DeleteKnowledgeBase:input_type -> ai.DeleteKnowledgeBaseReq
+	25,  // 37: ai.AiKnowledgeService.GetKnowledgeBase:input_type -> ai.GetKnowledgeBaseReq
+	26,  // 38: ai.AiKnowledgeService.ListKnowledgeBase:input_type -> ai.ListKnowledgeBaseReq
+	29,  // 39: ai.AiKnowledgeService.ListKbMember:input_type -> ai.ListKbMemberReq
+	31,  // 40: ai.AiKnowledgeService.AddKbMember:input_type -> ai.AddKbMemberReq
+	32,  // 41: ai.AiKnowledgeService.UpdateKbMember:input_type -> ai.UpdateKbMemberReq
+	33,  // 42: ai.AiKnowledgeService.RemoveKbMember:input_type -> ai.RemoveKbMemberReq
+	35,  // 43: ai.AiKnowledgeService.IngestDocument:input_type -> ai.IngestDocumentReq
+	36,  // 44: ai.AiKnowledgeService.ListDocument:input_type -> ai.ListDocumentReq
+	40,  // 45: ai.AiKnowledgeService.CheckDocumentImportCandidates:input_type -> ai.CheckDocumentImportCandidatesReq
+	42,  // 46: ai.AiKnowledgeService.GetDocument:input_type -> ai.GetDocumentReq
+	43,  // 47: ai.AiKnowledgeService.DeleteDocument:input_type -> ai.DeleteDocumentReq
+	44,  // 48: ai.AiKnowledgeService.RebuildDocumentIndex:input_type -> ai.RebuildDocumentIndexReq
+	45,  // 49: ai.AiKnowledgeService.SearchKnowledge:input_type -> ai.SearchKnowledgeReq
+	48,  // 50: ai.AiChatService.RagChat:input_type -> ai.RagChatReq
+	48,  // 51: ai.AiChatService.RagChatStream:input_type -> ai.RagChatReq
+	52,  // 52: ai.AiChatService.ListConversation:input_type -> ai.ListConversationReq
+	55,  // 53: ai.AiChatService.GetConversationMessages:input_type -> ai.GetConversationMessagesReq
+	57,  // 54: ai.AiChatService.UpdateConversationTitle:input_type -> ai.UpdateConversationTitleReq
+	58,  // 55: ai.AiChatService.DeleteConversation:input_type -> ai.DeleteConversationReq
+	59,  // 56: ai.AiChatService.DeleteMessage:input_type -> ai.DeleteMessageReq
+	64,  // 57: ai.AiObservabilityService.GetLlmTrace:input_type -> ai.GetLlmTraceReq
+	66,  // 58: ai.AiObservabilityService.ListLlmCallLog:input_type -> ai.ListLlmCallLogReq
+	68,  // 59: ai.AiObservabilityService.GetTokenStats:input_type -> ai.GetTokenStatsReq
+	71,  // 60: ai.AiWindMetadataService.ListFarms:input_type -> ai.ListWindFarmReq
+	74,  // 61: ai.AiWindMetadataService.ListTurbines:input_type -> ai.ListWindTurbineReq
+	77,  // 62: ai.AiWindMetadataService.ListDevices:input_type -> ai.ListWindDeviceReq
+	79,  // 63: ai.AiWindTimeseriesService.QueryTimeseries:input_type -> ai.WindTimeseriesQueryReq
+	82,  // 64: ai.AiWindTimeseriesService.CompareTrend:input_type -> ai.WindTrendCompareReq
+	84,  // 65: ai.AiWindAlarmService.QueryAlarms:input_type -> ai.WindAlarmQueryReq
+	87,  // 66: ai.AiWindAlarmService.AnalyzeAlarm:input_type -> ai.WindAlarmAnalyzeReq
+	89,  // 67: ai.AiWindReportService.GenerateHealthReport:input_type -> ai.WindHealthReportReq
+	90,  // 68: ai.AiWindReportService.GetHealthReport:input_type -> ai.WindHealthReportGetReq
+	91,  // 69: ai.AiWindAgentService.CreateTicketDraft:input_type -> ai.WindTicketDraftReq
+	92,  // 70: ai.AiWindAgentService.RunAgent:input_type -> ai.WindAgentRunReq
+	95,  // 71: ai.AiWindAgentService.ListToolCallLog:input_type -> ai.WindListToolCallLogReq
+	99,  // 72: ai.AiWindAgentService.ExecuteTool:input_type -> ai.WindToolExecuteReq
+	92,  // 73: ai.AiWindAgentService.RunAgentStream:input_type -> ai.WindAgentRunReq
+	93,  // 74: ai.AiWindAgentService.ResumeAgentStream:input_type -> ai.WindAgentResumeReq
+	12,  // 75: ai.AiStatusService.Health:output_type -> ai.HealthResp
+	15,  // 76: ai.AiKnowledgeService.CreateDomain:output_type -> ai.CreateDomainResp
+	0,   // 77: ai.AiKnowledgeService.UpdateDomain:output_type -> ai.Empty
+	0,   // 78: ai.AiKnowledgeService.DeleteDomain:output_type -> ai.Empty
+	19,  // 79: ai.AiKnowledgeService.ListDomain:output_type -> ai.ListDomainResp
+	22,  // 80: ai.AiKnowledgeService.CreateKnowledgeBase:output_type -> ai.CreateKnowledgeBaseResp
+	0,   // 81: ai.AiKnowledgeService.UpdateKnowledgeBase:output_type -> ai.Empty
+	0,   // 82: ai.AiKnowledgeService.DeleteKnowledgeBase:output_type -> ai.Empty
+	20,  // 83: ai.AiKnowledgeService.GetKnowledgeBase:output_type -> ai.KnowledgeBaseItem
+	27,  // 84: ai.AiKnowledgeService.ListKnowledgeBase:output_type -> ai.ListKnowledgeBaseResp
+	30,  // 85: ai.AiKnowledgeService.ListKbMember:output_type -> ai.ListKbMemberResp
+	0,   // 86: ai.AiKnowledgeService.AddKbMember:output_type -> ai.Empty
+	0,   // 87: ai.AiKnowledgeService.UpdateKbMember:output_type -> ai.Empty
+	0,   // 88: ai.AiKnowledgeService.RemoveKbMember:output_type -> ai.Empty
+	10,  // 89: ai.AiKnowledgeService.IngestDocument:output_type -> ai.TaskResp
+	37,  // 90: ai.AiKnowledgeService.ListDocument:output_type -> ai.ListDocumentResp
+	41,  // 91: ai.AiKnowledgeService.CheckDocumentImportCandidates:output_type -> ai.CheckDocumentImportCandidatesResp
+	34,  // 92: ai.AiKnowledgeService.GetDocument:output_type -> ai.DocumentItem
+	0,   // 93: ai.AiKnowledgeService.DeleteDocument:output_type -> ai.Empty
+	10,  // 94: ai.AiKnowledgeService.RebuildDocumentIndex:output_type -> ai.TaskResp
+	46,  // 95: ai.AiKnowledgeService.SearchKnowledge:output_type -> ai.SearchKnowledgeResp
+	49,  // 96: ai.AiChatService.RagChat:output_type -> ai.RagChatResp
+	50,  // 97: ai.AiChatService.RagChatStream:output_type -> ai.RagChatStreamEvent
+	53,  // 98: ai.AiChatService.ListConversation:output_type -> ai.ListConversationResp
+	56,  // 99: ai.AiChatService.GetConversationMessages:output_type -> ai.GetConversationMessagesResp
+	0,   // 100: ai.AiChatService.UpdateConversationTitle:output_type -> ai.Empty
+	0,   // 101: ai.AiChatService.DeleteConversation:output_type -> ai.Empty
+	0,   // 102: ai.AiChatService.DeleteMessage:output_type -> ai.Empty
+	65,  // 103: ai.AiObservabilityService.GetLlmTrace:output_type -> ai.LlmTraceResp
+	67,  // 104: ai.AiObservabilityService.ListLlmCallLog:output_type -> ai.ListLlmCallLogResp
+	69,  // 105: ai.AiObservabilityService.GetTokenStats:output_type -> ai.TokenStatsResp
+	72,  // 106: ai.AiWindMetadataService.ListFarms:output_type -> ai.ListWindFarmResp
+	75,  // 107: ai.AiWindMetadataService.ListTurbines:output_type -> ai.ListWindTurbineResp
+	78,  // 108: ai.AiWindMetadataService.ListDevices:output_type -> ai.ListWindDeviceResp
+	81,  // 109: ai.AiWindTimeseriesService.QueryTimeseries:output_type -> ai.WindTimeseriesQueryResp
+	83,  // 110: ai.AiWindTimeseriesService.CompareTrend:output_type -> ai.WindTrendCompareResp
+	86,  // 111: ai.AiWindAlarmService.QueryAlarms:output_type -> ai.WindAlarmQueryResp
+	88,  // 112: ai.AiWindAlarmService.AnalyzeAlarm:output_type -> ai.WindScaffoldResp
+	88,  // 113: ai.AiWindReportService.GenerateHealthReport:output_type -> ai.WindScaffoldResp
+	88,  // 114: ai.AiWindReportService.GetHealthReport:output_type -> ai.WindScaffoldResp
+	88,  // 115: ai.AiWindAgentService.CreateTicketDraft:output_type -> ai.WindScaffoldResp
+	94,  // 116: ai.AiWindAgentService.RunAgent:output_type -> ai.WindAgentRunResp
+	96,  // 117: ai.AiWindAgentService.ListToolCallLog:output_type -> ai.WindListToolCallLogResp
+	100, // 118: ai.AiWindAgentService.ExecuteTool:output_type -> ai.WindToolExecuteResp
+	97,  // 119: ai.AiWindAgentService.RunAgentStream:output_type -> ai.WindAgentStreamEvent
+	97,  // 120: ai.AiWindAgentService.ResumeAgentStream:output_type -> ai.WindAgentStreamEvent
+	75,  // [75:121] is the sub-list for method output_type
+	29,  // [29:75] is the sub-list for method input_type
+	29,  // [29:29] is the sub-list for extension type_name
+	29,  // [29:29] is the sub-list for extension extendee
+	0,   // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_pb_ai_proto_init() }
@@ -8305,7 +8611,7 @@ func file_pb_ai_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pb_ai_proto_rawDesc), len(file_pb_ai_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   98,
+			NumMessages:   102,
 			NumExtensions: 0,
 			NumServices:   9,
 		},

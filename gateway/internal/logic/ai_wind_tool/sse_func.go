@@ -48,6 +48,32 @@ func ToolCallsFromRPC(toolCalls []*pb.ToolCall) []types.AiWindToolCallItem {
 	return items
 }
 
+func ToolCallFromRPC(item *pb.ToolCall) *types.AiWindToolCallItem {
+	if item == nil {
+		return nil
+	}
+	return &types.AiWindToolCallItem{
+		ToolCallId:    item.ToolCallId,
+		ToolName:      item.ToolName,
+		Status:        item.Status,
+		ArgumentsJson: item.ArgumentsJson,
+		ResultJson:    item.ResultJson,
+		Message:       item.Message,
+		CreatedAt:     item.CreatedAt,
+	}
+}
+
+func DraftFromRPC(item *pb.WindDraftRef) *types.AiWindDraftRef {
+	if item == nil {
+		return nil
+	}
+	return &types.AiWindDraftRef{
+		DraftType: item.DraftType,
+		DraftId:   item.DraftId,
+		Title:     item.Title,
+	}
+}
+
 func StreamReferencesFromAnswer(answer string, citations []StreamCitation) []StreamReference {
 	matches := citationMarkerPattern.FindAllStringSubmatchIndex(answer, -1)
 	references := make([]StreamReference, 0, len(matches))

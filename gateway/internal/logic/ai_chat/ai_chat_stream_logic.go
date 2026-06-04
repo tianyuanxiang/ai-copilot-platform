@@ -95,12 +95,13 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 			finalAnswer := answer.String()
 			references = ai_wind_tool.StreamReferencesFromAnswer(finalAnswer, citations)
 			if err := ai_wind_tool.WriteChatSSE(w, ai_wind_tool.StreamEvent{
-				Type:       event.Type,
-				Content:    content,
-				Answer:     finalAnswer,
-				TraceID:    event.TraceId,
-				Citations:  citations,
-				References: references,
+				Type:           event.Type,
+				Content:        content,
+				Answer:         finalAnswer,
+				TraceID:        event.TraceId,
+				ConversationID: event.ConversationId,
+				Citations:      citations,
+				References:     references,
 			}); err != nil {
 				return err
 			}
@@ -111,9 +112,10 @@ func (l *AiChatStreamLogic) AiChatStream(req *types.AiChatReq, w http.ResponseWr
 		}
 
 		if err := ai_wind_tool.WriteChatSSE(w, ai_wind_tool.StreamEvent{
-			Type:    event.Type,
-			Content: content,
-			TraceID: event.TraceId,
+			Type:           event.Type,
+			Content:        content,
+			TraceID:        event.TraceId,
+			ConversationID: event.ConversationId,
 		}); err != nil {
 			return err
 		}
