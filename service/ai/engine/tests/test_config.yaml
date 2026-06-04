@@ -35,7 +35,7 @@ rerank:
 
 agent:
   go_rpc_target: "127.0.0.1:8091"
-  go_rpc_timeout_seconds: 30
+  go_rpc_timeout_seconds: 120
   max_steps: 6
   checkpoint_backend: memory
   checkpoint_dsn: ""

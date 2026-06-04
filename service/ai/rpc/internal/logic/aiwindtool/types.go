@@ -67,6 +67,7 @@ type QuerySensorTimeseriesArgs struct {
 	Page           int64    `json:"page,omitempty"`
 	PageSize       int64    `json:"pageSize,omitempty"`
 	IndexID        int64    `json:"indexId,omitempty"`
+	RadarDistanceM int64    `json:"radarDistanceM,omitempty"` // 雷达测量距离,例如30/50
 }
 
 // CompareSensorTrendArgs 是传感器趋势对比参数。
@@ -79,6 +80,7 @@ type CompareSensorTrendArgs struct {
 	StartTime      string   `json:"startTime,omitempty"`
 	EndTime        string   `json:"endTime,omitempty"`
 	IndexID        int64    `json:"indexId,omitempty"`
+	RadarDistanceM int64    `json:"radarDistanceM,omitempty"` // 雷达测量距离,例如30/50
 }
 
 // GenerateAlarmAnalysisDraftArgs 是告警分析草稿参数。

@@ -7,6 +7,7 @@ type trendRequest struct {
 	FarmCode       string
 	TowerCode      string
 	DeviceTypeCode string
+	DeviceCode     string
 	Fields         []string
 	StartTime      string
 	EndTime        string
@@ -79,6 +80,7 @@ type trendEvidenceBody struct {
 	FarmCode        string               `json:"farmCode"`
 	TowerCode       string               `json:"towerCode"`
 	DeviceTypeCode  string               `json:"deviceTypeCode"`
+	DeviceCode      string               `json:"deviceCode"`
 	Database        string               `json:"database"`
 	Stable          string               `json:"stable"`
 	Fields          []string             `json:"fields"`

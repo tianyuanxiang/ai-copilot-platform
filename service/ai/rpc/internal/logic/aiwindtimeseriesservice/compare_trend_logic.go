@@ -18,7 +18,7 @@ import (
 
 const (
 	maxFields    = 8
-	queryTimeout = 50 * time.Second
+	queryTimeout = 5000 * time.Second
 )
 
 // CompareTrendLogic 趋势对比 RPC 编排层。
@@ -49,11 +49,15 @@ func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTr
 	if err := validateTowerCode(in.TowerCode); err != nil {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, err.Error())
 	}
+	if in.StartTime == "" || in.EndTime == "" {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "查询时间必填，格式为：xxxx-xx-xx xx:xx:xx")
+	}
 
 	req := trendRequest{
 		FarmCode:       in.FarmCode,
 		TowerCode:      in.TowerCode,
 		DeviceTypeCode: in.DeviceTypeCode,
+		DeviceCode:     in.DeviceCode,
 		Fields:         in.Field,
 		StartTime:      in.StartTime,
 		EndTime:        in.EndTime,
@@ -78,7 +82,7 @@ func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTr
 	}
 
 	// 3. WHERE 条件
-	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(in.TowerCode, "")...)
+	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(in.TowerCode, req.DeviceCode)...)
 	where := model.JoinWhere(whereParts)
 
 	// 4. 查询策略
@@ -104,7 +108,6 @@ func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTr
 	// 6. TDengine 未配置，返回 scaffold evidence
 	if !l.svcCtx.TdengineModel.IsConfigured() {
 		l.Logger.Info("TDengine not configured, returning scaffold evidence")
-
 		return &pb.WindTrendCompareResp{
 			Summary:      fmt.Sprintf("%s %s 趋势分析完成（TDengine 未配置）。", in.TowerCode, in.DeviceTypeCode),
 			EvidenceJson: buildScaffoldEvidence(req, plan.Mode, "TDengine not configured"),

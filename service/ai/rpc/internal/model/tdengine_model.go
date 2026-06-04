@@ -43,6 +43,8 @@ type (
 		QueryAlarmGroupBy(ctx context.Context, database string, groupByColumn string, where string, limit int64) ([]map[string]string, error)
 		// QueryAlarmTimeBuckets 按时间桶统计告警数量。
 		QueryAlarmTimeBuckets(ctx context.Context, database string, where string, interval string) ([]map[string]string, error)
+		// 通过测量距离查询雷达index_id
+		ResolveRadarIndexByDistance(ctx context.Context, database string, stable string, where string, distanceM float64) (int64, float64, error)
 	}
 
 	tdengineModel struct {
@@ -713,6 +715,10 @@ func (m *tdengineModel) QueryAlarmTimeBuckets(ctx context.Context, database stri
 	defer rows.Close()
 	maps, _, err := scanTDengineRows(rows)
 	return maps, err
+}
+
+func (m *tdengineModel) ResolveRadarIndexByDistance(ctx context.Context, database string, stable string, where string, distanceM float64) (int64, float64, error) {
+
 }
 
 func nullStr(ns sql.NullString) string {

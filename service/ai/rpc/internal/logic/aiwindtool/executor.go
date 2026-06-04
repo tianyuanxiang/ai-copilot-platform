@@ -77,7 +77,7 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 		result, err = e.executeCreateMaintenanceTicketDraft(ctx, &normalizedReq)
 	}
 	if err != nil {
-		e.Logger.Errorf("execute err:%v", err)
+		e.Logger.Errorf("request param %s ,execute err:%v", normalizedReq, err)
 		return e.finish(ctx, &normalizedReq, statusFailed, result, err.Error(), startedAt), nil
 	}
 	return e.finish(ctx, &normalizedReq, statusSuccess, result, result.Message, startedAt), nil

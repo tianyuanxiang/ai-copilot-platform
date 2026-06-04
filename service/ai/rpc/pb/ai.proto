@@ -709,6 +709,7 @@ message WindTimeseriesQueryReq {
   int64 page = 8;
   int64 page_size = 9;
   int64 index_id = 10;
+  int64 radar_distance_m = 11;
   int64 user_id = 20;
 }
 
@@ -736,6 +737,7 @@ message WindTrendCompareReq {
   string end_time = 6;
   int64 index_id = 7;
   string device_code = 8;
+  int64 radar_distance_m = 11;
   int64 user_id = 20;
 }
 

@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	defaultPageSize = int64(50)
-	maxPageSize     = int64(100)
+	defaultPageSize = int64(500)
+	maxPageSize     = int64(1000)
 	maxFieldCount   = 8
 	defaultTopK     = int64(5)
 	maxTopK         = int64(10)

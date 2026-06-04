@@ -44,6 +44,7 @@ func buildScaffoldEvidence(req trendRequest, queryMode string, message string) s
 		FarmCode:       req.FarmCode,
 		TowerCode:      req.TowerCode,
 		DeviceTypeCode: req.DeviceTypeCode,
+		DeviceCode:     req.DeviceCode,
 		Fields:         req.Fields,
 		TimeRange: timeRangeInfo{
 			StartTime:       req.StartTime,

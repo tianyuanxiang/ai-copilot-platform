@@ -13,6 +13,7 @@ import (
 
 // executeQueryAlarmEvents 复用 aiwinddraft.BuildAlarmEvidence。
 // BuildAlarmEvidence 已经提供告警聚合、时间桶和分层抽样，避免向 Agent 塞入大量原始记录。
+
 func (e *Executor) executeQueryAlarmEvents(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args QueryAlarmEventsArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
@@ -85,6 +86,7 @@ func (e *Executor) executeQuerySensorTimeseries(ctx context.Context, req *pb.Win
 		Page:           args.Page,
 		PageSize:       args.PageSize,
 		IndexId:        args.IndexID,
+		RadarDistanceM: args.RadarDistanceM,
 		UserId:         req.UserId,
 	})
 	if err != nil {
@@ -137,6 +139,7 @@ func (e *Executor) executeCompareSensorTrend(ctx context.Context, req *pb.WindTo
 		StartTime:      args.StartTime,
 		EndTime:        args.EndTime,
 		IndexId:        args.IndexID,
+		RadarDistanceM: args.RadarDistanceM,
 		UserId:         req.UserId,
 	})
 	if err != nil {

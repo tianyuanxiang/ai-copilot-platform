@@ -121,12 +121,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	sysCli := zrpc.MustNewClient(c.SysRpc)
 	permSvc := permclient.NewPermissionService(sysCli)
 
-	// 从 gorm 获取底层 *sql.DB 用于阈值查询
-	sqlDB, sqlDBErr := db.DB()
-	if sqlDBErr != nil {
-		logx.Errorf("get sql.DB from gorm failed: %v", sqlDBErr)
-	}
-
 	return &ServiceContext{
 		Config:                        c,
 		Orm:                           db,
@@ -153,7 +147,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		WindCameraRecordModel:  model.NewWindCameraRecordModel(conn),
 		WindStructureTypeModel: model.NewWindStructureTypeModel(conn),
 		TdengineModel:          model.NewTdengineModel(td),
-		ThresholdResolver:      model.NewThresholdResolver(sqlDB),
+		ThresholdResolver:      model.NewThresholdResolver(db),
 		TD:                     td,
 		RDB:                    rdb,
 		EngineClient:           &http.Client{Timeout: engineTimeout},

@@ -5765,6 +5765,7 @@ type WindTimeseriesQueryReq struct {
 	Page           int64                  `protobuf:"varint,8,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize       int64                  `protobuf:"varint,9,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	IndexId        int64                  `protobuf:"varint,10,opt,name=index_id,json=indexId,proto3" json:"index_id,omitempty"`
+	RadarDistanceM int64                  `protobuf:"varint,11,opt,name=radar_distance_m,json=radarDistanceM,proto3" json:"radar_distance_m,omitempty"`
 	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -5866,6 +5867,13 @@ func (x *WindTimeseriesQueryReq) GetPageSize() int64 {
 func (x *WindTimeseriesQueryReq) GetIndexId() int64 {
 	if x != nil {
 		return x.IndexId
+	}
+	return 0
+}
+
+func (x *WindTimeseriesQueryReq) GetRadarDistanceM() int64 {
+	if x != nil {
+		return x.RadarDistanceM
 	}
 	return 0
 }
@@ -6031,6 +6039,7 @@ type WindTrendCompareReq struct {
 	EndTime        string                 `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	IndexId        int64                  `protobuf:"varint,7,opt,name=index_id,json=indexId,proto3" json:"index_id,omitempty"`
 	DeviceCode     string                 `protobuf:"bytes,8,opt,name=device_code,json=deviceCode,proto3" json:"device_code,omitempty"`
+	RadarDistanceM int64                  `protobuf:"varint,11,opt,name=radar_distance_m,json=radarDistanceM,proto3" json:"radar_distance_m,omitempty"`
 	UserId         int64                  `protobuf:"varint,20,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -6120,6 +6129,13 @@ func (x *WindTrendCompareReq) GetDeviceCode() string {
 		return x.DeviceCode
 	}
 	return ""
+}
+
+func (x *WindTrendCompareReq) GetRadarDistanceM() int64 {
+	if x != nil {
+		return x.RadarDistanceM
+	}
+	return 0
 }
 
 func (x *WindTrendCompareReq) GetUserId() int64 {
@@ -8109,7 +8125,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x12ListWindDeviceResp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12&\n" +
 	"\x04list\x18\x02 \x03(\v2\x12.ai.WindDeviceItemR\x04list\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xd4\x02\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xfe\x02\n" +
 	"\x16WindTimeseriesQueryReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +
@@ -8124,7 +8140,8 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x04page\x18\b \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\t \x01(\x03R\bpageSize\x12\x19\n" +
 	"\bindex_id\x18\n" +
-	" \x01(\x03R\aindexId\x12\x17\n" +
+	" \x01(\x03R\aindexId\x12(\n" +
+	"\x10radar_distance_m\x18\v \x01(\x03R\x0eradarDistanceM\x12\x17\n" +
 	"\auser_id\x18\x14 \x01(\x03R\x06userId\"\x91\x01\n" +
 	"\rWindDataPoint\x12\x0e\n" +
 	"\x02ts\x18\x01 \x01(\tR\x02ts\x125\n" +
@@ -8139,7 +8156,7 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\x06fields\x18\x04 \x03(\tR\x06fields\x12)\n" +
 	"\x06points\x18\x05 \x03(\v2\x11.ai.WindDataPointR\x06points\x12#\n" +
 	"\revidence_json\x18\x06 \x01(\tR\fevidenceJson\x12\x18\n" +
-	"\amessage\x18\a \x01(\tR\amessage\"\xa0\x02\n" +
+	"\amessage\x18\a \x01(\tR\amessage\"\xca\x02\n" +
 	"\x13WindTrendCompareReq\x12\x1b\n" +
 	"\tfarm_code\x18\x01 \x01(\tR\bfarmCode\x12\x1d\n" +
 	"\n" +
@@ -8151,7 +8168,8 @@ const file_pb_ai_proto_rawDesc = "" +
 	"\bend_time\x18\x06 \x01(\tR\aendTime\x12\x19\n" +
 	"\bindex_id\x18\a \x01(\x03R\aindexId\x12\x1f\n" +
 	"\vdevice_code\x18\b \x01(\tR\n" +
-	"deviceCode\x12\x17\n" +
+	"deviceCode\x12(\n" +
+	"\x10radar_distance_m\x18\v \x01(\x03R\x0eradarDistanceM\x12\x17\n" +
 	"\auser_id\x18\x14 \x01(\x03R\x06userId\"o\n" +
 	"\x14WindTrendCompareResp\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12#\n" +
