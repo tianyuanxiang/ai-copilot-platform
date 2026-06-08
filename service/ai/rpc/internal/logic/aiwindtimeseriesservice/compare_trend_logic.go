@@ -21,8 +21,6 @@ const (
 	queryTimeout = 5000 * time.Second
 )
 
-// CompareTrendLogic 趋势对比 RPC 编排层。
-// 负责参数校验、依赖调度和响应组装，业务逻辑在本包内各文件拆分。
 type CompareTrendLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -37,66 +35,90 @@ func NewCompareTrendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comp
 	}
 }
 
-// CompareTrend 执行风机趋势对比分析。
 func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTrendCompareResp, error) {
-	// 1. 参数校验
-	if in.DeviceTypeCode == "" {
+	deviceTypeCode := strings.ToUpper(strings.TrimSpace(in.DeviceTypeCode))
+	if deviceTypeCode == "" {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "DeviceTypeCode不能为空")
 	}
 	if len(in.Field) > maxFields {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("查询字段数量超过上限（%d）", maxFields))
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("查询字段数量超过上限: %d", maxFields))
 	}
 	if err := validateTowerCode(in.TowerCode); err != nil {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, err.Error())
 	}
 	if in.StartTime == "" || in.EndTime == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "查询时间必填，格式为：xxxx-xx-xx xx:xx:xx")
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "查询时间必填，格式为 yyyy-MM-dd HH:mm:ss")
+	}
+
+	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
+	stableName := model.DeviceTypeStableFallback[deviceTypeCode]
+	if stableName == "" {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("不支持的设备类型: %s", deviceTypeCode))
+	}
+
+	displayMeta, err := l.svcCtx.WindDeviceMetaModel.DisplayMetaForDeviceType(l.ctx, deviceTypeCode)
+	if err != nil {
+		l.Logger.Errorf("DisplayMetaForDeviceType failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过设备类型获取测点元数据失败")
+	}
+	fields, err := displayMeta.ResolveFields(in.Field)
+	if err != nil {
+		l.Logger.Errorf("ResolveFields failed: %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "设备类型不存在该测点字段")
+	}
+
+	requestedFields := splitRequestedTrendFields(in.Field)
+	analysisFields, excludedFields, usedDefaultFields := resolveTrendAnalysisFields(deviceTypeCode, displayMeta, requestedFields, fields)
+	if len(analysisFields) == 0 {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("设备类型 %s 无可分析测点字段", deviceTypeCode))
 	}
 
 	req := trendRequest{
-		FarmCode:       in.FarmCode,
-		TowerCode:      in.TowerCode,
-		DeviceTypeCode: in.DeviceTypeCode,
-		DeviceCode:     in.DeviceCode,
-		Fields:         in.Field,
-		StartTime:      in.StartTime,
-		EndTime:        in.EndTime,
-		IndexID:        in.IndexId,
+		FarmCode:          in.FarmCode,
+		TowerCode:         strings.TrimSpace(in.TowerCode),
+		DeviceTypeCode:    deviceTypeCode,
+		DeviceCode:        strings.TrimSpace(in.DeviceCode),
+		Fields:            fields,
+		StartTime:         in.StartTime,
+		EndTime:           in.EndTime,
+		IndexID:           in.IndexId,
+		RadarDistanceM:    in.RadarDistanceM,
+		DisplayMeta:       displayMeta,
+		RequestedFields:   requestedFields,
+		AnalysisFields:    analysisFields,
+		ExcludedFields:    excludedFields,
+		UsedDefaultFields: usedDefaultFields,
 	}
 
-	// 2. 解析数据库/表/字段
-	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
-
-	stableName := model.DeviceTypeStableFallback[in.DeviceTypeCode]
-	if stableName == "" {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("不支持的设备类型: %s", in.DeviceTypeCode))
-	}
-
-	fields, err := l.svcCtx.WindDeviceMetaModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
-	if err != nil {
-		l.Logger.Errorf("FieldsForDeviceType failed: %v", err)
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过设备类型获取测点名称失败")
-	}
-	if len(fields) == 0 {
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("设备类型 %s 无可用测点字段", in.DeviceTypeCode))
-	}
-
-	// 3. WHERE 条件
-	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(in.TowerCode, req.DeviceCode)...)
+	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(req.TowerCode, req.DeviceCode)...)
 	where := model.JoinWhere(whereParts)
+	if deviceTypeCode == wprDeviceTypeCode {
+		resolvedIndexID := in.IndexId
+		var matchedDistanceM float64
+		if resolvedIndexID == 0 && in.RadarDistanceM > 0 && l.svcCtx.TdengineModel.IsConfigured() {
+			resolvedIndexID, matchedDistanceM, err = l.svcCtx.TdengineModel.ResolveRadarIndexByDistance(
+				l.ctx, database, stableName, where, float64(in.RadarDistanceM),
+			)
+			if err != nil {
+				l.Logger.Errorf("TdengineModel.ResolveRadarIndexByDistance failed: %v", err)
+				return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过距离获取雷达 index_id 失败")
+			}
+		}
+		req.ResolvedIndexID = resolvedIndexID
+		req.MatchedDistanceM = matchedDistanceM
+		if resolvedIndexID > 0 {
+			where = fmt.Sprintf("(%s) AND index_id=%d", where, resolvedIndexID)
+		}
+	}
 
-	// 4. 查询策略
 	durationSeconds := calcDurationSeconds(in.StartTime, in.EndTime)
-
-	plan := planQuery(database, stableName, fields, where, durationSeconds)
-
+	plan := planQuery(database, stableName, analysisFields, where, durationSeconds)
 	plan.TimeRange = timeRangeInfo{
 		StartTime:       in.StartTime,
 		EndTime:         in.EndTime,
 		DurationSeconds: durationSeconds,
 	}
 
-	// 5. 范围过大直接返回 scaffold evidence
 	if plan.isRangeTooLarge() {
 		return &pb.WindTrendCompareResp{
 			Summary:      "时间范围超过 31 天，请缩小查询范围后重试。",
@@ -105,17 +127,15 @@ func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTr
 		}, nil
 	}
 
-	// 6. TDengine 未配置，返回 scaffold evidence
 	if !l.svcCtx.TdengineModel.IsConfigured() {
 		l.Logger.Info("TDengine not configured, returning scaffold evidence")
 		return &pb.WindTrendCompareResp{
-			Summary:      fmt.Sprintf("%s %s 趋势分析完成（TDengine 未配置）。", in.TowerCode, in.DeviceTypeCode),
+			Summary:      fmt.Sprintf("%s号风机 %s 趋势分析完成，TDengine 未配置。", req.TowerCode, displayMeta.DeviceTypeName),
 			EvidenceJson: buildScaffoldEvidence(req, plan.Mode, "TDengine not configured"),
 			Message:      "TDEngine is not configured; returning scaffold evidence only",
 		}, nil
 	}
 
-	// 7. 执行查询
 	queryCtx, cancel := context.WithTimeout(l.ctx, queryTimeout)
 	defer cancel()
 
@@ -125,7 +145,6 @@ func (l *CompareTrendLogic) CompareTrend(in *pb.WindTrendCompareReq) (*pb.WindTr
 	return l.compareMinuteBucket(queryCtx, plan, req)
 }
 
-// compareExact 精确模式：basic stats + boundary rows。
 func (l *CompareTrendLogic) compareExact(ctx context.Context, plan queryPlan, req trendRequest) (*pb.WindTrendCompareResp, error) {
 	stats, err := l.svcCtx.TdengineModel.QueryBasicStats(ctx, plan.Database, plan.Stable, plan.Fields, plan.Where)
 	if err != nil {
@@ -155,7 +174,6 @@ func (l *CompareTrendLogic) compareExact(ctx context.Context, plan queryPlan, re
 	}, nil
 }
 
-// compareMinuteBucket 分钟级降采样模式。
 func (l *CompareTrendLogic) compareMinuteBucket(ctx context.Context, plan queryPlan, req trendRequest) (*pb.WindTrendCompareResp, error) {
 	buckets, err := l.svcCtx.TdengineModel.QueryMinuteBuckets(ctx, plan.Database, plan.Stable, plan.Fields, plan.Where)
 	if err != nil {
@@ -170,15 +188,10 @@ func (l *CompareTrendLogic) compareMinuteBucket(ctx context.Context, plan queryP
 		}
 		evidence := buildEvidence(plan, req, fieldStats, trendSignal{}, riskSignal{Level: riskNormal},
 			dataQuality{}, "not_configured", nil, false, false)
-		result := trendResult{
-			Summary:      fmt.Sprintf("%s %s 暂无有效统计数据。", req.TowerCode, req.DeviceTypeCode),
-			EvidenceJSON: evidence,
-			Message:      "trend analysis completed; no data found",
-		}
 		return &pb.WindTrendCompareResp{
-			Summary:      result.Summary,
-			EvidenceJson: result.EvidenceJSON,
-			Message:      result.Message,
+			Summary:      fmt.Sprintf("%s号风机 %s 暂无有效统计数据。", req.TowerCode, req.DisplayMeta.DeviceTypeName),
+			EvidenceJson: evidence,
+			Message:      "trend analysis completed; no data found",
 		}, nil
 	}
 
@@ -195,18 +208,15 @@ func (l *CompareTrendLogic) compareMinuteBucket(ctx context.Context, plan queryP
 	}, nil
 }
 
-// buildResult 组装最终结果。exactParams 和 bucketParams 二选一传值。
 func (l *CompareTrendLogic) buildResult(ctx context.Context, plan queryPlan, req trendRequest,
 	exactParams *trendCalcParams, bucketParams *trendBucketParams) trendResult {
 	var fieldStats map[string]fieldStat
-
 	if exactParams != nil {
 		fieldStats = l.calcFieldStatsExact(exactParams)
 	} else {
 		fieldStats = l.calcFieldStatsFromBuckets(bucketParams, plan.Fields)
 	}
 
-	// 阈值加载
 	thresholdStatus := "not_configured"
 	var thresholdFields map[string]model.FieldThreshold
 	if l.svcCtx.ThresholdResolver != nil {
@@ -217,10 +227,13 @@ func (l *CompareTrendLogic) buildResult(ctx context.Context, plan queryPlan, req
 		}
 	}
 
-	// 风险信号
 	riskSignals := make(map[string]riskSignal, len(fieldStats))
-	var overallRisk riskSignal
-	for field, fs := range fieldStats {
+	overallRisk := riskSignal{Level: riskNormal}
+	for _, field := range plan.Fields {
+		fs, ok := fieldStats[field]
+		if !ok {
+			continue
+		}
 		var ft *model.FieldThreshold
 		if tf, ok := thresholdFields[field]; ok {
 			ft = &tf
@@ -231,31 +244,16 @@ func (l *CompareTrendLogic) buildResult(ctx context.Context, plan queryPlan, req
 			overallRisk = rs
 		}
 	}
-	if overallRisk.Level == "" {
-		overallRisk.Level = riskNormal
-	}
 
-	// 趋势信号（取第一个字段）
-	var ts trendSignal
-	for _, fs := range fieldStats {
-		ts = trendSignal{
-			Direction: fs.Trend,
-			Change:    fs.Change,
-			ChangePct: fs.ChangePct,
-		}
-		break
-	}
-
-	// 数据质量（取第一个字段的时间戳）
-	var dq dataQuality
-	for _, fs := range fieldStats {
+	ts := trendSignal{}
+	dq := dataQuality{}
+	if fs, ok := firstFieldStat(plan.Fields, fieldStats); ok {
+		ts = trendSignal{Direction: fs.Trend, Change: fs.Change, ChangePct: fs.ChangePct}
 		dq = calcDataQuality(fs.LastTs, fs.MissingRate)
-		break
 	}
 
-	agentHints := buildAgentHints(req.TowerCode, req.DeviceTypeCode, fieldStats, riskSignals)
-	summary := buildSummary(req.TowerCode, req.DeviceTypeCode, fieldStats)
-
+	agentHints := buildAgentHints(req.TowerCode, req.DisplayMeta, plan.Fields, fieldStats, riskSignals)
+	summary := buildSummary(req.TowerCode, req.DisplayMeta, plan.Fields, fieldStats)
 	evidence := buildEvidence(plan, req, fieldStats, ts, overallRisk, dq, thresholdStatus, agentHints, false, false)
 
 	return trendResult{
@@ -265,31 +263,24 @@ func (l *CompareTrendLogic) buildResult(ctx context.Context, plan queryPlan, req
 	}
 }
 
-// calcFieldStatsExact 精确模式：根据基础统计和边界行计算字段统计。
 func (l *CompareTrendLogic) calcFieldStatsExact(params *trendCalcParams) map[string]fieldStat {
 	fieldStats := make(map[string]fieldStat, len(params.Stats))
 	expectedCount := calcExpectedCount(params.DeviceTypeCode, params.DurationSeconds, false)
-
 	for field, stat := range params.Stats {
 		fieldStats[field] = calcFieldStat(stat, expectedCount, params.First[field], params.First["ts"], params.Last[field], params.Last["ts"])
 	}
-
 	return fieldStats
 }
 
-// calcFieldStatsFromBuckets 分钟级模式：根据 bucket 数据计算字段统计。
 func (l *CompareTrendLogic) calcFieldStatsFromBuckets(params *trendBucketParams, fields []string) map[string]fieldStat {
 	durationMinutes := params.DurationSeconds / 60.0
 	fieldStats := make(map[string]fieldStat, len(fields))
-
 	for _, field := range fields {
 		fieldStats[field] = calcFieldStatFromBuckets(params.Buckets, field, durationMinutes)
 	}
-
 	return fieldStats
 }
 
-// handleQueryError 处理查询错误，返回 partial 或完全失败的 evidence。
 func (l *CompareTrendLogic) handleQueryError(plan queryPlan, req trendRequest, err error, hasPartialData bool) (*pb.WindTrendCompareResp, error) {
 	if hasPartialData {
 		partialEvidence := buildPartialEvidence(plan, req, nil, trendSignal{}, riskSignal{Level: riskNormal}, dataQuality{}, nil)
@@ -306,7 +297,6 @@ func (l *CompareTrendLogic) handleQueryError(plan queryPlan, req trendRequest, e
 	}, nil
 }
 
-// validateTowerCode 校验 towerCode，非空时必须为数字字符串。
 func validateTowerCode(towerCode string) error {
 	towerCode = strings.TrimSpace(towerCode)
 	if towerCode == "" {

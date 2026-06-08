@@ -1,9 +1,8 @@
-// Package aiwindtool 的 query_data 文件实现告警、时序和趋势三类事实查询工具。
 package aiwindtool
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"strings"
 
 	"ai-copilot-platform/ai-rpc/internal/logic/aiwinddraft"
@@ -11,21 +10,18 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 )
 
-// executeQueryAlarmEvents 复用 aiwinddraft.BuildAlarmEvidence。
-// BuildAlarmEvidence 已经提供告警聚合、时间桶和分层抽样，避免向 Agent 塞入大量原始记录。
-
 func (e *Executor) executeQueryAlarmEvents(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args QueryAlarmEventsArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	farmCode, err := requireFarmCode(args.FarmCode)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	startTime, endTime, err := normalizeTimeRange(args.StartTime, args.EndTime)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
 	evidence, err := aiwinddraft.BuildAlarmEvidence(
@@ -50,96 +46,80 @@ func (e *Executor) executeQueryAlarmEvents(ctx context.Context, req *pb.WindTool
 	}, nil
 }
 
-// executeQuerySensorTimeseries 复用现有 QueryTimeseriesLogic。
-// TDengine stable、字段白名单和 WPR 雷达 indexId 行为继续由现有 logic 负责。
 func (e *Executor) executeQuerySensorTimeseries(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args QuerySensorTimeseriesArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
-	farmCode, err := requireFarmCode(args.FarmCode)
+	normalized, err := normalizeSensorToolArgs(
+		args.FarmCode, args.TowerCode, args.DeviceCode, args.DeviceTypeCode,
+		args.Field, args.StartTime, args.EndTime, args.IndexID, args.RadarDistanceM,
+		args.Page, args.PageSize, true,
+	)
 	if err != nil {
-		return nil, err
-	}
-	args.DeviceTypeCode = strings.ToUpper(strings.TrimSpace(args.DeviceTypeCode))
-	if args.DeviceTypeCode == "" {
-		return nil, fmt.Errorf("deviceTypeCode 不能为空")
-	}
-	if err := validateFields(args.Field); err != nil {
-		return nil, err
-	}
-	args.Page, args.PageSize = normalizePage(args.Page, args.PageSize)
-	args.StartTime, args.EndTime, err = normalizeTimeRange(args.StartTime, args.EndTime)
-	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
 	logic := aiwindtimeseriesservicelogic.NewQueryTimeseriesLogic(ctx, e.svcCtx)
 	resp, err := logic.QueryTimeseries(&pb.WindTimeseriesQueryReq{
-		FarmCode:       farmCode,
-		TowerCode:      strings.TrimSpace(args.TowerCode),
-		DeviceCode:     strings.TrimSpace(args.DeviceCode),
-		DeviceTypeCode: args.DeviceTypeCode,
-		Field:          args.Field,
-		StartTime:      args.StartTime,
-		EndTime:        args.EndTime,
-		Page:           args.Page,
-		PageSize:       args.PageSize,
-		IndexId:        args.IndexID,
-		RadarDistanceM: args.RadarDistanceM,
+		FarmCode:       normalized.FarmCode,
+		TowerCode:      normalized.TowerCode,
+		DeviceCode:     normalized.DeviceCode,
+		DeviceTypeCode: normalized.DeviceTypeCode,
+		Field:          normalized.Fields,
+		StartTime:      normalized.StartTime,
+		EndTime:        normalized.EndTime,
+		Page:           normalized.Page,
+		PageSize:       normalized.PageSize,
+		IndexId:        normalized.IndexID,
+		RadarDistanceM: normalized.RadarDistanceM,
 		UserId:         req.UserId,
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	result := map[string]any{
+		"total":    resp.Total,
+		"database": resp.Database,
+		"stable":   resp.Stable,
+		"fields":   resp.Fields,
+		"points":   resp.Points,
+		"message":  resp.Message,
+	}
+	addEvidenceDisplayMeta(result, resp.EvidenceJson)
 	return &toolResult{
-		ResultJSON: marshalJSON(map[string]any{
-			"total":    resp.Total,
-			"database": resp.Database,
-			"stable":   resp.Stable,
-			"fields":   resp.Fields,
-			"points":   resp.Points,
-			"message":  resp.Message,
-		}),
+		ResultJSON:   marshalJSON(result),
 		EvidenceJSON: resp.EvidenceJson,
 		Message:      resp.Message,
 	}, nil
 }
 
-// executeCompareSensorTrend 复用现有 CompareTrendLogic。
-// 趋势统计、降采样、阈值解析和风险信号继续由已有业务 logic 负责。
 func (e *Executor) executeCompareSensorTrend(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args CompareSensorTrendArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
-	farmCode, err := requireFarmCode(args.FarmCode)
+	normalized, err := normalizeSensorToolArgs(
+		args.FarmCode, args.TowerCode, args.DeviceCode, args.DeviceTypeCode,
+		args.Field, args.StartTime, args.EndTime, args.IndexID, args.RadarDistanceM,
+		0, 0, false,
+	)
 	if err != nil {
-		return nil, err
-	}
-	args.DeviceTypeCode = strings.ToUpper(strings.TrimSpace(args.DeviceTypeCode))
-	if args.DeviceTypeCode == "" {
-		return nil, fmt.Errorf("deviceTypeCode 不能为空")
-	}
-	if err := validateFields(args.Field); err != nil {
-		return nil, err
-	}
-	args.StartTime, args.EndTime, err = normalizeTimeRange(args.StartTime, args.EndTime)
-	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
 	logic := aiwindtimeseriesservicelogic.NewCompareTrendLogic(ctx, e.svcCtx)
 	resp, err := logic.CompareTrend(&pb.WindTrendCompareReq{
-		FarmCode:       farmCode,
-		TowerCode:      strings.TrimSpace(args.TowerCode),
-		DeviceCode:     strings.TrimSpace(args.DeviceCode),
-		DeviceTypeCode: args.DeviceTypeCode,
-		Field:          args.Field,
-		StartTime:      args.StartTime,
-		EndTime:        args.EndTime,
-		IndexId:        args.IndexID,
-		RadarDistanceM: args.RadarDistanceM,
+		FarmCode:       normalized.FarmCode,
+		TowerCode:      normalized.TowerCode,
+		DeviceCode:     normalized.DeviceCode,
+		DeviceTypeCode: normalized.DeviceTypeCode,
+		Field:          normalized.Fields,
+		StartTime:      normalized.StartTime,
+		EndTime:        normalized.EndTime,
+		IndexId:        normalized.IndexID,
+		RadarDistanceM: normalized.RadarDistanceM,
 		UserId:         req.UserId,
 	})
 	if err != nil {
@@ -153,4 +133,16 @@ func (e *Executor) executeCompareSensorTrend(ctx context.Context, req *pb.WindTo
 		EvidenceJSON: resp.EvidenceJson,
 		Message:      resp.Message,
 	}, nil
+}
+
+func addEvidenceDisplayMeta(result map[string]any, evidenceJSON string) {
+	var evidence map[string]any
+	if err := json.Unmarshal([]byte(evidenceJSON), &evidence); err != nil {
+		return
+	}
+	for _, key := range []string{"deviceTypeName", "fieldLabels", "fieldUnits"} {
+		if value, ok := evidence[key]; ok {
+			result[key] = value
+		}
+	}
 }

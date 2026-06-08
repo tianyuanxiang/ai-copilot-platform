@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -718,7 +719,51 @@ func (m *tdengineModel) QueryAlarmTimeBuckets(ctx context.Context, database stri
 }
 
 func (m *tdengineModel) ResolveRadarIndexByDistance(ctx context.Context, database string, stable string, where string, distanceM float64) (int64, float64, error) {
+	if !m.IsConfigured() {
+		return 0, 0, fmt.Errorf("tdengine not configured")
+	}
+	database, err := SafeIdentifier(database)
+	if err != nil {
+		return 0, 0, err
+	}
+	stable, err = SafeIdentifier(stable)
+	if err != nil {
+		return 0, 0, err
+	}
 
+	query := fmt.Sprintf(
+		"SELECT index_id, LAST(d) FROM %s.%s WHERE %s PARTITION BY index_id",
+		database, stable, where,
+	)
+
+	rows, err := m.db.QueryContext(ctx, query)
+	if err != nil {
+		return 0, 0, err
+	}
+	defer rows.Close()
+
+	var bestIndex int64
+	var bestDistance float64
+	bestDiff := math.MaxFloat64
+
+	for rows.Next() {
+		var indexID int64
+		var d sql.NullFloat64
+		if err := rows.Scan(&indexID, &d); err != nil {
+			return 0, 0, err
+		}
+		if !d.Valid {
+			continue
+		}
+		diff := math.Abs(d.Float64 - distanceM)
+		if diff < bestDiff {
+			bestDiff = diff
+			bestIndex = indexID
+			bestDistance = d.Float64
+		}
+	}
+
+	return bestIndex, bestDistance, rows.Err()
 }
 
 func nullStr(ns sql.NullString) string {

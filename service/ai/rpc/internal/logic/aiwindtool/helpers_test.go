@@ -53,7 +53,7 @@ func TestNormalizeTimeRangeRejectsMoreThan31Days(t *testing.T) {
 }
 
 func TestNormalizePageCapsPageSize(t *testing.T) {
-	page, pageSize := normalizePage(0, 101)
+	page, pageSize := normalizePage(0, maxPageSize+1)
 	if page != 1 {
 		t.Fatalf("page = %d, want 1", page)
 	}

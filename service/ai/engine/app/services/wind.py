@@ -260,7 +260,7 @@ def _validate_evidence(state: WindDraftState) -> WindDraftState:
     return {**state, "evidence": evidence}
 
 
-# 把证据分成两类——告警记录和测点数据
+# 把证据分成两类-——告警记录和测点数据
 def _normalize_evidence(state: WindDraftState) -> WindDraftState:
     evidence = state.get("evidence", [])
     alarms = _alarms(evidence)
@@ -505,7 +505,7 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
     logger.info("[optional_llm_polish] 开始 LLM 润色, trace_id=%s", state["payload"].trace_id)
     payload = state["payload"]
 
-    # 从 state 构建紧凑事实包（兼容扁平/嵌套 metrics）
+    # 把大而杂的 state 压缩成一个“事实包”，给LLM看
     polish_context = _build_polish_context(state)
     if not polish_context:
         logger.warning("[optional_llm_polish] 跳过 LLM 润色, 原因: context 构建失败或超长, trace_id=%s", payload.trace_id)
@@ -567,35 +567,22 @@ async def _optional_llm_polish(state: WindDraftState) -> WindDraftState:
 
 
 # 精简 metrics 用于 LLM 润色 prompt，避免超长
-_MAX_POLISH_PROMPT_CHARS = 50000
+_MAX_POLISH_PROMPT_CHARS = 100000
 _MAX_SAMPLES_DEFAULT = 10
 _MAX_SAMPLES_REDUCED = 3
-_SECTION_CONTENT_LIMIT = 200
+_SECTION_CONTENT_LIMIT = 500
 
 
 def _build_polish_context(state: WindDraftState) -> dict[str, Any]:
-    """从 state 构建 LLM 润色所需的紧凑事实包。
-
-    直接从 state["metrics"]（嵌套结构）+ state["evidence"] + draft + payload 取事实，
-    兼容扁平 alarm metrics 和嵌套 {"alarm": ...} metrics。
-
-    包含：风场/风机/告警码、标题、规则草稿摘要、已有 sections、
-    告警总数、风险等级、等级分布、状态分布、top 告警码、top 风机、
-    峰值时间桶、首末时间、代表性 samples。
-    不放完整 by_time_bucket，只放 time_bucket_count。
-    """
     payload = state["payload"]
     metrics = state.get("metrics", {})
     draft = state.get("draft")
     evidence = state.get("evidence", [])
 
-    # 提取告警指标：兼容嵌套 {"alarm": {...}} 和扁平 {"alarm_count": ...} 结构
     alarm_metrics: dict[str, Any] = {}
     if "alarm" in metrics and isinstance(metrics["alarm"], dict):
-        # 嵌套结构（来自 _aggregate_facts）
         alarm_metrics = metrics["alarm"]
     elif "alarm_count" in metrics:
-        # 扁平结构（兼容旧格式）
         alarm_metrics = metrics
 
     # 构建紧凑事实包

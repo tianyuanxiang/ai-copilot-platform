@@ -1,5 +1,3 @@
-// Package aiwindtool 的 helpers 文件收纳轻量参数校验和 JSON 辅助函数。
-// 这些规则只保护工具入口，不替代已有业务 logic 内部的校验。
 package aiwindtool
 
 import (
@@ -19,8 +17,20 @@ const (
 	toolTimeLayout  = "2006-01-02 15:04:05"
 )
 
-// decodeArgs 将 Agent 提供的 JSON 参数解码到目标结构体。
-// 空字符串等价于空 JSON 对象，方便无参数工具直接调用。
+type normalizedSensorToolArgs struct {
+	FarmCode       string
+	TowerCode      string
+	DeviceCode     string
+	DeviceTypeCode string
+	Fields         []string
+	StartTime      string
+	EndTime        string
+	Page           int64
+	PageSize       int64
+	IndexID        int64
+	RadarDistanceM int64
+}
+
 func decodeArgs(raw string, target any) error {
 	if strings.TrimSpace(raw) == "" {
 		raw = "{}"
@@ -31,8 +41,6 @@ func decodeArgs(raw string, target any) error {
 	return nil
 }
 
-// marshalJSON 将内部结果编码为 JSON。
-// 工具返回值必须始终可交给 Agent 继续推理，编码异常时返回空对象。
 func marshalJSON(value any) string {
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -41,12 +49,10 @@ func marshalJSON(value any) string {
 	return string(data)
 }
 
-// normalizeFarmCode 统一清理风场编号并转成大写。
 func normalizeFarmCode(value string) string {
 	return strings.ToUpper(strings.TrimSpace(value))
 }
 
-// normalizePage 统一分页参数：页码默认 1，每页默认 50，最大 100。
 func normalizePage(page, pageSize int64) (int64, int64) {
 	if page <= 0 {
 		page = 1
@@ -60,7 +66,6 @@ func normalizePage(page, pageSize int64) (int64, int64) {
 	return page, pageSize
 }
 
-// normalizeTopK 统一 SOP 检索条数：默认 5，最大 10。
 func normalizeTopK(value int64) int64 {
 	if value <= 0 {
 		return defaultTopK
@@ -71,9 +76,6 @@ func normalizeTopK(value int64) int64 {
 	return value
 }
 
-// normalizeTimeRange 统一查询时间范围。
-// 两端都未填写时默认最近 24 小时；只填写一端、结束时间不晚于开始时间、
-// 或范围超过 31 天时返回错误，防止 Agent 发起无边界查询。
 func normalizeTimeRange(startTime, endTime string) (string, string, error) {
 	startTime = strings.TrimSpace(startTime)
 	endTime = strings.TrimSpace(endTime)
@@ -102,7 +104,6 @@ func normalizeTimeRange(startTime, endTime string) (string, string, error) {
 	return start.Format(toolTimeLayout), end.Format(toolTimeLayout), nil
 }
 
-// validateFields 限制一次工具调用最多查询八个测点字段。
 func validateFields(fields []string) error {
 	if len(fields) > maxFieldCount {
 		return fmt.Errorf("field 最多允许 %d 个", maxFieldCount)
@@ -130,4 +131,39 @@ func requireFarmCode(value string) (string, error) {
 		return "", fmt.Errorf("farmCode 不能为空")
 	}
 	return farmCode, nil
+}
+
+func normalizeSensorToolArgs(farmCode, towerCode, deviceCode, deviceTypeCode string, fields []string,
+	startTime, endTime string, indexID, radarDistanceM, page, pageSize int64, withPage bool) (normalizedSensorToolArgs, error) {
+	normalizedFarmCode, err := requireFarmCode(farmCode)
+	if err != nil {
+		return normalizedSensorToolArgs{}, err
+	}
+	deviceTypeCode = strings.ToUpper(strings.TrimSpace(deviceTypeCode))
+	if deviceTypeCode == "" {
+		return normalizedSensorToolArgs{}, fmt.Errorf("deviceTypeCode 不能为空")
+	}
+	if err := validateFields(fields); err != nil {
+		return normalizedSensorToolArgs{}, err
+	}
+	startTime, endTime, err = normalizeTimeRange(startTime, endTime)
+	if err != nil {
+		return normalizedSensorToolArgs{}, err
+	}
+	if withPage {
+		page, pageSize = normalizePage(page, pageSize)
+	}
+	return normalizedSensorToolArgs{
+		FarmCode:       normalizedFarmCode,
+		TowerCode:      strings.TrimSpace(towerCode),
+		DeviceCode:     strings.TrimSpace(deviceCode),
+		DeviceTypeCode: deviceTypeCode,
+		Fields:         fields,
+		StartTime:      startTime,
+		EndTime:        endTime,
+		Page:           page,
+		PageSize:       pageSize,
+		IndexID:        indexID,
+		RadarDistanceM: radarDistanceM,
+	}, nil
 }

@@ -15,7 +15,7 @@ func (e *Executor) executeGetTurbineMetadata(ctx context.Context, req *pb.WindTo
 	var args GetTurbineMetadataArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
 		e.Logger.Errorf("decode args err:%v", err)
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
 	farmCode := normalizeFarmCode(args.FarmCode)

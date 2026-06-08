@@ -16,11 +16,11 @@ import (
 func (e *Executor) executeSearchMaintenanceSOP(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args SearchMaintenanceSOPArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	args.Query = strings.TrimSpace(args.Query)
 	if args.Query == "" {
-		return nil, fmt.Errorf("query 不能为空")
+		return &toolResult{Status: statusInvalidArguments}, fmt.Errorf("query 不能为空")
 	}
 	args.TopK = normalizeTopK(args.TopK)
 	if strings.TrimSpace(args.SearchScope) == "" {

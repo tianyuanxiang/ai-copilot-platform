@@ -17,19 +17,20 @@ from langgraph.graph import END, START, StateGraph
 from app.clients.wind_tool_rpc import WindToolExecuteRequest, WindToolExecuteResult
 from app.schemas.agent import AgentStreamEvent, Citation, ToolCall, WindDraftRef
 from app.services import llm
-from app.services.wind_agent_tools import (
+from app.services.tool.wind_agent_tools import (
     AGENT_TOOL_SCHEMAS,
     ALL_PLANNER_ACTIONS,
     DRAFT_TOOLS,
     GO_TOOLS,
     PLANNER_SYSTEM_PROMPT,
 )
+from app.services.tool.tool_errors import classify_tool_error, ToolErrorType
 
 
 logger = logging.getLogger(__name__)
 
 MAX_TOOL_RESULT_CHARS = 20000
-MAX_EVIDENCE_ITEMS = 12
+MAX_EVIDENCE_ITEMS = 50
 MAX_CITATIONS = 20
 
 
@@ -211,7 +212,8 @@ def build_wind_agent_graph(
 
         # 把这次工具调用追加到历史记录里
         tool_calls = [*state.get("tool_calls", []), tool_call.model_dump()]
-        evidence = _append_evidence(state.get("evidence", []), result.evidence_json) # 把工具返回的 evidence_json 追加到证据列表
+
+        evidence = _append_evidence(state.get("evidence", []), result.evidence_json) #evidence_json数据太脏，必须要清洗
         citations = _merge_citations(state.get("citations", []), result.citations)
         draft = _draft_from_result(tool_call.result_json) or state.get("draft", {}) # 如果本次工具结果里包含草稿信息，就取出来放到 state["draft"]；否则沿用原来的 draft。
         messages = _append_message(   # 把工具结果写进对话上下文，让下一次 planner 能看到。
@@ -223,18 +225,41 @@ def build_wind_agent_graph(
         events = [_event_payload(state, "tool_result", tool_call=tool_call)] # 生成事件，给前端流式展示
         if result.evidence_json:
             events.append(_event_payload(state, "evidence", content=_clip_json(result.evidence_json)))
+        error_type = classify_tool_error(tool_call.status, tool_call.message)
 
         failure_key = f"{tool_name}:{arguments_json}"
         failures = dict(state.get("failures", {}))
+
         if tool_call.status == "success":
             failures.pop(failure_key, None)
-        else:
+        elif error_type != ToolErrorType.TOOL_PARTIAL:
             failures[failure_key] = failures.get(failure_key, 0) + 1
 
         route = "plan"
-        # 如果工具被拒绝执行、同一个工具同一组参数失败 2 次、工具调用步数超过最大限制
-        if tool_call.status == "denied" or failures.get(failure_key, 0) >= 2 or step >= state.get("max_steps", 6):
+        if error_type == ToolErrorType.INVALID_ARGUMENTS:
+            route = "clarify"
+        elif error_type == ToolErrorType.PERMISSION_DENIED:
             route = "degraded"
+        elif error_type == ToolErrorType.TOOL_PARTIAL:
+            route = "plan"
+        # 如果工具被拒绝执行、同一个工具同一组参数失败 2 次、工具调用步数超过最大限制
+        elif failures.get(failure_key, 0) >= 2 or step >= state.get("max_steps", 6):
+            route = "degraded"
+
+        # 参数错误：让用户补充，而不是继续乱调工具
+        elif error_type == ToolErrorType.INVALID_ARGUMENTS:
+            route = "clarify"
+
+        next_action = state.get("next_action", {})
+        if route == "clarify":
+            next_action = {
+                "name": "request_clarification",
+                "arguments": {
+                    "question": "当前工具调用参数不足或格式不正确，请补充风场、风机、设备类型或时间范围。",
+                    "reason": f"invalid arguments for {tool_name}",
+                },
+            }
+
         return {
             **state,
             "step": step,
@@ -245,8 +270,12 @@ def build_wind_agent_graph(
             "draft": draft,
             "messages": messages,
             "failures": failures,
+            "next_action": next_action,
             "events": events,
         }
+
+
+
 
     async def assess_evidence(state: WindAgentState) -> WindAgentState:
         arguments = state.get("next_action", {}).get("arguments", {})
@@ -273,7 +302,7 @@ def build_wind_agent_graph(
         failures = list(state.get("failures", {}).keys())
         answer = "当前无法完成完整分析。"
         if state.get("evidence"):
-            answer += " 已保留可用证据，请结合工具结果人工复核。"
+            answer += " 已保留可用证据，请结合工具结果进行人工复核。"
         if failures:
             answer += f" 失败原因：{failures[-1]}"
         finished = {**state, "answer": answer}
@@ -333,7 +362,7 @@ def build_wind_agent_graph(
     graph.add_conditional_edges(
         "execute_tool",
         lambda state: state["route"],
-        {"plan": "plan_next_action", "degraded": "build_degraded_answer"},
+        {"plan": "plan_next_action", "clarify": "clarification_gate", "degraded": "build_degraded_answer"},
     )
     graph.add_conditional_edges(
         "assess_evidence",
@@ -418,18 +447,19 @@ def _with_failure(state: WindAgentState, message: str, *, route: str) -> WindAge
 
 
 def _append_evidence(current: list[Any], raw: str) -> list[Any]:
+    # 如果是空字符串，连加都不加
     if not raw.strip():
         return current
-    try:
+    try: # 看看返回的是不是标准 JSON
         value = json.loads(raw)
     except json.JSONDecodeError:
-        value = {"raw": _clip_json(raw)}
+        value = {"raw": _clip_json(raw)}  # 强行包装成合法的字典
     return [*current, _compact_value(value)][-MAX_EVIDENCE_ITEMS:]
 
 
 def _merge_citations(current: list[dict[str, Any]], additions: list[Citation]) -> list[dict[str, Any]]:
     merged = [*current]
-    seen = {(item.get("document_id", 0), item.get("chunk_id", 0)) for item in merged}
+    seen = {(item.get("document_id", 0), item.get("chunk_id", 0)) for item in merged} # seen给下面用的
     for citation in additions:
         key = (citation.document_id, citation.chunk_id)
         if key in seen:
@@ -515,3 +545,5 @@ def build_done_event(state: WindAgentState) -> AgentStreamEvent:
         citations=[Citation.model_validate(item) for item in state.get("citations", [])],
         draft=WindDraftRef.model_validate(state["draft"]) if state.get("draft") else None,
     )
+
+

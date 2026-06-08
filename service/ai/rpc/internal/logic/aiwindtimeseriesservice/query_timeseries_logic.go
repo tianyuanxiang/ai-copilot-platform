@@ -2,11 +2,14 @@ package aiwindtimeseriesservicelogic
 
 import (
 	"context"
-	"go-zero-rpc/common/xerr"
+	"fmt"
+	"strings"
 
 	"ai-copilot-platform/ai-rpc/internal/model"
 	"ai-copilot-platform/ai-rpc/internal/svc"
 	"ai-copilot-platform/ai-rpc/pb"
+
+	"go-zero-rpc/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,52 +28,72 @@ func NewQueryTimeseriesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Q
 	}
 }
 
-// QueryTimeseries 查询风机时序数据。
-// WPR 雷达支持按 index_id 过滤距离层，indexId=0 返回全部距离层。
-// 其他设备类型忽略 indexId 字段。
 func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*pb.WindTimeseriesQueryResp, error) {
-	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
-
-	if in.DeviceTypeCode == "" {
+	deviceTypeCode := strings.ToUpper(strings.TrimSpace(in.DeviceTypeCode))
+	if deviceTypeCode == "" {
 		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "DeviceTypeCode不能为空")
 	}
-	stableName := model.DeviceTypeStableFallback[in.DeviceTypeCode]
 
-	fields, err := l.svcCtx.WindDeviceMetaModel.FieldsForDeviceType(l.ctx, in.DeviceTypeCode, in.Field)
+	database := l.svcCtx.WindFarmModel.FarmDatabase(l.ctx, in.FarmCode)
+	stableName := model.DeviceTypeStableFallback[deviceTypeCode]
+	if stableName == "" {
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, fmt.Sprintf("不支持的设备类型: %s", deviceTypeCode))
+	}
+
+	displayMeta, err := l.svcCtx.WindDeviceMetaModel.DisplayMetaForDeviceType(l.ctx, deviceTypeCode)
 	if err != nil {
-		l.Logger.Errorf("FieldsForDeviceType failed %v", err)
-		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过设备类型获取测点名称失败")
+		l.Logger.Errorf("DisplayMetaForDeviceType failed %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过设备类型获取测点元数据失败")
+	}
+	fields, err := displayMeta.ResolveFields(in.Field)
+	if err != nil {
+		l.Logger.Errorf("ResolveFields failed %v", err)
+		return nil, xerr.NewCodeErrorMsg(xerr.ErrParamInvalid, "设备类型不存在该测点字段")
 	}
 
 	whereParts := append(model.TimeWhere(in.StartTime, in.EndTime), model.DeviceWhere(in.TowerCode, in.DeviceCode)...)
 	where := model.JoinWhere(whereParts)
+	isRadar := deviceTypeCode == wprDeviceTypeCode
 
-	isRadar := in.DeviceTypeCode == "WPR"
-
-	// indexId 只对 WPR 雷达生效；非雷达设备传了 indexId 时忽略并在 evidence 标记
+	resolvedIndexID := in.IndexId
+	var matchedDistanceM float64
+	if isRadar && resolvedIndexID == 0 && in.RadarDistanceM > 0 && l.svcCtx.TdengineModel.IsConfigured() {
+		resolvedIndexID, matchedDistanceM, err = l.svcCtx.TdengineModel.ResolveRadarIndexByDistance(
+			l.ctx, database, stableName, where, float64(in.RadarDistanceM),
+		)
+		if err != nil {
+			l.Logger.Errorf("Get radar indexId failed %v", err)
+			return nil, xerr.NewCodeErrorMsg(xerr.ErrInternal, "通过距离获取雷达 index_id 失败")
+		}
+	}
 	indexIdIgnored := !isRadar && in.IndexId != 0
 
 	var total int64
 	var rows []map[string]string
-
 	if isRadar {
-		// 雷达查询：含 index_id 字段，支持按距离层过滤
-		total, err = l.svcCtx.TdengineModel.QueryCount(l.ctx, database, stableName, where)
+		countWhere := where
+		if resolvedIndexID > 0 {
+			countWhere = fmt.Sprintf("(%s) AND index_id=%d", where, resolvedIndexID)
+		}
+		total, err = l.svcCtx.TdengineModel.QueryCount(l.ctx, database, stableName, countWhere)
 		if err != nil {
+			l.Logger.Errorf("Query radar data count failed %v", err)
 			return nil, err
 		}
-		rows, _, err = l.svcCtx.TdengineModel.QueryRadarRows(l.ctx, database, stableName, fields, where, in.IndexId, in.Page, in.PageSize)
+		rows, _, err = l.svcCtx.TdengineModel.QueryRadarRows(l.ctx, database, stableName, fields, where, resolvedIndexID, in.Page, in.PageSize)
 		if err != nil {
+			l.Logger.Errorf("Query radar data failed %v", err)
 			return nil, err
 		}
 	} else {
-		// 普通传感器查询
 		total, err = l.svcCtx.TdengineModel.QueryCount(l.ctx, database, stableName, where)
 		if err != nil {
+			l.Logger.Errorf("Query data count failed %v", err)
 			return nil, err
 		}
 		rows, _, err = l.svcCtx.TdengineModel.QueryRows(l.ctx, database, stableName, fields, where, in.Page, in.PageSize)
 		if err != nil {
+			l.Logger.Errorf("Query data rows failed %v", err)
 			return nil, err
 		}
 	}
@@ -80,13 +103,15 @@ func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*
 		points = append(points, &pb.WindDataPoint{Ts: row["ts"], Values: row})
 	}
 
-	// 构造 evidence
 	evidence := map[string]any{
 		"source":          "tdengine",
 		"scaffold":        !l.svcCtx.TdengineModel.IsConfigured(),
 		"farmCode":        in.FarmCode,
 		"towerCode":       in.TowerCode,
-		"deviceTypeCode":  in.DeviceTypeCode,
+		"deviceTypeCode":  deviceTypeCode,
+		"deviceTypeName":  displayMeta.DeviceTypeName,
+		"fieldLabels":     displayMeta.FieldLabels,
+		"fieldUnits":      displayMeta.FieldUnits,
 		"database":        database,
 		"stable":          stableName,
 		"fields":          fields,
@@ -95,10 +120,10 @@ func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*
 		"isRadar":         isRadar,
 	}
 	if isRadar {
-		// 记录雷达 index 信息
-		evidence["indexId"] = in.IndexId
-		if in.IndexId == 0 {
-			// 返回全部 10 个距离层
+		evidence["indexId"] = resolvedIndexID
+		evidence["requestedDistanceM"] = in.RadarDistanceM
+		evidence["matchedDistanceM"] = matchedDistanceM
+		if resolvedIndexID == 0 {
 			allIndexIds := make([]int, 10)
 			for i := range allIndexIds {
 				allIndexIds[i] = i + 1
@@ -106,7 +131,7 @@ func (l *QueryTimeseriesLogic) QueryTimeseries(in *pb.WindTimeseriesQueryReq) (*
 			evidence["selectedIndexIds"] = allIndexIds
 			evidence["indexCount"] = 10
 		} else {
-			evidence["selectedIndexIds"] = []int64{in.IndexId}
+			evidence["selectedIndexIds"] = []int64{resolvedIndexID}
 			evidence["indexCount"] = 1
 		}
 	}

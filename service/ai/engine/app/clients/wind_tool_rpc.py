@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 
 import grpc
+from lxml.proxy import attemptDeallocation
 
 from app.generated import ai_pb2, ai_pb2_grpc
 from app.schemas.agent import Citation, ToolCall
-
+from app.services.tool.tool_policy import get_tool_policy
+from app.services.tool.tool_errors import classify_tool_error
 
 @dataclass(slots=True)
 class WindToolExecuteRequest:
@@ -54,8 +57,49 @@ class WindToolRPCClient:
         self._timeout_seconds = timeout_seconds
 
     async def execute(self, request: WindToolExecuteRequest) -> WindToolExecuteResult:
-        """Execute one allowlisted tool and map protobuf fields to Python models."""
+        policy = get_tool_policy(request.tool_name)
+        timeout_seconds = policy.timeout_ms / 1000
 
+        for attempt in range(policy.max_retries + 1):
+            try:
+                result = await self._call_go_tool_once(
+                    request,
+                    timeout_seconds=timeout_seconds,
+                )
+            except WindToolRPCError as exc:
+                error_type = classify_tool_error("", str(exc))
+                can_retry = (attempt < policy.max_retries and error_type in policy.retryable_errors)
+                if can_retry:
+                    await asyncio.sleep(0.1 * (attempt + 1))
+                    continue
+                raise
+
+            error_type = classify_tool_error(result.tool_call.status, result.tool_call.message)
+            can_retry = (
+                result.tool_call.status != "success"
+                and attempt < policy.max_retries
+                and error_type in policy.retryable_errors
+            )
+            if can_retry:
+                await asyncio.sleep(0.1 * (attempt + 1))
+                continue
+
+            return result
+
+        raise WindToolRPCError("Go语言工具执行失败超过重试次数")
+
+    async def close(self) -> None:
+        """Close the owned gRPC channel during FastAPI shutdown."""
+
+        if self._owns_channel:
+            await self._channel.close()
+
+    async def _call_go_tool_once(
+            self,
+            request: WindToolExecuteRequest,
+            *,
+            timeout_seconds: float,
+    ) -> WindToolExecuteResult:
         payload = ai_pb2.WindToolExecuteReq(
             user_id=request.user_id,
             trace_id=request.trace_id,
@@ -92,9 +136,3 @@ class WindToolRPCClient:
             evidence_json=response.evidence_json,
             citations=citations,
         )
-
-    async def close(self) -> None:
-        """Close the owned gRPC channel during FastAPI shutdown."""
-
-        if self._owns_channel:
-            await self._channel.close()

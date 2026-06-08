@@ -881,7 +881,7 @@ message WindToolExecuteReq {
   string trace_id = 2;
   string conversation_id = 3;
   string tool_name = 4;
-  string arguments_json = 5;     // Agent 传来的结构化参数 JSON
+  string arguments_json = 5;     // Agent 传来的结构化参数JSON
   int64 step = 6;                // 第几步 ReAct
 }
 
@@ -921,7 +921,7 @@ service AiWindAgentService {
   rpc CreateTicketDraft(WindTicketDraftReq) returns (WindScaffoldResp);
   rpc RunAgent(WindAgentRunReq) returns (WindAgentRunResp);
   rpc ListToolCallLog(WindListToolCallLogReq) returns (WindListToolCallLogResp);
-
+  // ExecuteTool: python gRPC专用
   rpc ExecuteTool(WindToolExecuteReq) returns (WindToolExecuteResp);
   rpc RunAgentStream(WindAgentRunReq) returns (stream WindAgentStreamEvent);
   rpc ResumeAgentStream(WindAgentResumeReq) returns (stream WindAgentStreamEvent);

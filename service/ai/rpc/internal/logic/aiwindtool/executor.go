@@ -15,9 +15,14 @@ import (
 )
 
 const (
-	statusSuccess = "success"
-	statusFailed  = "failed"
-	statusDenied  = "denied"
+	statusSuccess          = "success"
+	statusInvalidArguments = "invalid_arguments"
+	statusPermissionDenied = "permission_denied"
+	statusRPCTimeout       = "rpc_timeout"
+	statusRPCUnavailable   = "rpc_unavailable"
+	statusToolFailed       = "tool_failed"
+	statusToolPartial      = "tool_partial"
+	statusUnknown          = "unknown"
 )
 
 // Executor 是 Wind Agent 的 Go 工具执行器。
@@ -45,13 +50,13 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 	normalizedReq.ToolName = strings.TrimSpace(req.ToolName)
 
 	if normalizedReq.UserId <= 0 {
-		return e.finish(ctx, &normalizedReq, statusFailed, nil, "userId 必须大于 0", startedAt), nil
+		return e.finish(ctx, &normalizedReq, statusInvalidArguments, nil, "userId 必须大于 0", startedAt), nil
 	}
 	if strings.TrimSpace(normalizedReq.TraceId) == "" {
-		return e.finish(ctx, &normalizedReq, statusFailed, nil, "traceId 不能为空", startedAt), nil
+		return e.finish(ctx, &normalizedReq, statusInvalidArguments, nil, "traceId 不能为空", startedAt), nil
 	}
 	if !IsAllowedTool(normalizedReq.ToolName) {
-		return e.finish(ctx, &normalizedReq, statusDenied, nil, fmt.Sprintf("工具 %q 不在白名单中", normalizedReq.ToolName), startedAt), nil
+		return e.finish(ctx, &normalizedReq, statusPermissionDenied, nil, fmt.Sprintf("工具 %q 不在白名单中", normalizedReq.ToolName), startedAt), nil
 	}
 	e.Logger.Infof("开始执行工具: [%s]", normalizedReq.ToolName)
 	var (
@@ -77,10 +82,19 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 		result, err = e.executeCreateMaintenanceTicketDraft(ctx, &normalizedReq)
 	}
 	if err != nil {
+		status := statusToolFailed
+		if result != nil && result.Status != "" {
+			status = result.Status
+		}
 		e.Logger.Errorf("request param %s ,execute err:%v", normalizedReq, err)
-		return e.finish(ctx, &normalizedReq, statusFailed, result, err.Error(), startedAt), nil
+		return e.finish(ctx, &normalizedReq, status, result, err.Error(), startedAt), nil
 	}
-	return e.finish(ctx, &normalizedReq, statusSuccess, result, result.Message, startedAt), nil
+
+	status := statusSuccess
+	if result != nil && result.Status != "" {
+		status = result.Status
+	}
+	return e.finish(ctx, &normalizedReq, status, result, result.Message, startedAt), nil
 }
 
 func (e *Executor) finish(
@@ -118,7 +132,7 @@ func (e *Executor) finish(
 func failedResponse(toolName, message string, startedAt time.Time) *pb.WindToolExecuteResp {
 	return &pb.WindToolExecuteResp{
 		ToolName:   toolName,
-		Status:     statusFailed,
+		Status:     statusToolFailed,
 		ResultJson: "{}",
 		Message:    message,
 		LatencyMs:  time.Since(startedAt).Milliseconds(),

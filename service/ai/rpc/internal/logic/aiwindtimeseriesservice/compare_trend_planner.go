@@ -1,14 +1,12 @@
 package aiwindtimeseriesservicelogic
 
-import (
-	"ai-copilot-platform/ai-rpc/internal/utils/wind"
-)
+import "ai-copilot-platform/ai-rpc/internal/utils/wind"
 
 const (
-	queryModeExact         = "全量查询"
-	queryModeHourBucket    = "按小时分桶查询"
-	queryModeRangeTooMin   = "查询范围太小"
-	queryModeRangeTooLarge = "查询范围太大"
+	queryModeExact         = "exact"
+	queryModeHourBucket    = "hour_bucket"
+	queryModeRangeTooMin   = "range_too_small"
+	queryModeRangeTooLarge = "range_too_large"
 
 	granularityRaw = "raw"
 	granularity1h  = "1h"
@@ -17,12 +15,10 @@ const (
 	thirtyOneDays = 31 * 24 * 3600
 )
 
-// planQuery 根据时间范围生成查询策略。
 func planQuery(database, stable string, fields []string, where string, durationSeconds float64) queryPlan {
 	if durationSeconds <= 0 {
 		return queryPlan{Mode: queryModeRangeTooMin}
 	}
-
 	if durationSeconds <= sevenDays {
 		return queryPlan{
 			Mode:        queryModeExact,
@@ -33,7 +29,6 @@ func planQuery(database, stable string, fields []string, where string, durationS
 			Where:       where,
 		}
 	}
-
 	if durationSeconds <= thirtyOneDays {
 		return queryPlan{
 			Mode:        queryModeHourBucket,
@@ -44,11 +39,9 @@ func planQuery(database, stable string, fields []string, where string, durationS
 			Where:       where,
 		}
 	}
-
 	return queryPlan{Mode: queryModeRangeTooLarge}
 }
 
-// calcDurationSeconds 计算两个时间戳之间的秒数。
 func calcDurationSeconds(startTime, endTime string) float64 {
 	return wind.CalcDurationSeconds(startTime, endTime)
 }

@@ -1,4 +1,3 @@
-// Package aiwindtool 的 draft 文件实现三类只落草稿、不触发真实业务动作的工具。
 package aiwindtool
 
 import (
@@ -12,50 +11,38 @@ import (
 	"ai-copilot-platform/ai-rpc/pb"
 )
 
-// executeGenerateAlarmAnalysisDraft 生成告警分析草稿。
-// 这里不能直接调用现有 AnalyzeAlarmLogic：该 logic 会创建新的 traceId 并单独写工具日志。
-// Agent 工具层需要沿用父 traceId，并由 Executor 统一只写一条审计日志。
 func (e *Executor) executeGenerateAlarmAnalysisDraft(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args GenerateAlarmAnalysisDraftArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	farmCode, err := requireFarmCode(args.FarmCode)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	startTime, endTime, err := normalizeTimeRange(args.StartTime, args.EndTime)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
-	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(
-		ctx, e.svcCtx, farmCode, strings.TrimSpace(args.TowerCode), strings.TrimSpace(args.AlarmCode),
-		startTime, endTime, 0, true,
-	)
+	payload, err := e.baseDraftPayload(ctx, req, draftPayloadInput{
+		FarmCode:      farmCode,
+		TowerCode:     args.TowerCode,
+		AlarmCode:     args.AlarmCode,
+		StartTime:     startTime,
+		EndTime:       endTime,
+		InputEvidence: args.EvidenceJSON,
+		HasStatus:     true,
+	})
 	if err != nil {
 		return nil, err
-	}
-	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(args.EvidenceJSON, alarmEvidence)
-	payload := engine.WindDraftRequest{
-		UserID:       aiwinddraft.UserIDString(req.UserId),
-		TraceID:      req.TraceId,
-		FarmCode:     farmCode,
-		TowerCode:    strings.TrimSpace(args.TowerCode),
-		AlarmCode:    strings.TrimSpace(args.AlarmCode),
-		StartTime:    startTime,
-		EndTime:      endTime,
-		Evidence:     evidenceItems,
-		EvidenceJSON: evidenceJSON,
 	}
 	draft, err := e.svcCtx.EngineCallClient.WindAlarmSummary(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
 
-	status := draftStatus(draft)
-	content := aiwinddraft.DraftContent(draft)
-	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+	status, content, evidenceSummary := draftResultParts(draft, payload.EvidenceJSON)
 	id, err := e.svcCtx.AiAlarmAnalysisModel.InsertReturningID(ctx, &model.AiAlarmAnalysis{
 		UserId:    req.UserId,
 		TraceId:   req.TraceId,
@@ -73,54 +60,43 @@ func (e *Executor) executeGenerateAlarmAnalysisDraft(ctx context.Context, req *p
 	return buildDraftToolResult("alarm_analysis", id, draft.Title, content, evidenceSummary, status, draft.Message), nil
 }
 
-// executeGenerateHealthReport 生成健康报告草稿。
-// 这里不能直接调用现有 GenerateHealthReportLogic，原因同告警分析草稿：
-// 必须保留 Agent 父 traceId，并避免重复写入工具日志。
 func (e *Executor) executeGenerateHealthReport(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args GenerateHealthReportArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	farmCode, err := requireFarmCode(args.FarmCode)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	startTime, endTime, err := normalizeTimeRange(args.StartTime, args.EndTime)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	reportType := strings.TrimSpace(args.ReportType)
 	if reportType == "" {
 		reportType = "health"
 	}
 
-	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(
-		ctx, e.svcCtx, farmCode, strings.TrimSpace(args.TowerCode), "",
-		startTime, endTime, 0, false,
-	)
+	payload, err := e.baseDraftPayload(ctx, req, draftPayloadInput{
+		FarmCode:      farmCode,
+		TowerCode:     args.TowerCode,
+		StartTime:     startTime,
+		EndTime:       endTime,
+		InputEvidence: args.EvidenceJSON,
+		HasStatus:     false,
+	})
 	if err != nil {
 		return nil, err
 	}
-	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(args.EvidenceJSON, alarmEvidence)
-	payload := engine.WindDraftRequest{
-		UserID:       aiwinddraft.UserIDString(req.UserId),
-		TraceID:      req.TraceId,
-		FarmCode:     farmCode,
-		TowerCode:    strings.TrimSpace(args.TowerCode),
-		ReportType:   reportType,
-		StartTime:    startTime,
-		EndTime:      endTime,
-		Evidence:     evidenceItems,
-		EvidenceJSON: evidenceJSON,
-	}
+	payload.ReportType = reportType
+
 	draft, err := e.svcCtx.EngineCallClient.WindHealthReportDraft(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
 
-	status := draftStatus(draft)
-	content := aiwinddraft.DraftContent(draft)
-	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+	status, content, evidenceSummary := draftResultParts(draft, payload.EvidenceJSON)
 	id, err := e.svcCtx.AiHealthReportModel.InsertReturningID(ctx, &model.AiHealthReport{
 		UserId:     req.UserId,
 		TraceId:    req.TraceId,
@@ -140,55 +116,44 @@ func (e *Executor) executeGenerateHealthReport(ctx context.Context, req *pb.Wind
 	return buildDraftToolResult("health_report", id, draft.Title, content, evidenceSummary, status, draft.Message), nil
 }
 
-// executeCreateMaintenanceTicketDraft 生成维修工单草稿。
-// 这里不能直接调用现有 CreateTicketDraftLogic，因为 Agent 链路必须沿用父 traceId，
-// 且本工具只创建草稿，不创建正式工单、不派单、不通知。
 func (e *Executor) executeCreateMaintenanceTicketDraft(ctx context.Context, req *pb.WindToolExecuteReq) (*toolResult, error) {
 	var args CreateMaintenanceTicketDraftArgs
 	if err := decodeArgs(req.ArgumentsJson, &args); err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	farmCode, err := requireFarmCode(args.FarmCode)
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 	priority := strings.TrimSpace(args.Priority)
 	if priority == "" {
 		priority = "normal"
 	}
-	// 工单工具参数没有显式时间窗口。默认取最近 24 小时告警作为自动证据，
-	// 避免无边界扫描 TDengine。
 	startTime, endTime, err := normalizeTimeRange("", "")
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusInvalidArguments}, err
 	}
 
-	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(
-		ctx, e.svcCtx, farmCode, strings.TrimSpace(args.TowerCode), strings.TrimSpace(args.AlarmCode),
-		startTime, endTime, 0, true,
-	)
+	payload, err := e.baseDraftPayload(ctx, req, draftPayloadInput{
+		FarmCode:      farmCode,
+		TowerCode:     args.TowerCode,
+		AlarmCode:     args.AlarmCode,
+		StartTime:     startTime,
+		EndTime:       endTime,
+		InputEvidence: args.EvidenceJSON,
+		HasStatus:     true,
+	})
 	if err != nil {
 		return nil, err
 	}
-	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(args.EvidenceJSON, alarmEvidence)
-	payload := engine.WindDraftRequest{
-		UserID:       aiwinddraft.UserIDString(req.UserId),
-		TraceID:      req.TraceId,
-		FarmCode:     farmCode,
-		TowerCode:    strings.TrimSpace(args.TowerCode),
-		AlarmCode:    strings.TrimSpace(args.AlarmCode),
-		Priority:     priority,
-		Evidence:     evidenceItems,
-		EvidenceJSON: evidenceJSON,
-	}
+	payload.Priority = priority
+
 	draft, err := e.svcCtx.EngineCallClient.WindTicketDraft(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
 
-	status := draftStatus(draft)
-	content := aiwinddraft.DraftContent(draft)
-	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+	status, content, evidenceSummary := draftResultParts(draft, payload.EvidenceJSON)
 	id, err := e.svcCtx.AiMaintenanceTicketDraftModel.InsertReturningID(ctx, &model.AiMaintenanceTicketDraft{
 		UserId:    req.UserId,
 		TraceId:   req.TraceId,
@@ -204,6 +169,47 @@ func (e *Executor) executeCreateMaintenanceTicketDraft(ctx context.Context, req 
 		return nil, err
 	}
 	return buildDraftToolResult("ticket", id, draft.Title, content, evidenceSummary, status, draft.Message), nil
+}
+
+type draftPayloadInput struct {
+	FarmCode      string
+	TowerCode     string
+	AlarmCode     string
+	StartTime     string
+	EndTime       string
+	InputEvidence string
+	HasStatus     bool
+}
+
+func (e *Executor) baseDraftPayload(ctx context.Context, req *pb.WindToolExecuteReq, input draftPayloadInput) (engine.WindDraftRequest, error) {
+	towerCode := strings.TrimSpace(input.TowerCode)
+	alarmCode := strings.TrimSpace(input.AlarmCode)
+	alarmEvidence, err := aiwinddraft.BuildAlarmEvidence(
+		ctx, e.svcCtx, input.FarmCode, towerCode, alarmCode,
+		input.StartTime, input.EndTime, 0, input.HasStatus,
+	)
+	if err != nil {
+		return engine.WindDraftRequest{}, err
+	}
+	evidenceItems, evidenceJSON := aiwinddraft.MergeEvidence(input.InputEvidence, alarmEvidence)
+	return engine.WindDraftRequest{
+		UserID:       aiwinddraft.UserIDString(req.UserId),
+		TraceID:      req.TraceId,
+		FarmCode:     input.FarmCode,
+		TowerCode:    towerCode,
+		AlarmCode:    alarmCode,
+		StartTime:    input.StartTime,
+		EndTime:      input.EndTime,
+		Evidence:     evidenceItems,
+		EvidenceJSON: evidenceJSON,
+	}, nil
+}
+
+func draftResultParts(draft *engine.WindDraftResponse, evidenceJSON string) (string, string, string) {
+	status := draftStatus(draft)
+	content := aiwinddraft.DraftContent(draft)
+	evidenceSummary := aiwinddraft.BuildEvidenceSummary(evidenceJSON)
+	return status, content, evidenceSummary
 }
 
 func draftStatus(draft *engine.WindDraftResponse) string {

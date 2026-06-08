@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 
 from app.schemas.agent import AgentRunResponse, AgentStreamEvent
 from app.services.agent_runtime import AgentRuntime
-from app.services.wind_agent_tools import GO_TOOLS
+from app.services.tool.wind_agent_tools import GO_TOOLS
 
 
 ALLOWED_TOOLS = GO_TOOLS
