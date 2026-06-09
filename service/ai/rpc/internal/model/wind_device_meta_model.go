@@ -98,7 +98,7 @@ func (m WindDeviceDisplayMeta) ResolveFields(requestedFields []string) ([]string
 	selected := make([]string, 0, len(fields))
 	for _, field := range fields {
 		if _, ok := allowedSet[field]; !ok {
-			return nil, errors.New("field not found")
+			return nil, errors.New("fields not found")
 		}
 		selected = append(selected, field)
 	}

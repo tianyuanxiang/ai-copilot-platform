@@ -54,20 +54,20 @@ type (
 
 	// BasicStat 趋势专用：单个字段的基础聚合统计结果。
 	BasicStat struct {
-		Count int64
-		Min   float64
-		Max   float64
-		Avg   float64
+		Count sql.NullInt64
+		Min   sql.NullFloat64
+		Max   sql.NullFloat64
+		Avg   sql.NullFloat64
 	}
 
 	// BucketRow 趋势专用：分钟级降采样查询的一行结果。
 	BucketRow struct {
 		Field  string
 		Wstart string
-		Avg    float64
-		Min    float64
-		Max    float64
-		Count  int64
+		Avg    sql.NullFloat64
+		Min    sql.NullFloat64
+		Max    sql.NullFloat64
+		Count  sql.NullInt64
 	}
 )
 
@@ -500,6 +500,7 @@ func (m *tdengineModel) QueryBasicStats(ctx context.Context, database, stable st
 		if err != nil {
 			return result, err
 		}
+
 		result[f] = stat
 	}
 	return result, nil

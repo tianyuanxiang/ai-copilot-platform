@@ -9,6 +9,7 @@ class ToolErrorType(str, Enum):
     TOOL_FAILED = "tool_failed"
     TOOL_PARTIAL = "tool_partial"
     LLM_PLAN_ERROR = "llm_plan_error"
+    NO_DATA = "no_data"
     UNKNOWN = "unknown"
 
 
@@ -31,7 +32,10 @@ def classify_tool_error(status: str, message: str) -> ToolErrorType:
     if s == "partial":
         return ToolErrorType.TOOL_PARTIAL
 
-    if s == "failed":
+    if s == "no_data":
+        return ToolErrorType.NO_DATA
+
+    if s == {"failed", "tool_failed"}:
         return ToolErrorType.TOOL_FAILED
 
     return ToolErrorType.UNKNOWN

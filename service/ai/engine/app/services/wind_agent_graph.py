@@ -242,13 +242,11 @@ def build_wind_agent_graph(
             route = "degraded"
         elif error_type == ToolErrorType.TOOL_PARTIAL:
             route = "plan"
+        elif error_type == ToolErrorType.NO_DATA:
+            route = "assess"
         # 如果工具被拒绝执行、同一个工具同一组参数失败 2 次、工具调用步数超过最大限制
         elif failures.get(failure_key, 0) >= 2 or step >= state.get("max_steps", 6):
             route = "degraded"
-
-        # 参数错误：让用户补充，而不是继续乱调工具
-        elif error_type == ToolErrorType.INVALID_ARGUMENTS:
-            route = "clarify"
 
         next_action = state.get("next_action", {})
         if route == "clarify":
@@ -257,6 +255,14 @@ def build_wind_agent_graph(
                 "arguments": {
                     "question": "当前工具调用参数不足或格式不正确，请补充风场、风机、设备类型或时间范围。",
                     "reason": f"invalid arguments for {tool_name}",
+                },
+            }
+        elif route == "assess":
+            next_action = {
+                "name": "finish_answer",
+                "arguments": {
+                    "evidenceRequirement": "operational",
+                    "answerFocus": "说明指定时间范围内暂无有效测点数据，不要更换日期继续查询",
                 },
             }
 
@@ -273,9 +279,6 @@ def build_wind_agent_graph(
             "next_action": next_action,
             "events": events,
         }
-
-
-
 
     async def assess_evidence(state: WindAgentState) -> WindAgentState:
         arguments = state.get("next_action", {}).get("arguments", {})
@@ -362,7 +365,12 @@ def build_wind_agent_graph(
     graph.add_conditional_edges(
         "execute_tool",
         lambda state: state["route"],
-        {"plan": "plan_next_action", "clarify": "clarification_gate", "degraded": "build_degraded_answer"},
+        {
+            "plan": "plan_next_action",
+            "clarify": "clarification_gate",
+            "degraded": "build_degraded_answer",
+            "assess": "assess_evidence",
+        },
     )
     graph.add_conditional_edges(
         "assess_evidence",

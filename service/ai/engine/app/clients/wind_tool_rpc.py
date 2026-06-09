@@ -6,7 +6,6 @@ import asyncio
 from dataclasses import dataclass
 
 import grpc
-from lxml.proxy import attemptDeallocation
 
 from app.generated import ai_pb2, ai_pb2_grpc
 from app.schemas.agent import Citation, ToolCall

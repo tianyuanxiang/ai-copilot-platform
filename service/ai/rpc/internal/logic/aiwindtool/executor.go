@@ -23,6 +23,7 @@ const (
 	statusToolFailed       = "tool_failed"
 	statusToolPartial      = "tool_partial"
 	statusUnknown          = "unknown"
+	statusNoData           = "no_data"
 )
 
 // Executor 是 Wind Agent 的 Go 工具执行器。
@@ -59,6 +60,7 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 		return e.finish(ctx, &normalizedReq, statusPermissionDenied, nil, fmt.Sprintf("工具 %q 不在白名单中", normalizedReq.ToolName), startedAt), nil
 	}
 	e.Logger.Infof("开始执行工具: [%s]", normalizedReq.ToolName)
+	e.Logger.Infof("请求参数为: [%s]", normalizedReq.ArgumentsJson)
 	var (
 		result *toolResult
 		err    error
@@ -86,7 +88,7 @@ func (e *Executor) Execute(ctx context.Context, req *pb.WindToolExecuteReq) (*pb
 		if result != nil && result.Status != "" {
 			status = result.Status
 		}
-		e.Logger.Errorf("request param %s ,execute err:%v", normalizedReq, err)
+		e.Logger.Errorf("tool:[%s] execute err:%v", normalizedReq.ToolName, err)
 		return e.finish(ctx, &normalizedReq, status, result, err.Error(), startedAt), nil
 	}
 

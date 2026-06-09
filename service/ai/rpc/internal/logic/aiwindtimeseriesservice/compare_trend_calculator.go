@@ -25,11 +25,11 @@ const (
 
 func calcFieldStat(stat model.BasicStat, expectedCount int64, firstVal, firstTs string, lastVal, lastTs string) fieldStat {
 	fs := fieldStat{
-		Count:         stat.Count,
+		Count:         stat.Count.Int64,
 		ExpectedCount: expectedCount,
-		Min:           stat.Min,
-		Max:           stat.Max,
-		Avg:           stat.Avg,
+		Min:           stat.Min.Float64,
+		Max:           stat.Max.Float64,
+		Avg:           stat.Avg.Float64,
 		FirstTs:       firstTs,
 		LastTs:        lastTs,
 	}
@@ -45,7 +45,7 @@ func calcFieldStat(stat model.BasicStat, expectedCount int64, firstVal, firstTs 
 	fs.Trend = calcTrendDir(fs.ChangePct, first, fs.Change, fs.Max-fs.Min)
 
 	if expectedCount > 0 {
-		missing := expectedCount - stat.Count
+		missing := expectedCount - stat.Count.Int64
 		if missing < 0 {
 			missing = 0
 		}
@@ -68,10 +68,10 @@ func calcFieldStatFromBuckets(buckets []model.BucketRow, field string, durationM
 		if b.Field != field {
 			continue
 		}
-		counts = append(counts, b.Count)
-		avgs = append(avgs, b.Avg)
-		mins = append(mins, b.Min)
-		maxs = append(maxs, b.Max)
+		counts = append(counts, b.Count.Int64)
+		avgs = append(avgs, b.Avg.Float64)
+		mins = append(mins, b.Min.Float64)
+		maxs = append(maxs, b.Max.Float64)
 		if firstBucketTs == "" {
 			firstBucketTs = b.Wstart
 			firstBucketAvg = fmt.Sprintf("%g", b.Avg)

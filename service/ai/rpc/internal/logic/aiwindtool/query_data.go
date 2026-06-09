@@ -39,6 +39,7 @@ func (e *Executor) executeQueryAlarmEvents(ctx context.Context, req *pb.WindTool
 		return nil, err
 	}
 	evidenceJSON := marshalJSON(evidence)
+
 	return &toolResult{
 		ResultJSON:   evidenceJSON,
 		EvidenceJSON: evidenceJSON,
@@ -76,7 +77,7 @@ func (e *Executor) executeQuerySensorTimeseries(ctx context.Context, req *pb.Win
 		UserId:         req.UserId,
 	})
 	if err != nil {
-		return nil, err
+		return &toolResult{Status: statusToolFailed}, err
 	}
 
 	result := map[string]any{
@@ -88,6 +89,17 @@ func (e *Executor) executeQuerySensorTimeseries(ctx context.Context, req *pb.Win
 		"message":  resp.Message,
 	}
 	addEvidenceDisplayMeta(result, resp.EvidenceJson)
+
+	if resp.Total == 0 {
+		return &toolResult{
+			ResultJSON:   marshalJSON(result),
+			EvidenceJSON: resp.EvidenceJson,
+			Message:      resp.Message,
+			Status:       statusNoData,
+		}, nil
+
+	}
+
 	return &toolResult{
 		ResultJSON:   marshalJSON(result),
 		EvidenceJSON: resp.EvidenceJson,
@@ -125,6 +137,11 @@ func (e *Executor) executeCompareSensorTrend(ctx context.Context, req *pb.WindTo
 	if err != nil {
 		return nil, err
 	}
+
+	var status = ""
+	if resp.Message == statusNoData {
+		status = statusNoData
+	}
 	return &toolResult{
 		ResultJSON: marshalJSON(map[string]any{
 			"summary": resp.Summary,
@@ -132,6 +149,7 @@ func (e *Executor) executeCompareSensorTrend(ctx context.Context, req *pb.WindTo
 		}),
 		EvidenceJSON: resp.EvidenceJson,
 		Message:      resp.Message,
+		Status:       status,
 	}, nil
 }
 

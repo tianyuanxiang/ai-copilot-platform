@@ -152,6 +152,35 @@ func (l *CompareTrendLogic) compareExact(ctx context.Context, plan queryPlan, re
 		return l.handleQueryError(plan, req, err, stats != nil)
 	}
 
+	if allStatsEmpty(stats) {
+		fieldStats := make(map[string]fieldStat, len(plan.Fields))
+		for _, field := range plan.Fields {
+			fieldStats[field] = fieldStat{
+				Count:         0,
+				ExpectedCount: calcExpectedCount(req.DeviceTypeCode, plan.TimeRange.DurationSeconds, false),
+				MissingRate:   1,
+				Trend:         "no_data",
+			}
+		}
+		evidence := buildEvidence(
+			plan,
+			req,
+			fieldStats,
+			trendSignal{Direction: "no_data"},
+			riskSignal{Level: riskNormal},
+			dataQuality{MissingRate: 1, SuspectedOffline: true},
+			"not_configured",
+			[]string{"trend analysis completed; no data found"},
+			false,
+			false,
+		)
+		return &pb.WindTrendCompareResp{
+			Summary:      fmt.Sprintf("%s号风机%s在所选时间范围内暂无有效测点数据，无法计算趋势。", req.TowerCode, req.DisplayMeta.DeviceTypeName),
+			EvidenceJson: evidence,
+			Message:      "no_data",
+		}, nil
+	}
+
 	first, last, err := l.svcCtx.TdengineModel.QueryBoundaryRows(ctx, plan.Database, plan.Stable, plan.Fields, plan.Where)
 	if err != nil {
 		l.Logger.Errorf("QueryBoundaryRows failed: %v", err)
@@ -307,4 +336,16 @@ func validateTowerCode(towerCode string) error {
 		return fmt.Errorf("towerCode 必须为数字: %s", towerCode)
 	}
 	return nil
+}
+
+func allStatsEmpty(stats map[string]model.BasicStat) bool {
+	if len(stats) == 0 {
+		return true
+	}
+	for _, stat := range stats {
+		if stat.Count.Valid && stat.Count.Int64 > 0 {
+			return false
+		}
+	}
+	return true
 }
